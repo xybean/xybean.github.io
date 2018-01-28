@@ -233,7 +233,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="xybean">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/pixel.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -299,17 +299,15 @@
       
         
           
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-          
+          Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in 
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/01/25/hello-world/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -361,7 +359,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="xybean">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/pixel.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -427,80 +425,19 @@
       
         
           
-            <h1 id="Android数据库更新方案设计"><a href="#Android数据库更新方案设计" class="headerlink" title="Android数据库更新方案设计"></a>Android数据库更新方案设计</h1><h3 id="一、数据库更新场景"><a href="#一、数据库更新场景" class="headerlink" title="一、数据库更新场景"></a>一、数据库更新场景</h3><h5 id="1、简单的场景"><a href="#1、简单的场景" class="headerlink" title="1、简单的场景"></a>1、简单的场景</h5><p>表增减、表字段增减、跨单版本升级。</p>
-<p>#####2、复杂的场景</p>
-<p>表名更改、字段名更改、跨多版本升级。</p>
-<h3 id="二、常见解决方案概述"><a href="#二、常见解决方案概述" class="headerlink" title="二、常见解决方案概述"></a>二、常见解决方案概述</h3><h5 id="1、升级方案的需求"><a href="#1、升级方案的需求" class="headerlink" title="1、升级方案的需求"></a>1、升级方案的需求</h5><ul>
-<li>易用，易维护，尽量自动化。这个需求要求设计的数据库升级方案在第一次编码完成后，后续每次升级应该无需改动升级的逻辑，做到升级的透明化与自动化。</li>
-<li>适用范围广，尽量覆盖多的数据库更新场景。这个需求要求设计的数据库升级方案能应对各种数据库变化导致的升级。</li>
-</ul>
-<p>可以发现这两个需求是很难同时满足的，毕竟<code>没有银弹</code>，因此第三部分的方案讨论也都是在这两者中做取舍与平衡。</p>
-<h5 id="2、常见方案"><a href="#2、常见方案" class="headerlink" title="2、常见方案"></a>2、常见方案</h5><ul>
-<li><h5 id="方案X：不做数据迁移，直接重建所有表"><a href="#方案X：不做数据迁移，直接重建所有表" class="headerlink" title="方案X：不做数据迁移，直接重建所有表"></a>方案X：不做数据迁移，直接重建所有表</h5><p>该方案实现最简单，但会导致每次升级所有数据都丢失。</p>
-</li>
-<li><h5 id="方案Y：编写Sql，执行本地Sql脚本进行数据迁移"><a href="#方案Y：编写Sql，执行本地Sql脚本进行数据迁移" class="headerlink" title="方案Y：编写Sql，执行本地Sql脚本进行数据迁移"></a>方案Y：编写Sql，执行本地Sql脚本进行数据迁移</h5><p>该方案需要在每次版本迭代后手写Sql，以完成表的更新和数据迁移。</p>
-<p>该方案灵活性高，但是维护成本较高。</p>
-</li>
-<li><h5 id="方案Z：通过ORM中的DAO配合特定的更新逻辑实现自动更新"><a href="#方案Z：通过ORM中的DAO配合特定的更新逻辑实现自动更新" class="headerlink" title="方案Z：通过ORM中的DAO配合特定的更新逻辑实现自动更新"></a>方案Z：通过ORM中的DAO配合特定的更新逻辑实现自动更新</h5><p>该方案相比方案2，并不需要开发者关心具体的更新逻辑，自动更新工具会自动根据数据库版本差异实现自动更新。该方案在跨版本升级的时候因为旧表信息的缺失，会导致一些实现上的困难。</p>
-<p>该方案灵活性相对较低，但是可以做到透明更新，无维护成本。</p>
-</li>
-</ul>
-<h5 id="3、第三方库现状"><a href="#3、第三方库现状" class="headerlink" title="3、第三方库现状"></a>3、第三方库现状</h5><p>通过查看几个第三方库数据库升级部分的源码，总结如下：</p>
-<p>ActiveAndroid：执行本地文件中的sql脚本（方案Y）</p>
-<p>Litepal：字段比对、数据迁移、赋默认值（方案Z）</p>
-<p>GreenDao：由使用者自定义，本身不提供解决方案</p>
-<p>DBFlow：执行本地文件中的sql脚本（方案Y）</p>
-<p>Room：由使用者自定义，但是提供了一定程度的封装，与跨版本升级的管理逻辑</p>
-<p>通过第三方库的实现方案可以知道方案X是不被推荐的一种实现方式，而方案Y、Z则较为通用。</p>
-<h3 id="三、各方案逻辑设计与实现细节"><a href="#三、各方案逻辑设计与实现细节" class="headerlink" title="三、各方案逻辑设计与实现细节"></a>三、各方案逻辑设计与实现细节</h3><p>这部分会从两个主要需求出发，基于第二部分介绍的方案进行展开与拓展，介绍各个方案的设计逻辑与部分实现细节。</p>
-<p>#####1、基于Sql脚本执行的方案(方案Y)</p>
-<ul>
-<li>核心思路：每次单版本升级都会有一个由一系列的Sql语句构成的Sql脚本文件，该文件与SqlStatement一一对应。一次跨版本升级由多次单版本升级构成。</li>
-</ul>
-<ul>
-<li>具体执行逻辑（以从版本1升级到版本3为例）：首先执行1-2的版本升级脚本，执行完以后再执行2-3的升级脚本。</li>
-</ul>
-<ul>
-<li>优点：这样的实现不用在onUpgrade()中编码判断各个版本的情况，直接做了统一处理，使得开发者在编写升级脚本的时候，只要考虑前一个版本的数据库状况即可，易维护。同时由于每次单版本升级均有写脚本，所以基本可以应对所有情况的升级，完美满足了需求2。</li>
-</ul>
-<ul>
-<li>缺点：这个方案要求每次升级都要自己写升级脚本，虽然做到很大的灵活性(需求2)，但是开发者需要自己去控制具体的升级迁移操作，在易用性上做了妥协（需求1）。</li>
-</ul>
-<p>可能的实现代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 伪代码</span></span><br><span class="line">List&lt;SqlStatement&gt; sqls;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onUpgrade</span><span class="params">(SQLiteDatabase db, <span class="keyword">int</span> oldVersion, <span class="keyword">int</span> newVersion)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (oldVersion &lt; newVersion) &#123;</span><br><span class="line">    <span class="keyword">for</span> (SqlStatement sql : sqls) &#123;</span><br><span class="line">      <span class="comment">// 执行一系列的sql脚本</span></span><br><span class="line">      executeSqlScript(db, sql);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="2、通过ORM中的DAO配合特定的更新逻辑实现自动更新-方案Z"><a href="#2、通过ORM中的DAO配合特定的更新逻辑实现自动更新-方案Z" class="headerlink" title="2、通过ORM中的DAO配合特定的更新逻辑实现自动更新(方案Z)"></a>2、通过ORM中的DAO配合特定的更新逻辑实现自动更新(方案Z)</h5><ul>
-<li>核心思路：利用DAO获取当前版本的表信息，利用<code>sql_master</code>表与<code>PRAGMA TABLE_INFO</code>获取旧表信息，在升级逻辑中对表差异做分析，依据分析结果辅助完成自动化的数据迁移与数据库升级。</li>
-</ul>
-<ul>
-<li>具体执行逻辑（以从版本1升级到版本3为例）：不论从版本几到几，该升级方案均只做一次升级，即用户当前手机上的版本与即将安装的版本。具体逻辑参考下面的代码。</li>
-</ul>
-<ul>
-<li>优点：这样的升级对使用者来说是完全透明的，他不需要关心升级过程具体需要做哪些事情（满足需求2）。</li>
-</ul>
-<ul>
-<li>缺点：这个方案的缺点也非常明显，因为丢失了中间版本的信息，因此难以应对复杂的升级情况，对于无法处理的情况，该方案的实现只能选择将其忽略，因此可能会导致部分数据丢失。</li>
-</ul>
-<p>升级逻辑伪代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">// onUpgrade中的逻辑</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onUpgrade</span><span class="params">(SQLiteDatabase db, <span class="keyword">int</span> oldVersion, <span class="keyword">int</span> newVersion)</span> </span>&#123;</span><br><span class="line">	<span class="comment">// 先取出所有旧表的表名</span></span><br><span class="line">    List&lt;String&gt; originTableList = originTableList(db);</span><br><span class="line">    <span class="comment">// 如果存在则执行升级，不存在则执行创建</span></span><br><span class="line">    <span class="keyword">for</span> (Map.Entry&lt;Class, Dao&gt; entry : map.entrySet()) &#123;</span><br><span class="line">        Dao value = entry.getValue();</span><br><span class="line">        <span class="keyword">boolean</span> remove = originTableList.remove(value.getTableName());</span><br><span class="line">        <span class="keyword">if</span> (remove) &#123;</span><br><span class="line">            value.onDataBaseUpgrade(cdb, oldVersion, newVersion);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            value.onDataBaseCreate(cdb);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 剩下的表删除</span></span><br><span class="line">    <span class="keyword">for</span> (String leftTableName : originTableList) &#123;</span><br><span class="line">        cdb.execSQL(<span class="string">"DROP TABLE "</span> + leftTableName);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// DAO中执行表升级的具体逻辑</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDataBaseUpgrade</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 获取旧表所有字段集合</span></span><br><span class="line">  List&lt;DbProperty&gt; oldDbProperties = getOldProperties();</span><br><span class="line">  List&lt;DbProperty&gt; newDbProperties = getNewProperties();</span><br><span class="line">  createNewTable(newDbProperties);</span><br><span class="line">  <span class="comment">// 求新旧字段的交集</span></span><br><span class="line">  List&lt;DbProperty&gt; upgradeProperties = intersect(oldDbProperties, newDbProperties);</span><br><span class="line">  <span class="comment">// 迁移数据并为新增的字段添加默认值</span></span><br><span class="line">  migrateData(newDbProperties, upgradeProperties);</span><br><span class="line">  <span class="comment">// 删除旧表</span></span><br><span class="line">  db.execSQL(SqlUtils.getDropTableSql(getOldTableNama()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>其中originTableList()与getOldProperties()用到了<code>sql_master</code>表与<code>PRAGMA TABLE_INFO</code>，具体实现这里不再给出。</p>
-<h5 id="3、综合Y、Z方案的解决方案A（支持绝大多数情况的半自动化升级）"><a href="#3、综合Y、Z方案的解决方案A（支持绝大多数情况的半自动化升级）" class="headerlink" title="3、综合Y、Z方案的解决方案A（支持绝大多数情况的半自动化升级）"></a>3、综合Y、Z方案的解决方案A（支持绝大多数情况的半自动化升级）</h5><p>该方案相比下面的方案B，支持的情况更多，但是是半自动化的。</p>
-<p>因为并不是每次升级都是复杂情况的升级，多数情况下，都是简单的升级。因此默认的升级逻辑应该使用方案Z，当遇到复杂的升级情况的时候，再使用Y方案进行特殊化处理，具体的实现如下：</p>
-<p>假如从版本1升级到5，其中2-&gt;3是复杂升级，其他均为简单升级</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onUpgrade</span><span class="params">(SQLiteDatabase db, <span class="keyword">int</span> oldVersion, <span class="keyword">int</span> newVersion)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 升级到特殊版本使用脚本升级，即使1-2是普通升级，因为3为特殊版本，1-2也使用脚本升级</span></span><br><span class="line">  <span class="keyword">if</span> (newVersion &gt;= <span class="number">3</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (SqlStatement sql : sqls) &#123;</span><br><span class="line">      <span class="comment">// 执行一系列的sql脚本</span></span><br><span class="line">      executeSqlScript(db, sql);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 升级到普通版本使用默认升级方式(方案Z)</span></span><br><span class="line">  <span class="keyword">if</span> (newVersion &gt; <span class="number">3</span>) &#123;</span><br><span class="line">    <span class="comment">// 同方案Z的升级算法</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>该方案在多数情况下无需使用者改动升级逻辑与编写脚本，但是在遇到复杂升级的情况则需要改动升级逻辑，因此为半自动的升级方案。</p>
-<h5 id="4、总结"><a href="#4、总结" class="headerlink" title="4、总结"></a>4、总结</h5><p>较为成熟的基础方案为上面的方案X、Y，也就是现在主流框架所采用的方案。基于X、Y这两个基本方案可以衍生出其他更多的解决方案，但不可避免的是需要在这易用和适用性中做取舍。</p>
-<p>之所以需要做取舍，仔细考量之下可以发现，如果想要有高度的适用性，则无法避免使用者对某次数据库升级细节的了解，并将该细节通过某种方式（如撰写Sql脚本）侵入到升级过程中，而这与易用性是直接矛盾的。</p>
-<p>同时，方案的选择也需要考虑到实际使用场景。在多数场景下，数据库升级的触发次数不多，而数据库复杂升级的触发次数应该更少。如果不满足这个规律，那么说明使用者在设计数据库的时候缺乏足够的考量。因此，方案A或者其变体可能是更合适的方案。当然如果业务上对本地数据实在是有很强的需求，那么推荐使用方案X，它让开发者对升级过程拥有绝对的掌控权。</p>
-<p>###四、表设计的建议</p>
-<p>从有利于数据库升级的角度为数据库表设计提一些建议：</p>
-<ul>
-<li>规范表名与字段名（大小写，关系表表名）</li>
-<li>规范字段是否允许默认值</li>
-<li>规范字段Java数据类型与数据库数据类型的映射</li>
-</ul>
-<p>这些规范的最终目的都是减少数据库迭代中不必要的数据库更新。</p>
-
-          
+          Android数据库更新方案设计一、数据库更新场景1、简单的场景表增减、表字段增减、跨单版本升级。
+#####2、复杂的场景
+表名更改、字段名更改、跨多版本升级。
+二、常见解决方案概述1、升级方案的需求
+易用，易维护，尽量自动化。这个需求要求设计的数据库升级方案在第一次编码完成后，后续每次升级应该无
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/12/25/Android数据库更新/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -552,7 +489,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="xybean">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/pixel.png">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -618,80 +555,21 @@
       
         
           
-            <h2 id="Https基础"><a href="#Https基础" class="headerlink" title="Https基础"></a>Https基础</h2><h4 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a>一、基本概念</h4><h5 id="1、对称加密"><a href="#1、对称加密" class="headerlink" title="1、对称加密"></a>1、对称加密</h5><ul>
-<li>这类算法在加密和解密时使用相同的密钥，或是使用两个可以简单地相互推算的密钥。</li>
-<li>常见的对称加密算法有<code>DES</code>、<code>3DES</code>、<code>AES</code>、<code>Blowfish</code>、<code>IDEA</code>、<code>RC5</code>、<code>RC6</code>。</li>
-<li>对称加密的速度比公钥加密快很多，在很多场合都需要对称加密。</li>
-</ul>
-<h5 id="2、非对称加密"><a href="#2、非对称加密" class="headerlink" title="2、非对称加密"></a>2、非对称加密</h5><ul>
-<li>这类算法需要两个密钥，一个是公开密钥，另一个是私有密钥；一个用作加密的时候，另一个则用作解密。使用其中一个密钥把明文加密后所得的密文，只能用相对应的另一个密钥才能解密得到原本的明文；甚至连最初用来加密的密钥也不能用作解密。</li>
-<li>虽然两个密钥在数学上相关，但如果知道了其中一个，并不能凭此计算出另外一个；因此其中一个可以公开，称为公钥，任意向外发布；不公开的密钥为私钥，必须由用户自行严格秘密保管，绝不通过任何途径向任何人提供，也不会透露给要通信的另一方，即使他被信任。</li>
-<li>常见的算法有<code>RSA</code>、<code>DSA</code>、<code>ECC</code></li>
-<li>非对称加密加密速度相对较慢，可以用于加密对称加密的秘钥，文本自身仍然用对称加密的算法加密。</li>
-</ul>
-<h5 id="3、摘要算法"><a href="#3、摘要算法" class="headerlink" title="3、摘要算法"></a>3、摘要算法</h5><ul>
-<li>摘要算法可以将任意长度的文本，通过一个算法，得到一个固定长度的文本。</li>
-<li>数据摘要算法具有不可逆性, 其主要功能有数据签名, 数据完整性校验等。</li>
-<li>常见的算法有<code>MD5</code>、<code>SHA</code></li>
-<li>属于Hash算法的一种实际应用</li>
-</ul>
-<h5 id="4、SSL-TLS"><a href="#4、SSL-TLS" class="headerlink" title="4、SSL/TLS"></a>4、SSL/TLS</h5><p>SSL 是“Secure Sockets Layer”的缩写，中文叫做“安全套接层”。它是在上世纪90年代中期，由网景公司设计的，用于网络传输报文的加密。</p>
-<p>到了1999年，SSL 因为应用广泛，已经成为互联网上的事实标准。IETF 就在那年把 SSL 标准化。标准化之后的名称改为 TLS（“Transport Layer Security”），中文叫做“传输层安全协议”。<br>很多相关的文章都把这两者并列称呼（SSL/TLS），因为这两者可以视作同一个东西的不同阶段。</p>
-<h5 id="5、Https"><a href="#5、Https" class="headerlink" title="5、Https"></a>5、Https</h5><p> HTTPS 协议，就是“HTTP 协议”和“SSL/TLS 协议”的组合。可以把 HTTPS 大致理解为——“HTTP over SSL/TLS”。</p>
-<h5 id="6、数字签名"><a href="#6、数字签名" class="headerlink" title="6、数字签名"></a>6、数字签名</h5><ul>
-<li>由于对称加密的特点，私钥加密的内容只能由公钥解密，换言之，能被公钥解密的内容，一定是与之匹配的私钥加密的。因为私钥的持有者只有一个人，所以被私钥加密的内容可以作为这个人的<strong>数字签名</strong>，证明内容是由它发送的。</li>
-<li>实际使用场景：Bob持有私钥A，并把他的公钥B给了Alice。Bob给Alice发信之前，先根据信的内容，用Hash函数，生成信件的摘要（digest），然后用私钥A加密摘要，再将信件内容和摘要一起发给Alice，Alice在收到信件内容后，先用公钥B解密摘要，再校对hash值，就可以确定信件确实没有被改动过，确实是Bob最早发出的那一封。</li>
-<li>数字签名可以保证传输过程中，传述内容没有被改变过。</li>
-</ul>
-<h5 id="7、数字证书"><a href="#7、数字证书" class="headerlink" title="7、数字证书"></a>7、数字证书</h5><ul>
-<li>数字证书也叫“digital certificate”或“public key certificate”。</li>
-</ul>
-<ul>
-<li>CA 是“Certificate Authority”的缩写，也叫“证书授权中心”。</li>
-</ul>
-<ul>
-<li>考虑数字签名的场景，如果Alice一开始拿到的公钥B并不是Bob的公钥，而是Jhon替换后的公钥C，那么他们之间的通信就不再安全了。为了保证Alice可以确定她拿到的公钥一定是公钥B，就需要引入数字证书。<br>CA用自己的私钥，对鲍勃的公钥和一些相关信息(如证书的所有者)一起加密，生成”数字证书”（Digital Certificate），然后将证书给Bob。<br>Bob在拥有证书后，就通过证书向Alice发送公钥，而Alice通过网络取得CA的公钥，解密证书并做hash校验，确认没有被修改后取出公钥B。<br>这一过程的关键点在于，CA的公钥是完全公开的，Alice可以完全确定她取到的CA公钥是正确的，基于此，就能保证取到正确的Bob的公钥B。</li>
-<li>数字证书包含的内容<br>Issuer:发布机构(是指创建证书的机构)<br>Valid from, Valid to: 有效期<br>Public key: 公钥<br>Subjet:证书的所有者。证书是发布给谁的，一般是某个人或者某个公司名称、机构的名称、公司网站的网址等。</li>
-</ul>
-<h4 id="二、Http通信过程"><a href="#二、Http通信过程" class="headerlink" title="二、Http通信过程"></a>二、Http通信过程</h4><h5 id="1、建立连接"><a href="#1、建立连接" class="headerlink" title="1、建立连接"></a>1、建立连接</h5><p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1fhyivob7muj30ug0tijss.jpg" alt="建立连接过程"></p>
-<blockquote>
-<p>（1）生成对话密钥一共需要三个随机数。三个随机数名字依次为A：Client random、B：Server random、C：Premaster secret</p>
-<p>（2）握手之后的对话使用”对话密钥”加密（对称加密），服务器的公钥和私钥只用于加密和解密”对话密钥”（非对称加密），无其他作用。</p>
-<p>（3）服务器公钥放在服务器的数字证书之中。</p>
-</blockquote>
-<h5 id="2、对话密钥交换（生成）机制-秘钥协商"><a href="#2、对话密钥交换（生成）机制-秘钥协商" class="headerlink" title="2、对话密钥交换（生成）机制/秘钥协商"></a>2、对话密钥交换（生成）机制/秘钥协商</h5><p>整个握手阶段都不加密（也没法加密），都是明文的。因此，如果有人窃听通信，他可以知道双方选择的加密方法，以及三个随机数中的两个。整个通话的安全，只取决于第三个随机数（Premaster secret）能不能被破解。虽然理论上，只要服务器的公钥足够长（比如2048位），那么Premaster secret可以保证不被破解，session key就可以保持隐秘。</p>
-<p>session key生成或交换的机制主要有以下几种：</p>
-<p>(1)依靠非对称加密算法：</p>
-<ul>
-<li>拿到公钥的一方先生成随机的会话密钥，然后利用公钥加密它；再把加密结果发给对方，对方用私钥解密；于是双方都得到了会话密钥。</li>
-</ul>
-<p>(2)依靠专门的密钥交换算法：</p>
-<ul>
-<li><p>如DH算法</p>
-<blockquote>
-<p>DH 依赖的是：求解“离散对数问题”的复杂性。具体的算法如下：<br>　　通讯双方（张三、李四）需要先约定好算法参数（algorithm parameters）：一个素数 p 作为模数，一个素数 g 作为基数（g 也称为“生成元”）。这两个算法参数是可以对外公开滴。<br>　　对于张三而言，需要先想好一个秘密的自然数 a 作为私钥（不能公开），然后计算 A = ga mod p 作为自己的公钥（可以公开）。<br>　　对李四而言也类似，先想好一个秘密的自然数 b 作为私钥（不能公开），然后计算 B = gb mod p 作为自己的公钥（可以公开）。<br>　　张三和李四互相交换各自的公钥。<br>　　然后张三计算出 k = Ba mod p，李四计算出 k = Ab mod p</p>
-</blockquote>
-<p>DH算法可以做到即使通信内容被拦截，也不会泄露session key，因为公开的部分无法计算出session key。但是DH并不能做到身份验证，因此无法抵御中间人攻击。所以DH算法会和签名算法（如RSA等）一起使用，保证传输过程中的数据并没有被篡改。<br>这样就可以做到传输过程中数据不可被篡改，并且即使数据泄露也不会泄露最终的session key。</p>
-<p>而其他的交换机制，都不能做到数据泄露后还保证不泄露session key。它们都只能尽量保证交换中不泄露数据。</p>
-</li>
-</ul>
-<p>(3)依靠通讯双方事先已经共享的“秘密”生成：</p>
-<ul>
-<li>即1中通过共享的信息，加密算法X与随机数A、B、C生成Session Key的方式</li>
-</ul>
-<h5 id="3、session恢复"><a href="#3、session恢复" class="headerlink" title="3、session恢复"></a>3、session恢复</h5><p>握手阶段用来建立SSL连接。如果出于某种原因，对话中断，就需要重新握手。</p>
-<p>这时有两种方法可以恢复原来的session：一种叫做session ID，另一种叫做session ticket。</p>
-<p>session ID的思想很简单，就是每一次对话都有一个编号（session ID）。如果对话中断，下次重连的时候，只要客户端给出这个编号，且服务器有这个编号的记录，双方就可以重新使用已有的”对话密钥”，而不必重新生成一把。</p>
-<p>session ID是目前所有浏览器都支持的方法，但是它的缺点在于session ID往往只保留在一台服务器上。所以，如果客户端的请求发到另一台服务器，就无法恢复对话。session ticket就是为了解决这个问题而诞生的，目前只有Firefox和Chrome浏览器支持。</p>
-<p>使用session ticket的客户端不再发送session ID，而是发送一个服务器在上一次对话中发送过来的session ticket。这个session ticket是加密的，只有服务器才能解密，其中包括本次对话的主要信息，比如对话密钥和加密方法。当服务器收到session ticket以后，解密后就不必重新生成对话密钥了。</p>
-<h4 id="三、扩展阅读"><a href="#三、扩展阅读" class="headerlink" title="三、扩展阅读"></a>三、扩展阅读</h4><ul>
-<li><a href="http://www.ruanyifeng.com/blog/2013/06/rsa_algorithm_part_one.html" target="_blank" rel="noopener">RSA算法原理</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2011/08/what_is_a_digital_signature.html" target="_blank" rel="noopener">数字签名与数字证书</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2014/09/illustration-ssl.html" target="_blank" rel="noopener">图解SSL/TLS协议</a></li>
-<li><a href="https://program-think.blogspot.com/2016/09/https-ssl-tls-3.html" target="_blank" rel="noopener">密钥交换（密钥协商）算法及其原理</a></li>
-</ul>
+          Https基础一、基本概念1、对称加密
+这类算法在加密和解密时使用相同的密钥，或是使用两个可以简单地相互推算的密钥。
+常见的对称加密算法有DES、3DES、AES、Blowfish、IDEA、RC5、RC6。
+对称加密的速度比公钥加密快很多，在很多场合都需要对称加密。
 
-          
+2、非对称加密
+这类算法需要
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/07/27/Https基础/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -759,6 +637,10 @@
       <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
             
               <p class="site-author-name" itemprop="name">xybean</p>
               <p class="site-description motion-element" itemprop="description"></p>
