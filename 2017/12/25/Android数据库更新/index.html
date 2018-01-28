@@ -79,12 +79,16 @@
 
 
 
-<meta property="og:type" content="website">
+<meta name="description" content="Android数据库更新方案设计一、数据库更新场景1、简单的场景表增减、表字段增减、跨单版本升级。 #####2、复杂的场景 表名更改、字段名更改、跨多版本升级。 二、常见解决方案概述1、升级方案的需求 易用，易维护，尽量自动化。这个需求要求设计的数据库升级方案在第一次编码完成后，后续每次升级应该无需改动升级的逻辑，做到升级的透明化与自动化。 适用范围广，尽量覆盖多的数据库更新场景。这个需求要求设">
+<meta property="og:type" content="article">
 <meta property="og:title" content="xybean&#39;s blog">
-<meta property="og:url" content="https://xybean.github.io/index.html">
+<meta property="og:url" content="https://xybean.github.io/2017/12/25/Android数据库更新/index.html">
 <meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="Android数据库更新方案设计一、数据库更新场景1、简单的场景表增减、表字段增减、跨单版本升级。 #####2、复杂的场景 表名更改、字段名更改、跨多版本升级。 二、常见解决方案概述1、升级方案的需求 易用，易维护，尽量自动化。这个需求要求设计的数据库升级方案在第一次编码完成后，后续每次升级应该无需改动升级的逻辑，做到升级的透明化与自动化。 适用范围广，尽量覆盖多的数据库更新场景。这个需求要求设">
+<meta property="og:updated_time" content="2018-01-28T16:01:31.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="xybean&#39;s blog">
+<meta name="twitter:description" content="Android数据库更新方案设计一、数据库更新场景1、简单的场景表增减、表字段增减、跨单版本升级。 #####2、复杂的场景 表名更改、字段名更改、跨多版本升级。 二、常见解决方案概述1、升级方案的需求 易用，易维护，尽量自动化。这个需求要求设计的数据库升级方案在第一次编码完成后，后续每次升级应该无需改动升级的逻辑，做到升级的透明化与自动化。 适用范围广，尽量覆盖多的数据库更新场景。这个需求要求设">
 
 
 
@@ -114,13 +118,13 @@
 
 
 
-  <link rel="canonical" href="https://xybean.github.io/"/>
+  <link rel="canonical" href="https://xybean.github.io/2017/12/25/Android数据库更新/"/>
 
 
 
 
 
-  <title>xybean's blog</title>
+  <title> | xybean's blog</title>
   
 
 
@@ -139,8 +143,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -213,137 +216,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2018/01/25/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="xybean">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xybean's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/25/hello-world/" itemprop="url">Hello World</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-01-25T21:20:57+08:00">
-                2018-01-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
 
   
 
@@ -373,9 +248,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/12/25/Android数据库更新/" itemprop="url">Untitled</a></h1>
+          <h1 class="post-title" itemprop="name headline"></h1>
         
 
         <div class="post-meta">
@@ -425,9 +298,7 @@
       
 
       
-        
-          
-            <h1 id="Android数据库更新方案设计"><a href="#Android数据库更新方案设计" class="headerlink" title="Android数据库更新方案设计"></a>Android数据库更新方案设计</h1><h3 id="一、数据库更新场景"><a href="#一、数据库更新场景" class="headerlink" title="一、数据库更新场景"></a>一、数据库更新场景</h3><h5 id="1、简单的场景"><a href="#1、简单的场景" class="headerlink" title="1、简单的场景"></a>1、简单的场景</h5><p>表增减、表字段增减、跨单版本升级。</p>
+        <h1 id="Android数据库更新方案设计"><a href="#Android数据库更新方案设计" class="headerlink" title="Android数据库更新方案设计"></a>Android数据库更新方案设计</h1><h3 id="一、数据库更新场景"><a href="#一、数据库更新场景" class="headerlink" title="一、数据库更新场景"></a>一、数据库更新场景</h3><h5 id="1、简单的场景"><a href="#1、简单的场景" class="headerlink" title="1、简单的场景"></a>1、简单的场景</h5><p>表增减、表字段增减、跨单版本升级。</p>
 <p>#####2、复杂的场景</p>
 <p>表名更改、字段名更改、跨多版本升级。</p>
 <h3 id="二、常见解决方案概述"><a href="#二、常见解决方案概述" class="headerlink" title="二、常见解决方案概述"></a>二、常见解决方案概述</h3><h5 id="1、升级方案的需求"><a href="#1、升级方案的需求" class="headerlink" title="1、升级方案的需求"></a>1、升级方案的需求</h5><ul>
@@ -500,8 +371,6 @@
 </ul>
 <p>这些规范的最终目的都是减少数据库迭代中不必要的数据库更新。</p>
 
-          
-        
       
     </div>
     
@@ -518,203 +387,32 @@
       
 
       
-
-      
-
       
       
-        <div class="post-eof"></div>
+
       
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2017/07/27/Https基础/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="xybean">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="xybean's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/07/27/Https基础/" itemprop="url">Untitled</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-07-27T14:12:16+08:00">
-                2017-07-27
-              </time>
+              <a href="/2017/07/27/Https基础/" rel="next" title="">
+                <i class="fa fa-chevron-left"></i> 
+              </a>
             
+          </div>
 
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
             
-
+              <a href="/2018/01/25/hello-world/" rel="prev" title="Hello World">
+                Hello World <i class="fa fa-chevron-right"></i>
+              </a>
             
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          
-            <h2 id="Https基础"><a href="#Https基础" class="headerlink" title="Https基础"></a>Https基础</h2><h4 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a>一、基本概念</h4><h5 id="1、对称加密"><a href="#1、对称加密" class="headerlink" title="1、对称加密"></a>1、对称加密</h5><ul>
-<li>这类算法在加密和解密时使用相同的密钥，或是使用两个可以简单地相互推算的密钥。</li>
-<li>常见的对称加密算法有<code>DES</code>、<code>3DES</code>、<code>AES</code>、<code>Blowfish</code>、<code>IDEA</code>、<code>RC5</code>、<code>RC6</code>。</li>
-<li>对称加密的速度比公钥加密快很多，在很多场合都需要对称加密。</li>
-</ul>
-<h5 id="2、非对称加密"><a href="#2、非对称加密" class="headerlink" title="2、非对称加密"></a>2、非对称加密</h5><ul>
-<li>这类算法需要两个密钥，一个是公开密钥，另一个是私有密钥；一个用作加密的时候，另一个则用作解密。使用其中一个密钥把明文加密后所得的密文，只能用相对应的另一个密钥才能解密得到原本的明文；甚至连最初用来加密的密钥也不能用作解密。</li>
-<li>虽然两个密钥在数学上相关，但如果知道了其中一个，并不能凭此计算出另外一个；因此其中一个可以公开，称为公钥，任意向外发布；不公开的密钥为私钥，必须由用户自行严格秘密保管，绝不通过任何途径向任何人提供，也不会透露给要通信的另一方，即使他被信任。</li>
-<li>常见的算法有<code>RSA</code>、<code>DSA</code>、<code>ECC</code></li>
-<li>非对称加密加密速度相对较慢，可以用于加密对称加密的秘钥，文本自身仍然用对称加密的算法加密。</li>
-</ul>
-<h5 id="3、摘要算法"><a href="#3、摘要算法" class="headerlink" title="3、摘要算法"></a>3、摘要算法</h5><ul>
-<li>摘要算法可以将任意长度的文本，通过一个算法，得到一个固定长度的文本。</li>
-<li>数据摘要算法具有不可逆性, 其主要功能有数据签名, 数据完整性校验等。</li>
-<li>常见的算法有<code>MD5</code>、<code>SHA</code></li>
-<li>属于Hash算法的一种实际应用</li>
-</ul>
-<h5 id="4、SSL-TLS"><a href="#4、SSL-TLS" class="headerlink" title="4、SSL/TLS"></a>4、SSL/TLS</h5><p>SSL 是“Secure Sockets Layer”的缩写，中文叫做“安全套接层”。它是在上世纪90年代中期，由网景公司设计的，用于网络传输报文的加密。</p>
-<p>到了1999年，SSL 因为应用广泛，已经成为互联网上的事实标准。IETF 就在那年把 SSL 标准化。标准化之后的名称改为 TLS（“Transport Layer Security”），中文叫做“传输层安全协议”。<br>很多相关的文章都把这两者并列称呼（SSL/TLS），因为这两者可以视作同一个东西的不同阶段。</p>
-<h5 id="5、Https"><a href="#5、Https" class="headerlink" title="5、Https"></a>5、Https</h5><p> HTTPS 协议，就是“HTTP 协议”和“SSL/TLS 协议”的组合。可以把 HTTPS 大致理解为——“HTTP over SSL/TLS”。</p>
-<h5 id="6、数字签名"><a href="#6、数字签名" class="headerlink" title="6、数字签名"></a>6、数字签名</h5><ul>
-<li>由于对称加密的特点，私钥加密的内容只能由公钥解密，换言之，能被公钥解密的内容，一定是与之匹配的私钥加密的。因为私钥的持有者只有一个人，所以被私钥加密的内容可以作为这个人的<strong>数字签名</strong>，证明内容是由它发送的。</li>
-<li>实际使用场景：Bob持有私钥A，并把他的公钥B给了Alice。Bob给Alice发信之前，先根据信的内容，用Hash函数，生成信件的摘要（digest），然后用私钥A加密摘要，再将信件内容和摘要一起发给Alice，Alice在收到信件内容后，先用公钥B解密摘要，再校对hash值，就可以确定信件确实没有被改动过，确实是Bob最早发出的那一封。</li>
-<li>数字签名可以保证传输过程中，传述内容没有被改变过。</li>
-</ul>
-<h5 id="7、数字证书"><a href="#7、数字证书" class="headerlink" title="7、数字证书"></a>7、数字证书</h5><ul>
-<li>数字证书也叫“digital certificate”或“public key certificate”。</li>
-</ul>
-<ul>
-<li>CA 是“Certificate Authority”的缩写，也叫“证书授权中心”。</li>
-</ul>
-<ul>
-<li>考虑数字签名的场景，如果Alice一开始拿到的公钥B并不是Bob的公钥，而是Jhon替换后的公钥C，那么他们之间的通信就不再安全了。为了保证Alice可以确定她拿到的公钥一定是公钥B，就需要引入数字证书。<br>CA用自己的私钥，对鲍勃的公钥和一些相关信息(如证书的所有者)一起加密，生成”数字证书”（Digital Certificate），然后将证书给Bob。<br>Bob在拥有证书后，就通过证书向Alice发送公钥，而Alice通过网络取得CA的公钥，解密证书并做hash校验，确认没有被修改后取出公钥B。<br>这一过程的关键点在于，CA的公钥是完全公开的，Alice可以完全确定她取到的CA公钥是正确的，基于此，就能保证取到正确的Bob的公钥B。</li>
-<li>数字证书包含的内容<br>Issuer:发布机构(是指创建证书的机构)<br>Valid from, Valid to: 有效期<br>Public key: 公钥<br>Subjet:证书的所有者。证书是发布给谁的，一般是某个人或者某个公司名称、机构的名称、公司网站的网址等。</li>
-</ul>
-<h4 id="二、Http通信过程"><a href="#二、Http通信过程" class="headerlink" title="二、Http通信过程"></a>二、Http通信过程</h4><h5 id="1、建立连接"><a href="#1、建立连接" class="headerlink" title="1、建立连接"></a>1、建立连接</h5><p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1fhyivob7muj30ug0tijss.jpg" alt="建立连接过程"></p>
-<blockquote>
-<p>（1）生成对话密钥一共需要三个随机数。三个随机数名字依次为A：Client random、B：Server random、C：Premaster secret</p>
-<p>（2）握手之后的对话使用”对话密钥”加密（对称加密），服务器的公钥和私钥只用于加密和解密”对话密钥”（非对称加密），无其他作用。</p>
-<p>（3）服务器公钥放在服务器的数字证书之中。</p>
-</blockquote>
-<h5 id="2、对话密钥交换（生成）机制-秘钥协商"><a href="#2、对话密钥交换（生成）机制-秘钥协商" class="headerlink" title="2、对话密钥交换（生成）机制/秘钥协商"></a>2、对话密钥交换（生成）机制/秘钥协商</h5><p>整个握手阶段都不加密（也没法加密），都是明文的。因此，如果有人窃听通信，他可以知道双方选择的加密方法，以及三个随机数中的两个。整个通话的安全，只取决于第三个随机数（Premaster secret）能不能被破解。虽然理论上，只要服务器的公钥足够长（比如2048位），那么Premaster secret可以保证不被破解，session key就可以保持隐秘。</p>
-<p>session key生成或交换的机制主要有以下几种：</p>
-<p>(1)依靠非对称加密算法：</p>
-<ul>
-<li>拿到公钥的一方先生成随机的会话密钥，然后利用公钥加密它；再把加密结果发给对方，对方用私钥解密；于是双方都得到了会话密钥。</li>
-</ul>
-<p>(2)依靠专门的密钥交换算法：</p>
-<ul>
-<li><p>如DH算法</p>
-<blockquote>
-<p>DH 依赖的是：求解“离散对数问题”的复杂性。具体的算法如下：<br>　　通讯双方（张三、李四）需要先约定好算法参数（algorithm parameters）：一个素数 p 作为模数，一个素数 g 作为基数（g 也称为“生成元”）。这两个算法参数是可以对外公开滴。<br>　　对于张三而言，需要先想好一个秘密的自然数 a 作为私钥（不能公开），然后计算 A = ga mod p 作为自己的公钥（可以公开）。<br>　　对李四而言也类似，先想好一个秘密的自然数 b 作为私钥（不能公开），然后计算 B = gb mod p 作为自己的公钥（可以公开）。<br>　　张三和李四互相交换各自的公钥。<br>　　然后张三计算出 k = Ba mod p，李四计算出 k = Ab mod p</p>
-</blockquote>
-<p>DH算法可以做到即使通信内容被拦截，也不会泄露session key，因为公开的部分无法计算出session key。但是DH并不能做到身份验证，因此无法抵御中间人攻击。所以DH算法会和签名算法（如RSA等）一起使用，保证传输过程中的数据并没有被篡改。<br>这样就可以做到传输过程中数据不可被篡改，并且即使数据泄露也不会泄露最终的session key。</p>
-<p>而其他的交换机制，都不能做到数据泄露后还保证不泄露session key。它们都只能尽量保证交换中不泄露数据。</p>
-</li>
-</ul>
-<p>(3)依靠通讯双方事先已经共享的“秘密”生成：</p>
-<ul>
-<li>即1中通过共享的信息，加密算法X与随机数A、B、C生成Session Key的方式</li>
-</ul>
-<h5 id="3、session恢复"><a href="#3、session恢复" class="headerlink" title="3、session恢复"></a>3、session恢复</h5><p>握手阶段用来建立SSL连接。如果出于某种原因，对话中断，就需要重新握手。</p>
-<p>这时有两种方法可以恢复原来的session：一种叫做session ID，另一种叫做session ticket。</p>
-<p>session ID的思想很简单，就是每一次对话都有一个编号（session ID）。如果对话中断，下次重连的时候，只要客户端给出这个编号，且服务器有这个编号的记录，双方就可以重新使用已有的”对话密钥”，而不必重新生成一把。</p>
-<p>session ID是目前所有浏览器都支持的方法，但是它的缺点在于session ID往往只保留在一台服务器上。所以，如果客户端的请求发到另一台服务器，就无法恢复对话。session ticket就是为了解决这个问题而诞生的，目前只有Firefox和Chrome浏览器支持。</p>
-<p>使用session ticket的客户端不再发送session ID，而是发送一个服务器在上一次对话中发送过来的session ticket。这个session ticket是加密的，只有服务器才能解密，其中包括本次对话的主要信息，比如对话密钥和加密方法。当服务器收到session ticket以后，解密后就不必重新生成对话密钥了。</p>
-<h4 id="三、扩展阅读"><a href="#三、扩展阅读" class="headerlink" title="三、扩展阅读"></a>三、扩展阅读</h4><ul>
-<li><a href="http://www.ruanyifeng.com/blog/2013/06/rsa_algorithm_part_one.html" target="_blank" rel="noopener">RSA算法原理</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2011/08/what_is_a_digital_signature.html" target="_blank" rel="noopener">数字签名与数字证书</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2014/09/illustration-ssl.html" target="_blank" rel="noopener">图解SSL/TLS协议</a></li>
-<li><a href="https://program-think.blogspot.com/2016/09/https-ssl-tls-3.html" target="_blank" rel="noopener">密钥交换（密钥协商）算法及其原理</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -724,10 +422,11 @@
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -735,6 +434,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -755,8 +458,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -798,6 +510,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Android数据库更新方案设计"><span class="nav-number">1.</span> <span class="nav-text">Android数据库更新方案设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、数据库更新场景"><span class="nav-number">1.0.1.</span> <span class="nav-text">一、数据库更新场景</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、简单的场景"><span class="nav-number">1.0.1.0.1.</span> <span class="nav-text">1、简单的场景</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、常见解决方案概述"><span class="nav-number">1.0.2.</span> <span class="nav-text">二、常见解决方案概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、升级方案的需求"><span class="nav-number">1.0.2.0.1.</span> <span class="nav-text">1、升级方案的需求</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、常见方案"><span class="nav-number">1.0.2.0.2.</span> <span class="nav-text">2、常见方案</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方案X：不做数据迁移，直接重建所有表"><span class="nav-number">1.0.2.0.3.</span> <span class="nav-text">方案X：不做数据迁移，直接重建所有表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方案Y：编写Sql，执行本地Sql脚本进行数据迁移"><span class="nav-number">1.0.2.0.4.</span> <span class="nav-text">方案Y：编写Sql，执行本地Sql脚本进行数据迁移</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方案Z：通过ORM中的DAO配合特定的更新逻辑实现自动更新"><span class="nav-number">1.0.2.0.5.</span> <span class="nav-text">方案Z：通过ORM中的DAO配合特定的更新逻辑实现自动更新</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、第三方库现状"><span class="nav-number">1.0.2.0.6.</span> <span class="nav-text">3、第三方库现状</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、各方案逻辑设计与实现细节"><span class="nav-number">1.0.3.</span> <span class="nav-text">三、各方案逻辑设计与实现细节</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2、通过ORM中的DAO配合特定的更新逻辑实现自动更新-方案Z"><span class="nav-number">1.0.3.0.1.</span> <span class="nav-text">2、通过ORM中的DAO配合特定的更新逻辑实现自动更新(方案Z)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、综合Y、Z方案的解决方案A（支持绝大多数情况的半自动化升级）"><span class="nav-number">1.0.3.0.2.</span> <span class="nav-text">3、综合Y、Z方案的解决方案A（支持绝大多数情况的半自动化升级）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、总结"><span class="nav-number">1.0.3.0.3.</span> <span class="nav-text">4、总结</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -938,6 +666,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
