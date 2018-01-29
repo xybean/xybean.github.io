@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next gemini use-motion" lang="">
+<html class="theme-next gemini use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Android," />
 
 
 
@@ -79,16 +79,18 @@
 
 
 
-<meta name="description" content="Android数据库更新方案设计一、数据库更新场景1、简单的场景表增减、表字段增减、跨单版本升级。 #####2、复杂的场景 表名更改、字段名更改、跨多版本升级。 二、常见解决方案概述1、升级方案的需求 易用，易维护，尽量自动化。这个需求要求设计的数据库升级方案在第一次编码完成后，后续每次升级应该无需改动升级的逻辑，做到升级的透明化与自动化。 适用范围广，尽量覆盖多的数据库更新场景。这个需求要求设">
+<meta name="description" content="一、数据库更新场景1、简单的场景表增减、表字段增减、跨单版本升级。 2、复杂的场景表名更改、字段名更改、跨多版本升级。 二、常见解决方案概述1、升级方案的需求 易用，易维护，尽量自动化。这个需求要求设计的数据库升级方案在第一次编码完成后，后续每次升级应该无需改动升级的逻辑，做到升级的透明化与自动化。 适用范围广，尽量覆盖多的数据库更新场景。这个需求要求设计的数据库升级方案能应对各种数据库变化导致的">
+<meta name="keywords" content="Android">
 <meta property="og:type" content="article">
-<meta property="og:title" content="xybean&#39;s blog">
-<meta property="og:url" content="https://xybean.github.io/2017/12/25/Android数据库更新/index.html">
+<meta property="og:title" content="Android数据库更新设计">
+<meta property="og:url" content="https://xybean.github.io/2018/01/29/Android数据库更新设计/index.html">
 <meta property="og:site_name" content="xybean&#39;s blog">
-<meta property="og:description" content="Android数据库更新方案设计一、数据库更新场景1、简单的场景表增减、表字段增减、跨单版本升级。 #####2、复杂的场景 表名更改、字段名更改、跨多版本升级。 二、常见解决方案概述1、升级方案的需求 易用，易维护，尽量自动化。这个需求要求设计的数据库升级方案在第一次编码完成后，后续每次升级应该无需改动升级的逻辑，做到升级的透明化与自动化。 适用范围广，尽量覆盖多的数据库更新场景。这个需求要求设">
-<meta property="og:updated_time" content="2018-01-28T16:01:31.000Z">
+<meta property="og:description" content="一、数据库更新场景1、简单的场景表增减、表字段增减、跨单版本升级。 2、复杂的场景表名更改、字段名更改、跨多版本升级。 二、常见解决方案概述1、升级方案的需求 易用，易维护，尽量自动化。这个需求要求设计的数据库升级方案在第一次编码完成后，后续每次升级应该无需改动升级的逻辑，做到升级的透明化与自动化。 适用范围广，尽量覆盖多的数据库更新场景。这个需求要求设计的数据库升级方案能应对各种数据库变化导致的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-01-29T12:58:44.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="xybean&#39;s blog">
-<meta name="twitter:description" content="Android数据库更新方案设计一、数据库更新场景1、简单的场景表增减、表字段增减、跨单版本升级。 #####2、复杂的场景 表名更改、字段名更改、跨多版本升级。 二、常见解决方案概述1、升级方案的需求 易用，易维护，尽量自动化。这个需求要求设计的数据库升级方案在第一次编码完成后，后续每次升级应该无需改动升级的逻辑，做到升级的透明化与自动化。 适用范围广，尽量覆盖多的数据库更新场景。这个需求要求设">
+<meta name="twitter:title" content="Android数据库更新设计">
+<meta name="twitter:description" content="一、数据库更新场景1、简单的场景表增减、表字段增减、跨单版本升级。 2、复杂的场景表名更改、字段名更改、跨多版本升级。 二、常见解决方案概述1、升级方案的需求 易用，易维护，尽量自动化。这个需求要求设计的数据库升级方案在第一次编码完成后，后续每次升级应该无需改动升级的逻辑，做到升级的透明化与自动化。 适用范围广，尽量覆盖多的数据库更新场景。这个需求要求设计的数据库升级方案能应对各种数据库变化导致的">
 
 
 
@@ -104,7 +106,7 @@
     motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
     duoshuo: {
       userId: '0',
-      author: 'Author'
+      author: '博主'
     },
     algolia: {
       applicationID: '',
@@ -118,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://xybean.github.io/2017/12/25/Android数据库更新/"/>
+  <link rel="canonical" href="https://xybean.github.io/2018/01/29/Android数据库更新设计/"/>
 
 
 
 
 
-  <title> | xybean's blog</title>
+  <title>Android数据库更新设计 | xybean's blog</title>
   
 
 
@@ -136,7 +138,7 @@
 
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="">
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
   
   
@@ -184,7 +186,27 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            Home
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
           </a>
         </li>
       
@@ -194,7 +216,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
-            Archives
+            归档
           </a>
         </li>
       
@@ -231,7 +253,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2017/12/25/Android数据库更新/">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2018/01/29/Android数据库更新设计/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="xybean">
@@ -248,7 +270,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline"></h1>
+          <h1 class="post-title" itemprop="name headline">Android数据库更新设计</h1>
         
 
         <div class="post-meta">
@@ -258,10 +280,10 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-12-25T17:54:10+08:00">
-                2017-12-25
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-29T20:40:46+08:00">
+                2018-01-29
               </time>
             
 
@@ -270,6 +292,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -298,9 +342,8 @@
       
 
       
-        <h1 id="Android数据库更新方案设计"><a href="#Android数据库更新方案设计" class="headerlink" title="Android数据库更新方案设计"></a>Android数据库更新方案设计</h1><h3 id="一、数据库更新场景"><a href="#一、数据库更新场景" class="headerlink" title="一、数据库更新场景"></a>一、数据库更新场景</h3><h5 id="1、简单的场景"><a href="#1、简单的场景" class="headerlink" title="1、简单的场景"></a>1、简单的场景</h5><p>表增减、表字段增减、跨单版本升级。</p>
-<p>#####2、复杂的场景</p>
-<p>表名更改、字段名更改、跨多版本升级。</p>
+        <h3 id="一、数据库更新场景"><a href="#一、数据库更新场景" class="headerlink" title="一、数据库更新场景"></a>一、数据库更新场景</h3><h5 id="1、简单的场景"><a href="#1、简单的场景" class="headerlink" title="1、简单的场景"></a>1、简单的场景</h5><p>表增减、表字段增减、跨单版本升级。</p>
+<h5 id="2、复杂的场景"><a href="#2、复杂的场景" class="headerlink" title="2、复杂的场景"></a>2、复杂的场景</h5><p>表名更改、字段名更改、跨多版本升级。</p>
 <h3 id="二、常见解决方案概述"><a href="#二、常见解决方案概述" class="headerlink" title="二、常见解决方案概述"></a>二、常见解决方案概述</h3><h5 id="1、升级方案的需求"><a href="#1、升级方案的需求" class="headerlink" title="1、升级方案的需求"></a>1、升级方案的需求</h5><ul>
 <li>易用，易维护，尽量自动化。这个需求要求设计的数据库升级方案在第一次编码完成后，后续每次升级应该无需改动升级的逻辑，做到升级的透明化与自动化。</li>
 <li>适用范围广，尽量覆盖多的数据库更新场景。这个需求要求设计的数据库升级方案能应对各种数据库变化导致的升级。</li>
@@ -324,8 +367,7 @@
 <p>Room：由使用者自定义，但是提供了一定程度的封装，与跨版本升级的管理逻辑</p>
 <p>通过第三方库的实现方案可以知道方案X是不被推荐的一种实现方式，而方案Y、Z则较为通用。</p>
 <h3 id="三、各方案逻辑设计与实现细节"><a href="#三、各方案逻辑设计与实现细节" class="headerlink" title="三、各方案逻辑设计与实现细节"></a>三、各方案逻辑设计与实现细节</h3><p>这部分会从两个主要需求出发，基于第二部分介绍的方案进行展开与拓展，介绍各个方案的设计逻辑与部分实现细节。</p>
-<p>#####1、基于Sql脚本执行的方案(方案Y)</p>
-<ul>
+<h5 id="1、基于Sql脚本执行的方案-方案Y"><a href="#1、基于Sql脚本执行的方案-方案Y" class="headerlink" title="1、基于Sql脚本执行的方案(方案Y)"></a>1、基于Sql脚本执行的方案(方案Y)</h5><ul>
 <li>核心思路：每次单版本升级都会有一个由一系列的Sql语句构成的Sql脚本文件，该文件与SqlStatement一一对应。一次跨版本升级由多次单版本升级构成。</li>
 </ul>
 <ul>
@@ -362,8 +404,7 @@
 <h5 id="4、总结"><a href="#4、总结" class="headerlink" title="4、总结"></a>4、总结</h5><p>较为成熟的基础方案为上面的方案X、Y，也就是现在主流框架所采用的方案。基于X、Y这两个基本方案可以衍生出其他更多的解决方案，但不可避免的是需要在这易用和适用性中做取舍。</p>
 <p>之所以需要做取舍，仔细考量之下可以发现，如果想要有高度的适用性，则无法避免使用者对某次数据库升级细节的了解，并将该细节通过某种方式（如撰写Sql脚本）侵入到升级过程中，而这与易用性是直接矛盾的。</p>
 <p>同时，方案的选择也需要考虑到实际使用场景。在多数场景下，数据库升级的触发次数不多，而数据库复杂升级的触发次数应该更少。如果不满足这个规律，那么说明使用者在设计数据库的时候缺乏足够的考量。因此，方案A或者其变体可能是更合适的方案。当然如果业务上对本地数据实在是有很强的需求，那么推荐使用方案X，它让开发者对升级过程拥有绝对的掌控权。</p>
-<p>###四、表设计的建议</p>
-<p>从有利于数据库升级的角度为数据库表设计提一些建议：</p>
+<h3 id="四、表设计的建议"><a href="#四、表设计的建议" class="headerlink" title="四、表设计的建议"></a>四、表设计的建议</h3><p>从有利于数据库升级的角度为数据库表设计提一些建议：</p>
 <ul>
 <li>规范表名与字段名（大小写，关系表表名）</li>
 <li>规范字段是否允许默认值</li>
@@ -385,6 +426,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
 
       
       
@@ -394,8 +441,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/07/27/Https基础/" rel="next" title="">
-                <i class="fa fa-chevron-left"></i> 
+              <a href="/2018/01/29/Https基础/" rel="next" title="Https基础">
+                <i class="fa fa-chevron-left"></i> Https基础
               </a>
             
           </div>
@@ -403,10 +450,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/01/25/hello-world/" rel="prev" title="Hello World">
-                Hello World <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -460,10 +503,10 @@
       
         <ul class="sidebar-nav motion-element">
           <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            Table of Contents
+            文章目录
           </li>
           <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            Overview
+            站点概览
           </li>
         </ul>
       
@@ -487,20 +530,54 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
-                  <span class="site-state-item-name">posts</span>
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">日志</span>
                 </a>
               </div>
             
 
             
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
 
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
             
 
           </nav>
 
           
 
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
           
 
           
@@ -524,7 +601,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Android数据库更新方案设计"><span class="nav-number">1.</span> <span class="nav-text">Android数据库更新方案设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、数据库更新场景"><span class="nav-number">1.0.1.</span> <span class="nav-text">一、数据库更新场景</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、简单的场景"><span class="nav-number">1.0.1.0.1.</span> <span class="nav-text">1、简单的场景</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、常见解决方案概述"><span class="nav-number">1.0.2.</span> <span class="nav-text">二、常见解决方案概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、升级方案的需求"><span class="nav-number">1.0.2.0.1.</span> <span class="nav-text">1、升级方案的需求</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、常见方案"><span class="nav-number">1.0.2.0.2.</span> <span class="nav-text">2、常见方案</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方案X：不做数据迁移，直接重建所有表"><span class="nav-number">1.0.2.0.3.</span> <span class="nav-text">方案X：不做数据迁移，直接重建所有表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方案Y：编写Sql，执行本地Sql脚本进行数据迁移"><span class="nav-number">1.0.2.0.4.</span> <span class="nav-text">方案Y：编写Sql，执行本地Sql脚本进行数据迁移</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方案Z：通过ORM中的DAO配合特定的更新逻辑实现自动更新"><span class="nav-number">1.0.2.0.5.</span> <span class="nav-text">方案Z：通过ORM中的DAO配合特定的更新逻辑实现自动更新</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、第三方库现状"><span class="nav-number">1.0.2.0.6.</span> <span class="nav-text">3、第三方库现状</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、各方案逻辑设计与实现细节"><span class="nav-number">1.0.3.</span> <span class="nav-text">三、各方案逻辑设计与实现细节</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2、通过ORM中的DAO配合特定的更新逻辑实现自动更新-方案Z"><span class="nav-number">1.0.3.0.1.</span> <span class="nav-text">2、通过ORM中的DAO配合特定的更新逻辑实现自动更新(方案Z)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、综合Y、Z方案的解决方案A（支持绝大多数情况的半自动化升级）"><span class="nav-number">1.0.3.0.2.</span> <span class="nav-text">3、综合Y、Z方案的解决方案A（支持绝大多数情况的半自动化升级）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、总结"><span class="nav-number">1.0.3.0.3.</span> <span class="nav-text">4、总结</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、数据库更新场景"><span class="nav-number">1.</span> <span class="nav-text">一、数据库更新场景</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、简单的场景"><span class="nav-number">1.0.1.</span> <span class="nav-text">1、简单的场景</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、复杂的场景"><span class="nav-number">1.0.2.</span> <span class="nav-text">2、复杂的场景</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、常见解决方案概述"><span class="nav-number">2.</span> <span class="nav-text">二、常见解决方案概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、升级方案的需求"><span class="nav-number">2.0.1.</span> <span class="nav-text">1、升级方案的需求</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、常见方案"><span class="nav-number">2.0.2.</span> <span class="nav-text">2、常见方案</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方案X：不做数据迁移，直接重建所有表"><span class="nav-number">2.0.3.</span> <span class="nav-text">方案X：不做数据迁移，直接重建所有表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方案Y：编写Sql，执行本地Sql脚本进行数据迁移"><span class="nav-number">2.0.4.</span> <span class="nav-text">方案Y：编写Sql，执行本地Sql脚本进行数据迁移</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方案Z：通过ORM中的DAO配合特定的更新逻辑实现自动更新"><span class="nav-number">2.0.5.</span> <span class="nav-text">方案Z：通过ORM中的DAO配合特定的更新逻辑实现自动更新</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、第三方库现状"><span class="nav-number">2.0.6.</span> <span class="nav-text">3、第三方库现状</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、各方案逻辑设计与实现细节"><span class="nav-number">3.</span> <span class="nav-text">三、各方案逻辑设计与实现细节</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、基于Sql脚本执行的方案-方案Y"><span class="nav-number">3.0.1.</span> <span class="nav-text">1、基于Sql脚本执行的方案(方案Y)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、通过ORM中的DAO配合特定的更新逻辑实现自动更新-方案Z"><span class="nav-number">3.0.2.</span> <span class="nav-text">2、通过ORM中的DAO配合特定的更新逻辑实现自动更新(方案Z)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、综合Y、Z方案的解决方案A（支持绝大多数情况的半自动化升级）"><span class="nav-number">3.0.3.</span> <span class="nav-text">3、综合Y、Z方案的解决方案A（支持绝大多数情况的半自动化升级）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、总结"><span class="nav-number">3.0.4.</span> <span class="nav-text">4、总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、表设计的建议"><span class="nav-number">4.</span> <span class="nav-text">四、表设计的建议</span></a></li></ol></div>
             
 
           </div>
@@ -554,7 +631,7 @@
 </div>
 
 
-  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
 
 
 
@@ -562,7 +639,7 @@
 
 
 
-  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
 
 
 
