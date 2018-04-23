@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="并发," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文对是本人在阅读 Java并发编程实战 时对其部分章节做的摘要合集，滤过了很多个人觉得无需记录的知识点。因此，本文仅适合作为本人快速查阅使用。 全书脉络第2-3章介绍了并发相关的基本概念。 第4-5章介绍了Java基础同步工具类，以及如何正确封装使用它们。 第6-9章介绍了任务处理相关的内容，包括线程池的使用，任务的设计等。 第10-12章介绍了如何编码以正确提升同步代码的活跃性、响应性。 第1">
+<meta name="keywords" content="并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java并发编程摘记">
+<meta property="og:url" content="https://xybean.github.io/2018/04/23/Java并发编程摘记/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="本文对是本人在阅读 Java并发编程实战 时对其部分章节做的摘要合集，滤过了很多个人觉得无需记录的知识点。因此，本文仅适合作为本人快速查阅使用。 全书脉络第2-3章介绍了并发相关的基本概念。 第4-5章介绍了Java基础同步工具类，以及如何正确封装使用它们。 第6-9章介绍了任务处理相关的内容，包括线程池的使用，任务的设计等。 第10-12章介绍了如何编码以正确提升同步代码的活跃性、响应性。 第1">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-04-23T11:43:17.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java并发编程摘记">
+<meta name="twitter:description" content="本文对是本人在阅读 Java并发编程实战 时对其部分章节做的摘要合集，滤过了很多个人觉得无需记录的知识点。因此，本文仅适合作为本人快速查阅使用。 全书脉络第2-3章介绍了并发相关的基本概念。 第4-5章介绍了Java基础同步工具类，以及如何正确封装使用它们。 第6-9章介绍了任务处理相关的内容，包括线程池的使用，任务的设计等。 第10-12章介绍了如何编码以正确提升同步代码的活跃性、响应性。 第1">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2018/04/23/Java并发编程摘记/"/>
+
+
+
+
+
+  <title>Java并发编程摘记 | xybean's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2018/04/23/Java并发编程摘记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java并发编程摘记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-23T19:41:24+08:00">
+                2018-04-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><em>本文对是本人在阅读 <a href="https://book.douban.com/subject/10484692/" target="_blank" rel="noopener">Java并发编程实战 </a>时对其部分章节做的摘要合集，滤过了很多个人觉得无需记录的知识点。因此，本文仅适合作为本人快速查阅使用。</em></p>
+<h3 id="全书脉络"><a href="#全书脉络" class="headerlink" title="全书脉络"></a>全书脉络</h3><p>第2-3章介绍了并发相关的基本概念。</p>
+<p>第4-5章介绍了Java基础同步工具类，以及如何正确封装使用它们。</p>
+<p>第6-9章介绍了任务处理相关的内容，包括线程池的使用，任务的设计等。</p>
+<p>第10-12章介绍了如何编码以正确提升同步代码的活跃性、响应性。</p>
+<p>第13-16章介绍了高级同步工具（显式锁、原子变量等）以及如何自定义同步工具类。</p>
+<p>全书的主旨就是如何正确的编写正确高效的并发代码。（正确性优先于高效）</p>
+<h3 id="线程安全性"><a href="#线程安全性" class="headerlink" title="线程安全性"></a>线程安全性</h3><h5 id="竞态条件-amp-临界区"><a href="#竞态条件-amp-临界区" class="headerlink" title="竞态条件 &amp; 临界区"></a>竞态条件 &amp; 临界区</h5><p>当两个线程竞争同一资源时，如果对资源的访问顺序敏感，就称存在竞态条件。导致竞态条件发生的代码区称作临界区。上例中add()方法就是一个临界区,它会产生竞态条件。在临界区中使用适当的同步就可以避免竞态条件。</p>
+<h5 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h5><ul>
+<li><p>当执行较长的计算或响应慢的操作（网络IO）等操作的时候不要持有锁。</p>
+</li>
+<li><p>避免过多的锁与同步块的使用。</p>
+<p>​</p>
+</li>
+</ul>
+<h3 id="对象的共享"><a href="#对象的共享" class="headerlink" title="对象的共享"></a>对象的共享</h3><h5 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h5><ul>
+<li>线程A修改共享数据a后，线程B去读取a可能只能读到修改前的值。</li>
+<li>volatile可以解决可见性的问题。（数据的更新会被及时同步）</li>
+<li>volatile的常用场景，作为状态变量标记死循环的线程是否可以退出循环。</li>
+<li>将对共享数据的操作加锁，也可以解决可见性的问题。（包含占有锁与同步两个功能）</li>
+</ul>
+<h5 id="最低安全性"><a href="#最低安全性" class="headerlink" title="最低安全性"></a>最低安全性</h5><p>线程在没有同步的情况下，读取共享数据a，要么读到旧数据，要么读到最新的数据。这种情况对大多数变量都成立，除了非volatile类型的64位数值变量（double和long），对这两种变量的读写操作会被分解为两个32位的原子操作。因此如果对该变量的读写操作在不同线程中，则可能会出现，读取到该变量旧的高32位值，和新的低32位的值，最终组合出了一个不曾存在过的值。</p>
+<h5 id="线程封闭"><a href="#线程封闭" class="headerlink" title="线程封闭"></a>线程封闭</h5><p>将对数据的所有操作都放到同一个线程中，保证数据的线程安全。</p>
+<ul>
+<li>Ad-hoc线程封闭：将维护线程封闭性的职责完全由程序实现来承担。</li>
+<li>栈封闭：多个线程访问一个方法，此方法中的局部变量都会被拷贝一份到该线程的栈中。所以局部变量是不被多个线程所共享的，也就不会出现并发问题。</li>
+<li>ThreadLocal：ThreadLocal类为每一个线程都维护了自己独有的变量拷贝。由于每个线程在访问该变量时，读取和修改的，都是自己独有的那一份变量拷贝，变量被彻底封闭在每个访问的线程中，并发错误出现的可能也完全消除了。</li>
+</ul>
+<h5 id="不变性"><a href="#不变性" class="headerlink" title="不变性"></a>不变性</h5><p>对于在访问和更新多个相关变量时出现的竞争条件问题，可以通过将这些变量全部保存在一个不可变对象中来消除。因为一个线程在访问一个不可变对象时，可以确定该对象绝对不会被其他线程修改（因为其本身就是不可修改的）。</p>
+<h5 id="安全发布"><a href="#安全发布" class="headerlink" title="安全发布"></a>安全发布</h5><ul>
+<li>在静态初始化函数中初始化一个对象引用。</li>
+</ul>
+<ul>
+<li>将对象的引用保存到volatile类型的域或者AtomicReferance对象中。</li>
+</ul>
+<ul>
+<li>将对象的引用保存到某个正确构造对象的final类型域中。</li>
+</ul>
+<ul>
+<li>将对象的引用保存到一个由锁保护的域中。</li>
+</ul>
+<h3 id="对象的组合"><a href="#对象的组合" class="headerlink" title="对象的组合"></a>对象的组合</h3><h5 id="设计安全的类"><a href="#设计安全的类" class="headerlink" title="设计安全的类"></a>设计安全的类</h5><p>步骤：</p>
+<ul>
+<li>找出构成对象状态的所有变量</li>
+</ul>
+<ul>
+<li>找出约束状态变量的不变性条件</li>
+</ul>
+<ul>
+<li>建立对象状态的并发访问管理策略</li>
+</ul>
+<p>具体实现策略：</p>
+<ul>
+<li>实例封闭：将实例私有化，加锁访问，同时注意不要将对象发布出去</li>
+<li>组合一个/多个线程安全的类，让其代理线程安全的实现</li>
+<li>交给客户端做同步</li>
+</ul>
+<h3 id="基础构建模块"><a href="#基础构建模块" class="headerlink" title="基础构建模块"></a>基础构建模块</h3><h5 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h5><p>同步容器在迭代期间也不保证线程安全，因此需要客户端通过加锁同步或者复制一份容器再迭代。</p>
+<h5 id="并发容器"><a href="#并发容器" class="headerlink" title="并发容器"></a>并发容器</h5><p>同步容器：实现线程安全的方式将它们的状态封装起来，并对每个公有方法同步（使所有操作串行化），使得每次只有一个线程能够访问容器的状态。同步容器类在单个方法被使用时可以保证线程安全。复合操作则需要额外的客户端加锁来保护。</p>
+<p>并发容器：针对于同步容器的巨大缺陷。java.util.concurrent中提供了并发容器。并发容器包注重以下特性：</p>
+<ul>
+<li>根据具体场景进行设计，尽量避免使用锁，提高容器的并发访问性。</li>
+<li>并发容器定义了一些线程安全的复合操作。</li>
+<li>并发容器在迭代时，可以不封闭在synchronized中。但是未必每次看到的都是”最新的、当前的”数据。如果说将迭代操作包装在synchronized中，可以达到”串行”的并发安全性，那么并发容器的迭代达到了”脏读”。</li>
+</ul>
+<p>ConcurrentHashMap、CopyOnWriteArrayList、BlockingQueue、BlockingDeque</p>
+<h5 id="中断处理"><a href="#中断处理" class="headerlink" title="中断处理"></a>中断处理</h5><p>interrupt()方法本质上不会进行线程的终止操作的，它不过是改变了线程的中断状态。而改变了此状态带来的影响是，部分可中断阻塞线程方法（比如Object.wait, Thread.sleep，Thread.join，我们也可以自定义方法，调用isInterrupted()检测然后抛出异常实现同样的效果）会定期执行isInterrupted方法，检测到此变化，随后会停止阻塞并抛出InterruptedException异常。</p>
+<p>当捕获到InterruptException的时候，表示当前线程的interrupt()被调用过了，当前线程的执行已被中断(代码的执行转向了catch中)。接下来我们需要：</p>
+<ul>
+<li>不处理，向上传递InterruptedException</li>
+<li>恢复中断，即调用Thread.currentThread().interrupt();</li>
+</ul>
+<h5 id="同步工具类"><a href="#同步工具类" class="headerlink" title="同步工具类"></a>同步工具类</h5><p>闭锁(Latch)：延迟进程进度直到其达到终止状态</p>
+<p>FutureTask:</p>
+<p>信号量(Semaphore)：控制同时访问某个资源的操作数量，或者同时执行某个指定操作的数量。</p>
+<p>栅栏(Barrier)：等待一定数量的线程执行到栅栏后执行在栅栏中注册的任务，并且可以多次使用，并不是一次性对象。</p>
+<h3 id="关闭与取消"><a href="#关闭与取消" class="headerlink" title="关闭与取消"></a>关闭与取消</h3><h5 id="Interrupt"><a href="#Interrupt" class="headerlink" title="Interrupt"></a>Interrupt</h5><h5 id="通过Furure来取消"><a href="#通过Furure来取消" class="headerlink" title="通过Furure来取消"></a>通过Furure来取消</h5><h5 id="不可中断的阻塞"><a href="#不可中断的阻塞" class="headerlink" title="不可中断的阻塞"></a>不可中断的阻塞</h5><ul>
+<li>Java.io包中的同步Socket I/O</li>
+<li>Java.io包中的同步 I/O</li>
+<li>Selector的异步I/O</li>
+<li>线程因为等待锁而阻塞</li>
+</ul>
+<h3 id="线程池的使用"><a href="#线程池的使用" class="headerlink" title="线程池的使用"></a>线程池的使用</h3><h5 id="合理设置线程池的大小"><a href="#合理设置线程池的大小" class="headerlink" title="合理设置线程池的大小"></a>合理设置线程池的大小</h5><ul>
+<li>对于CPU密集型任务，在拥有N的CPU的系统上，线程池大小应为N+1</li>
+<li>对于IO密集型任务，在拥有N的CPU的系统上，线程池可以设置为2N+1，较为精确的值应该是<code>（线程等待时间与线程CPU时间之比 + 1）* CPU数目</code></li>
+<li>注意当任务之间有相互依赖关系的时候，设置线程池固定大小可能会导致饥饿死锁问题</li>
+</ul>
+<h3 id="GUI中的并发"><a href="#GUI中的并发" class="headerlink" title="GUI中的并发"></a>GUI中的并发</h3><p>GUI的实现基本都是单线程的</p>
+<p><a href="http://www.voidcn.com/article/p-hlaufhoe-bab.html" target="_blank" rel="noopener">Android GUI 单线程消息队列机制 —— 多线程GUI工具箱：一个破碎的梦</a></p>
+<h3 id="避免活跃性危险"><a href="#避免活跃性危险" class="headerlink" title="避免活跃性危险"></a>避免活跃性危险</h3><h5 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h5><ul>
+<li>锁顺序死锁，多个线程以不同顺序先后获取锁A与锁B，则可能导致死锁，解决办法是让所有线程都以固定顺序（比如先获取锁A，再获取锁B）去获取锁。</li>
+<li>动态锁顺序死锁，详情见书P171</li>
+<li>在协作对象之间发生的死锁，在A中的synchronize方法中调用B的synchronize方法时，如果同一个B对象也在它的synchronize方法中调用了A的synchronize方法，那么就有可能发生死锁。所以在某个synchronize调用外部的synchronize方法时，需要警惕这种情况的发生。解决办法是尽可能避免这种情况的发生，不要写这样的代码。</li>
+<li>资源死锁，多个线程以不同顺序访问相同的多个资源。有界线程池与相互依赖的任务不能一起使用</li>
+</ul>
+<h5 id="避免死锁"><a href="#避免死锁" class="headerlink" title="避免死锁"></a>避免死锁</h5><p>程序每次只获取一个锁，或者按顺序获取多个锁，或者使用定时的锁。</p>
+<h5 id="检查死锁"><a href="#检查死锁" class="headerlink" title="检查死锁"></a>检查死锁</h5><p>通过log记录，，每个线程的锁状态，可以帮助分析定位死锁。</p>
+<h5 id="其他活跃性危险"><a href="#其他活跃性危险" class="headerlink" title="其他活跃性危险"></a>其他活跃性危险</h5><ul>
+<li>饥饿，如果线程A长时间持有锁(资源)x，而线程B也需要获取锁(资源)x，则B会处于饥饿状态。</li>
+<li>糟糕的响应性，线程A执行CPU密集型任务，可能会导致线程B分到的CPU时间变少，解决办法是提高B的优先级或者降低A的优先级。</li>
+<li>活锁，线程A在获取资源a后又要获取资源b，但是A发现b已被B获取，则A选择释放a，再重新获取a与b，而线程B在获取资源b后又要获取资源a，因为发现a已被A获取，则选择释放b，然后重新获取b和a，这个过程不断发生，导致活锁。</li>
+</ul>
+<h3 id="性能与可伸缩性"><a href="#性能与可伸缩性" class="headerlink" title="性能与可伸缩性"></a>性能与可伸缩性</h3><h5 id="可伸缩性"><a href="#可伸缩性" class="headerlink" title="可伸缩性"></a>可伸缩性</h5><p>定义：当增加计算资源时（如CPU\内存、存储容量、或I/O带宽），程序的吞吐量或者处理能力能相应地增加。</p>
+<h5 id="性能的影响因素"><a href="#性能的影响因素" class="headerlink" title="性能的影响因素"></a>性能的影响因素</h5><p>多线程引入的开销：</p>
+<ul>
+<li>上下文切换：因为上下文切换需要占用CPU时间，上下文切换多了，则应用程序可用的CPU时间就会变少。</li>
+<li>内存同步</li>
+<li>阻塞</li>
+</ul>
+<h5 id="提高性能的方法"><a href="#提高性能的方法" class="headerlink" title="提高性能的方法"></a>提高性能的方法</h5><p>减少锁的竞争：锁的请求频率以及每次持有该锁的时间的乘积如果很小，那么大多数获取锁的竞争不会对可伸缩性造成严重影响。</p>
+<ul>
+<li>减小锁的范围</li>
+<li>减小所得粒度（适当地将一个锁拆成多个锁），如果一个锁需要保护多个相互独立的状态变量，就可以将这个锁分解为多个锁</li>
+<li>锁分段，对于一个状态变量，他可能含有多个域，设置多个锁对域分别加锁，这样每次只需要加解锁所需要操作的域即可。</li>
+<li>不适用独占锁：使用ReadWriteLock、原子变量</li>
+<li>拒绝使用对象池（因为对象分配与实例回收的操作开销要小于同步）</li>
+</ul>
+<h3 id="显式锁"><a href="#显式锁" class="headerlink" title="显式锁"></a>显式锁</h3><p>内置锁这么好用，为什么还需多出一个显式锁呢？因为有些事情内置锁是做不了的，比如：</p>
+<ol>
+<li>我们想给锁加个等待时间超时时间，超时还未获得锁就放弃，不至于无限等下去；</li>
+<li>我们想以可中断的方式获取锁，这样外部线程给我们发一个中断信号就能唤起等待锁的线程；</li>
+<li>我们想为锁维持多个等待队列，比如一个生产者队列，一个消费者队列，一边提高锁的效率。</li>
+</ol>
+<p>显式锁(ReentrantLock)正式为了解决这些灵活需求而生。ReentrantLock的字面意思是<em>可重入锁</em>，可重入的意思是<em>线程可以同时多次请求同一把锁，而不会自己导致自己死锁</em>。下面是内置锁和显式锁的区别：</p>
+<ul>
+<li><p>可定时：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RenentrantLock.tryLock(long timeout, TimeUnit unit)</span><br></pre></td></tr></table></figure>
+<p>提供了一种以定时结束等待的方式，如果线程在指定的时间内没有获得锁，该方法就会返回false并结束线程等待。</p>
+</li>
+<li><p>可中断：你一定见过InterruptedException，很多跟多线程相关的方法会抛出该异常，这个异常并不是一个缺陷导致的负担，而是一种必须，或者说是一件好事。可中断性给我们提供了一种让线程提前结束的方式（而不是非得等到线程执行结束），这对于要取消耗时的任务非常有用。对于内置锁，线程拿不到内置锁就会一直等待，除了获取锁没有其他办法能够让其结束等待。<code>RenentrantLock.lockInterruptibly()</code>给我们提供了一种以中断结束等待的方式。</p>
+</li>
+<li><p>条件队列(condition queue)：线程在获取锁之后，可能会由于等待某个条件发生而进入等待状态（内置锁通过<code>Object.wait()</code>方法，显式锁通过<code>Condition.await()</code>方法），进入等待状态的线程会挂起并自动释放锁，这些线程会被放入到条件队列当中。synchronized对应的只有一个条件队列，而ReentrantLock可以有多个条件队列，多个队列有什么好处呢？请往下看。</p>
+</li>
+<li><p>条件谓词：线程在获取锁之后，有时候还需要等待某个条件满足才能做事情，比如生产者需要等到“缓存不满”才能往队列里放入消息，而消费者需要等到“缓存非空”才能从队列里取出消息。这些条件被称作条件谓词，线程需要先获取锁，然后判断条件谓词是否满足，如果不满足就不往下执行，相应的线程就会放弃执行权并自动释放锁。使用同一把锁的不同的线程可能有不同的条件谓词，如果只有一个条件队列，当某个条件谓词满足时就无法判断该唤醒条件队列里的哪一个线程；但是如果每个条件谓词都有一个单独的条件队列，当某个条件满足时我们就知道应该唤醒对应队列上的线程（内置锁通过<code>Object.notify()</code>或者<code>Object.notifyAll()</code>方法唤醒，显式锁通过<code>Condition.signal()</code>或者<code>Condition.signalAll()</code>方法唤醒）。这就是多个条件队列的好处。</p>
+</li>
+</ul>
+<h3 id="Java内存模型"><a href="#Java内存模型" class="headerlink" title="Java内存模型"></a>Java内存模型</h3><p><a href="http://www.infoq.com/cn/minibooks/java_memory_model" target="_blank" rel="noopener">深入理解Java内存模型</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/并发/" rel="tag"># 并发</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/27/git常用命令/" rel="next" title="git常用命令">
+                <i class="fa fa-chevron-left"></i> git常用命令
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#全书脉络"><span class="nav-number">1.</span> <span class="nav-text">全书脉络</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程安全性"><span class="nav-number">2.</span> <span class="nav-text">线程安全性</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#竞态条件-amp-临界区"><span class="nav-number">2.0.1.</span> <span class="nav-text">竞态条件 &amp; 临界区</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#锁"><span class="nav-number">2.0.2.</span> <span class="nav-text">锁</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象的共享"><span class="nav-number">3.</span> <span class="nav-text">对象的共享</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#可见性"><span class="nav-number">3.0.1.</span> <span class="nav-text">可见性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#最低安全性"><span class="nav-number">3.0.2.</span> <span class="nav-text">最低安全性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#线程封闭"><span class="nav-number">3.0.3.</span> <span class="nav-text">线程封闭</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#不变性"><span class="nav-number">3.0.4.</span> <span class="nav-text">不变性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#安全发布"><span class="nav-number">3.0.5.</span> <span class="nav-text">安全发布</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象的组合"><span class="nav-number">4.</span> <span class="nav-text">对象的组合</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#设计安全的类"><span class="nav-number">4.0.1.</span> <span class="nav-text">设计安全的类</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基础构建模块"><span class="nav-number">5.</span> <span class="nav-text">基础构建模块</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#迭代器"><span class="nav-number">5.0.1.</span> <span class="nav-text">迭代器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#并发容器"><span class="nav-number">5.0.2.</span> <span class="nav-text">并发容器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#中断处理"><span class="nav-number">5.0.3.</span> <span class="nav-text">中断处理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#同步工具类"><span class="nav-number">5.0.4.</span> <span class="nav-text">同步工具类</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关闭与取消"><span class="nav-number">6.</span> <span class="nav-text">关闭与取消</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Interrupt"><span class="nav-number">6.0.1.</span> <span class="nav-text">Interrupt</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#通过Furure来取消"><span class="nav-number">6.0.2.</span> <span class="nav-text">通过Furure来取消</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#不可中断的阻塞"><span class="nav-number">6.0.3.</span> <span class="nav-text">不可中断的阻塞</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程池的使用"><span class="nav-number">7.</span> <span class="nav-text">线程池的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#合理设置线程池的大小"><span class="nav-number">7.0.1.</span> <span class="nav-text">合理设置线程池的大小</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GUI中的并发"><span class="nav-number">8.</span> <span class="nav-text">GUI中的并发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#避免活跃性危险"><span class="nav-number">9.</span> <span class="nav-text">避免活跃性危险</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#死锁"><span class="nav-number">9.0.1.</span> <span class="nav-text">死锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#避免死锁"><span class="nav-number">9.0.2.</span> <span class="nav-text">避免死锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#检查死锁"><span class="nav-number">9.0.3.</span> <span class="nav-text">检查死锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#其他活跃性危险"><span class="nav-number">9.0.4.</span> <span class="nav-text">其他活跃性危险</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#性能与可伸缩性"><span class="nav-number">10.</span> <span class="nav-text">性能与可伸缩性</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#可伸缩性"><span class="nav-number">10.0.1.</span> <span class="nav-text">可伸缩性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#性能的影响因素"><span class="nav-number">10.0.2.</span> <span class="nav-text">性能的影响因素</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#提高性能的方法"><span class="nav-number">10.0.3.</span> <span class="nav-text">提高性能的方法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#显式锁"><span class="nav-number">11.</span> <span class="nav-text">显式锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java内存模型"><span class="nav-number">12.</span> <span class="nav-text">Java内存模型</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
