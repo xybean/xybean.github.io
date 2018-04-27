@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="xybean&#39;s blog">
 <meta property="og:description" content="本文对是本人在阅读 Java并发编程实战 时对其部分章节做的摘要合集，滤过了很多个人觉得无需记录的知识点。因此，本文仅适合作为本人快速查阅使用。 全书脉络第2-3章介绍了并发相关的基本概念。 第4-5章介绍了Java基础同步工具类，以及如何正确封装使用它们。 第6-9章介绍了任务处理相关的内容，包括线程池的使用，任务的设计等。 第10-12章介绍了如何编码以正确提升同步代码的活跃性、响应性。 第1">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-04-23T11:43:17.000Z">
+<meta property="og:updated_time" content="2018-04-27T14:26:21.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java并发编程摘记">
 <meta name="twitter:description" content="本文对是本人在阅读 Java并发编程实战 时对其部分章节做的摘要合集，滤过了很多个人觉得无需记录的知识点。因此，本文仅适合作为本人快速查阅使用。 全书脉络第2-3章介绍了并发相关的基本概念。 第4-5章介绍了Java基础同步工具类，以及如何正确封装使用它们。 第6-9章介绍了任务处理相关的内容，包括线程池的使用，任务的设计等。 第10-12章介绍了如何编码以正确提升同步代码的活跃性、响应性。 第1">
@@ -349,7 +349,7 @@
 <p>第10-12章介绍了如何编码以正确提升同步代码的活跃性、响应性。</p>
 <p>第13-16章介绍了高级同步工具（显式锁、原子变量等）以及如何自定义同步工具类。</p>
 <p>全书的主旨就是如何正确的编写正确高效的并发代码。（正确性优先于高效）</p>
-<h3 id="线程安全性"><a href="#线程安全性" class="headerlink" title="线程安全性"></a>线程安全性</h3><h5 id="竞态条件-amp-临界区"><a href="#竞态条件-amp-临界区" class="headerlink" title="竞态条件 &amp; 临界区"></a>竞态条件 &amp; 临界区</h5><p>当两个线程竞争同一资源时，如果对资源的访问顺序敏感，就称存在竞态条件。导致竞态条件发生的代码区称作临界区。上例中add()方法就是一个临界区,它会产生竞态条件。在临界区中使用适当的同步就可以避免竞态条件。</p>
+<h3 id="线程安全性"><a href="#线程安全性" class="headerlink" title="线程安全性"></a>线程安全性</h3><h5 id="竞态条件-amp-临界区"><a href="#竞态条件-amp-临界区" class="headerlink" title="竞态条件 &amp; 临界区"></a>竞态条件 &amp; 临界区</h5><p>当两个线程竞争同一资源时，如果对资源的访问顺序敏感，就称存在竞态条件。导致竞态条件发生的代码区称作临界区。在临界区中使用适当的同步就可以避免竞态条件。</p>
 <h5 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h5><ul>
 <li><p>当执行较长的计算或响应慢的操作（网络IO）等操作的时候不要持有锁。</p>
 </li>
@@ -409,16 +409,18 @@
 </ul>
 <p>ConcurrentHashMap、CopyOnWriteArrayList、BlockingQueue、BlockingDeque</p>
 <h5 id="中断处理"><a href="#中断处理" class="headerlink" title="中断处理"></a>中断处理</h5><p>interrupt()方法本质上不会进行线程的终止操作的，它不过是改变了线程的中断状态。而改变了此状态带来的影响是，部分可中断阻塞线程方法（比如Object.wait, Thread.sleep，Thread.join，我们也可以自定义方法，调用isInterrupted()检测然后抛出异常实现同样的效果）会定期执行isInterrupted方法，检测到此变化，随后会停止阻塞并抛出InterruptedException异常。</p>
-<p>当捕获到InterruptException的时候，表示当前线程的interrupt()被调用过了，当前线程的执行已被中断(代码的执行转向了catch中)。接下来我们需要：</p>
+<p>当捕获到InterruptException的时候，表示当前线程的interrupt()被调用过了，当前线程的执行已被中断(代码的执行转向了catch中，同时由于抛出异常的类其实会重置interrupt标记位，所以此时线程的中断标记是处于清空状态的)。接下来我们需要：</p>
 <ul>
-<li>不处理，向上传递InterruptedException</li>
-<li>恢复中断，即调用Thread.currentThread().interrupt();</li>
+<li>如果我们已经自己实现了应对中断的处理逻辑，则此时我们可以直接消化这个InterruptException。</li>
+<li>恢复中断，即调用Thread.currentThread().interrupt()，将中断向上继续传递。</li>
 </ul>
 <h5 id="同步工具类"><a href="#同步工具类" class="headerlink" title="同步工具类"></a>同步工具类</h5><p>闭锁(Latch)：延迟进程进度直到其达到终止状态</p>
 <p>FutureTask:</p>
 <p>信号量(Semaphore)：控制同时访问某个资源的操作数量，或者同时执行某个指定操作的数量。</p>
 <p>栅栏(Barrier)：等待一定数量的线程执行到栅栏后执行在栅栏中注册的任务，并且可以多次使用，并不是一次性对象。</p>
-<h3 id="关闭与取消"><a href="#关闭与取消" class="headerlink" title="关闭与取消"></a>关闭与取消</h3><h5 id="Interrupt"><a href="#Interrupt" class="headerlink" title="Interrupt"></a>Interrupt</h5><h5 id="通过Furure来取消"><a href="#通过Furure来取消" class="headerlink" title="通过Furure来取消"></a>通过Furure来取消</h5><h5 id="不可中断的阻塞"><a href="#不可中断的阻塞" class="headerlink" title="不可中断的阻塞"></a>不可中断的阻塞</h5><ul>
+<h3 id="关闭与取消"><a href="#关闭与取消" class="headerlink" title="关闭与取消"></a>关闭与取消</h3><h5 id="Interrupt"><a href="#Interrupt" class="headerlink" title="Interrupt"></a>Interrupt</h5><p>参见上文的处理</p>
+<h5 id="通过Furure来取消"><a href="#通过Furure来取消" class="headerlink" title="通过Furure来取消"></a>通过Furure来取消</h5><p>直接调用相关方法即可</p>
+<h5 id="不可中断的阻塞"><a href="#不可中断的阻塞" class="headerlink" title="不可中断的阻塞"></a>不可中断的阻塞</h5><ul>
 <li>Java.io包中的同步Socket I/O</li>
 <li>Java.io包中的同步 I/O</li>
 <li>Selector的异步I/O</li>
