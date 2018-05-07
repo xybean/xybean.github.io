@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="加密," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="基本概念对称加密对称加密指的是在加密和解密过程中都使用同一个秘钥，相对于非对称加密(加解密使用不同的秘钥)，加解密速度更快。 分组加密由于DES等算法的秘钥长度是定长的，并且单次加解密的明文(密文)只能等于秘钥长度，因此会对明文(密文)先做分块处理，然后逐块加解密。具体的分组加密实现中，不一定会对每个组采用相同的秘钥，细节详见后文。 安全原则：混乱与扩散混乱：使得密文与其对应的明文和密钥的关系足够">
+<meta name="keywords" content="加密">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DES算法详解">
+<meta property="og:url" content="https://xybean.github.io/2018/05/07/DES算法详解/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="基本概念对称加密对称加密指的是在加密和解密过程中都使用同一个秘钥，相对于非对称加密(加解密使用不同的秘钥)，加解密速度更快。 分组加密由于DES等算法的秘钥长度是定长的，并且单次加解密的明文(密文)只能等于秘钥长度，因此会对明文(密文)先做分块处理，然后逐块加解密。具体的分组加密实现中，不一定会对每个组采用相同的秘钥，细节详见后文。 安全原则：混乱与扩散混乱：使得密文与其对应的明文和密钥的关系足够">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fqyj4xcq67j314s0qgaaz.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1fqyjqqdetuj313w0mcdi4.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fqylsncy3uj315s0p8dgp.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fr0ro3r9phj313o0kc0xn.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1fr35ndfyuaj31bq0k049x.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fr35nkscemj30m60b0juv.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1fr35t1hys8j30md0algmz.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1fr35t9y8hzj30io0ejwj0.jpg">
+<meta property="og:updated_time" content="2018-05-07T15:18:17.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DES算法详解">
+<meta name="twitter:description" content="基本概念对称加密对称加密指的是在加密和解密过程中都使用同一个秘钥，相对于非对称加密(加解密使用不同的秘钥)，加解密速度更快。 分组加密由于DES等算法的秘钥长度是定长的，并且单次加解密的明文(密文)只能等于秘钥长度，因此会对明文(密文)先做分块处理，然后逐块加解密。具体的分组加密实现中，不一定会对每个组采用相同的秘钥，细节详见后文。 安全原则：混乱与扩散混乱：使得密文与其对应的明文和密钥的关系足够">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fqyj4xcq67j314s0qgaaz.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2018/05/07/DES算法详解/"/>
+
+
+
+
+
+  <title>DES算法详解 | xybean's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2018/05/07/DES算法详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">DES算法详解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-07T23:16:24+08:00">
+                2018-05-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/计算机基础/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><h5 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h5><p>对称加密指的是在加密和解密过程中都使用同一个秘钥，相对于非对称加密(加解密使用不同的秘钥)，加解密速度更快。</p>
+<h5 id="分组加密"><a href="#分组加密" class="headerlink" title="分组加密"></a>分组加密</h5><p>由于DES等算法的秘钥长度是定长的，并且单次加解密的明文(密文)只能等于秘钥长度，因此会对明文(密文)先做分块处理，然后逐块加解密。具体的分组加密实现中，不一定会对每个组采用相同的秘钥，细节详见后文。</p>
+<h5 id="安全原则：混乱与扩散"><a href="#安全原则：混乱与扩散" class="headerlink" title="安全原则：混乱与扩散"></a>安全原则：混乱与扩散</h5><p>混乱：使得密文与其对应的明文和密钥的关系足够复杂， 以致于密码分析者无法利用这种关系。</p>
+<p>扩散：使得每个明文比特和密钥比特影响尽可能多的密文比特， 以隐藏明文的统计特性和结构规律。</p>
+<p>DES在具体实现中的每一步都是按照这两个原则实现的，以尽最大可能达到安全性。</p>
+<h5 id="费斯妥（Feistel）密码"><a href="#费斯妥（Feistel）密码" class="headerlink" title="费斯妥（Feistel）密码"></a>费斯妥（Feistel）密码</h5><p>是用于分组加密实现中的迭代步骤，特点是加解密操作非常相似，易于基于硬件操作实现。具体流程图见后文。</p>
+<h5 id="DES"><a href="#DES" class="headerlink" title="DES"></a>DES</h5><blockquote>
+<p><strong>数据加密标准</strong>（英语：Data Encryption Standard，缩写为 DES）是一种对称密钥加密块密码算法，1976年被美国联邦政府的国家标准局确定为联邦资料处理标准（FIPS），随后在国际上广泛流传开来。它基于使用56位密钥的对称算法。<strong>DES现在已经不是一种安全的加密方法</strong>。</p>
+</blockquote>
+<h3 id="整体加解密流程"><a href="#整体加解密流程" class="headerlink" title="整体加解密流程"></a>整体加解密流程</h3><p>下图是一个分组明文加密的整体流程：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fqyj4xcq67j314s0qgaaz.jpg" alt=""></p>
+<h5 id="图片注解"><a href="#图片注解" class="headerlink" title="图片注解"></a>图片注解</h5><p>m1m2…m64表示一个分组的明文。</p>
+<p>初始置换指的是对明文根据一定规律做乱序操作，打乱明文序列。</p>
+<p>Round指的是执行一轮Feistel操作。其中的L代表输入的左半边(32字节)，R代表右半边(32字节)，f表示轮函数，K代表子秘钥，该秘钥由加密密钥生成。</p>
+<p>逆初始置换指的是初始置换的逆变换。</p>
+<p>c1c2…c64表示最终输出的密文。</p>
+<h5 id="加密过程中的基本参数配置"><a href="#加密过程中的基本参数配置" class="headerlink" title="加密过程中的基本参数配置"></a>加密过程中的基本参数配置</h5><p>分组长度：64位</p>
+<p>秘钥长度：64位，其中8位为奇偶校验位，真正用于加密的有效位数只有56位。</p>
+<p>迭代轮数：16轮。实际上根据Feistel的设计是可以迭代任意轮次的，但是综合考虑性能与安全性，最终设定为16轮。</p>
+<p>子秘钥长度：48位。</p>
+<h3 id="初始置换与逆初始置换"><a href="#初始置换与逆初始置换" class="headerlink" title="初始置换与逆初始置换"></a>初始置换与逆初始置换</h3><p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1fqyjqqdetuj313w0mcdi4.jpg" alt=""></p>
+<p>上图中的58表示将明文中的第58位放在现在的第一位，以此类推，50表示将明文中的第50位放在现在的第二位。</p>
+<p>代码实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, <span class="number">64</span>):</span><br><span class="line">	ip_text += plaintext[self.__ip[i] - <span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<p>逆初始置换的原理也是相同的，不再赘述。</p>
+<p>这一步主要保证了混乱原则，使得最终明文与密文的关系更加复杂。</p>
+<h3 id="Feistel"><a href="#Feistel" class="headerlink" title="Feistel"></a>Feistel</h3><h5 id="一轮Feistel操作"><a href="#一轮Feistel操作" class="headerlink" title="一轮Feistel操作"></a>一轮Feistel操作</h5><p>Feistel操作是DES加密中最重要的一环，直接决定了加密强度。</p>
+<p>该过程用数学公式直观的表示一轮操作的话，如下<br>$$<br>(L_i, R<em>i) = (R</em>{i-1}, L<em>{i-1} \oplus f(R</em>{i-1}, K<em>i))<br>$$<br>其中需要注意的是1-15轮L和R的位置会交换，也就是上一轮产生的L会作为下一轮的R。但是最后一轮的L和R的位置是不会做交换的，因此最后一轮的公式应该为<br>$$<br>(L</em>{16}, R<em>{16}) = ( L</em>{15} \oplus f(R<em>{15}, K</em>{16}), R_{15})<br>$$<br>代码实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">left = ip_text[<span class="number">0</span>:<span class="number">32</span>]</span><br><span class="line">right = ip_text[<span class="number">32</span>:<span class="number">64</span>]</span><br><span class="line"><span class="keyword">for</span> round_index <span class="keyword">in</span> range(<span class="number">0</span>, self.__round):</span><br><span class="line">    subkey = self.__private_subkey(round_index)</span><br><span class="line">    key = self.__private_f(right, subkey)</span><br><span class="line">    <span class="keyword">if</span> (round_index &lt; self.__round - <span class="number">1</span>):</span><br><span class="line">        temp = right</span><br><span class="line">        right = self.__private_xor(left, key)</span><br><span class="line">        left = temp</span><br><span class="line">    <span class="keyword">else</span>: <span class="comment"># 最后一轮左右不交换</span></span><br><span class="line">        left = self.__private_xor(left, key)</span><br><span class="line">mergetext = left + right</span><br></pre></td></tr></table></figure>
+<h5 id="子密钥生成算法"><a href="#子密钥生成算法" class="headerlink" title="子密钥生成算法"></a>子密钥生成算法</h5><p>上述公式中用到的16个K就是子秘钥，子秘钥通过特定的算法生成，并作为f函数的输入，最终生成的输出将与待加密的数据直接做异或运算。</p>
+<p>具体的算法描述这里不再赘述，参考文章 <a href="http://huuang.com/?p=168" target="_blank" rel="noopener">对称加密算法 DES 子密钥（subkey）的生成算法</a></p>
+<p>代码实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 左移位数</span></span><br><span class="line">shift = <span class="number">0</span></span><br><span class="line"><span class="comment"># round代表当前轮次，从0开始</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, round + <span class="number">1</span>):</span><br><span class="line">    <span class="comment"># self.__d 为子秘钥移位表</span></span><br><span class="line">	shift = shift + self.__d[i]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># self.__pc1为子秘钥置换选择1</span></span><br><span class="line">    left_shift = <span class="string">""</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(shift, <span class="number">28</span>):</span><br><span class="line">        left_shift += str(self.__key[self.__pc1[i] - <span class="number">1</span>])</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, shift):</span><br><span class="line">        left_shift += str(self.__key[self.__pc1[i] - <span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">    right_shift = <span class="string">""</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">28</span> + shift, <span class="number">56</span>):</span><br><span class="line">        right_shift += str(self.__key[self.__pc1[i] - <span class="number">1</span>])</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">28</span>, <span class="number">28</span> + shift):</span><br><span class="line">        right_shift += str(self.__key[self.__pc1[i] - <span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">    left_and_right = left_shift + right_shift</span><br><span class="line"></span><br><span class="line">    <span class="comment"># self.__pc2为子秘钥置换选择2</span></span><br><span class="line">    sub_key = <span class="string">""</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, <span class="number">48</span>):</span><br><span class="line">        sub_key += left_and_right[self.__pc2[i] - <span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<h5 id="f函数"><a href="#f函数" class="headerlink" title="f函数"></a>f函数</h5><ul>
+<li>f函数的作用是以明文(密文)的右半部分以及子密钥生成与最终左半部分进行异或操作的字符串。用数学公式表示为：</li>
+</ul>
+<p>$$<br>f(R, k) =PS(E(R)\oplus k)<br>$$</p>
+<ul>
+<li>f函数的主要过程包括，通过E盒扩展将32位的右半部分R扩展为48位，然后与28位的子密钥取异或，再使用S盒替代将48位的异或结果再缩减到32位，最终根据P盒进行置换运算。具体过程如下图</li>
+</ul>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fqylsncy3uj315s0p8dgp.jpg" alt=""></p>
+<ul>
+<li>1代表E盒扩展：将输入的32位比特数据扩展为48位</li>
+<li>2代表S盒替换：将输入的48位比特数据压缩为32位</li>
+<li>3代表P盒置换：对32位比特数据进行位置移动的操作</li>
+<li>代码实现：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># E盒扩展</span></span><br><span class="line">e_right = <span class="string">""</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">    e_right += (right[<span class="number">4</span> * i - <span class="number">1</span> <span class="keyword">if</span> i &gt; <span class="number">0</span> <span class="keyword">else</span> <span class="number">31</span>]</span><br><span class="line">    + right[<span class="number">4</span> * i:<span class="number">4</span> * (i + <span class="number">1</span>)]</span><br><span class="line">    + right[<span class="number">4</span> * (i + <span class="number">1</span>) <span class="keyword">if</span> i &lt; <span class="number">7</span> <span class="keyword">else</span> <span class="number">0</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 与subkey取异或</span></span><br><span class="line">xor_key = self.__private_xor(e_right, subkey)</span><br><span class="line"></span><br><span class="line"><span class="comment"># S盒替代</span></span><br><span class="line">s_key = <span class="string">""</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, <span class="number">8</span>):</span><br><span class="line">    col = int(xor_key[<span class="number">6</span> * i + <span class="number">1</span>: <span class="number">6</span> * (i + <span class="number">1</span>) - <span class="number">1</span>], <span class="number">2</span>)</span><br><span class="line">    row = int(xor_key[<span class="number">6</span> * i] + xor_key[<span class="number">6</span> * (i + <span class="number">1</span>) - <span class="number">1</span>], <span class="number">2</span>)</span><br><span class="line">    s_key += self.__private_int2bin((self.__s[i])[row][col], <span class="number">4</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># P盒置换</span></span><br><span class="line">p_key = <span class="string">""</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, <span class="number">32</span>):</span><br><span class="line">    p_key += str(s_key[self.__p[i] - <span class="number">1</span>])</span><br></pre></td></tr></table></figure>
+<h3 id="分组密码的模式"><a href="#分组密码的模式" class="headerlink" title="分组密码的模式"></a>分组密码的模式</h3><p>上述的过程是一组明文通过DES加密的过程，而不同的分组模式算法则决定了各组如何迭代加密的细节。</p>
+<h5 id="ECB模式"><a href="#ECB模式" class="headerlink" title="ECB模式"></a>ECB模式</h5><ul>
+<li><p>在该模式下，将明文分组加密后的结果直接保存为密文分组。当最后一个明文的分组的内容小于分组的长度时，需要用指定的数据进行填充。</p>
+</li>
+<li><p>加密过程：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fr0ro3r9phj313o0kc0xn.jpg" alt=""></p>
+</li>
+<li><p>缺点：如果攻击者拦截到了密文通信过程，则可以通过交换密文的顺序来改变原本要传达的意思。比如原来的明文可能是A Attack B,如果这三个关键元素刚好是在不同分组中被独立加密的，则可以通过改变密文顺序将明文改为B Attack A。关键的问题在于明文与密文存在唯一的映射关系，与明文在文本中所处的位置无关。</p>
+</li>
+</ul>
+<h5 id="CBC模式"><a href="#CBC模式" class="headerlink" title="CBC模式"></a>CBC模式</h5><ul>
+<li><p>CBC模式将前一个密文分组与当前明文分组的内容混合起来进行加密，这样就使得明文分组的加密结果与其所处的位置相关，保证同一明文分组的输出结果不一定每次都相同，避免了ECB的缺点。</p>
+</li>
+<li><p>加密过程：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1fr35ndfyuaj31bq0k049x.jpg" alt="image-20180505211452091"></p>
+</li>
+<li><p>初始化向量IV：由于第一个分组未加密的时候，没有密文分组可以与其加密，所以需要自己定义一个初始化向量和明文做异或运算。该向量最好使用随机数生成。</p>
+</li>
+<li><p>padding填充：因为加密过程要求输入的数据块长度固定，因此如果最后一个明文分组不足数据块长度，则需要补足，补足的常用算法为PKCS#5，即最后一块明文缺少N个字节，就用N这个数填充到完整的块。</p>
+</li>
+<li><p>缺点：由于在明文分组与密文分组的映射关系中引入了前一个密文分组，所以如果有一个密文分组的信息出现损坏，则会导致与之直接相关的两个明文分组都无法解密。</p>
+<p>同时由于在解密的最后一步，会将解密结果和初始化向量做异或运算然后得到最终的明文分组，因此如果攻击者可以通过反转IV的比特值，使得第一个明文分组的对应比特位也反转。之所以这样的攻击能奏效是因为IV的每一位与明文的每一位是一一对应的，如果用这种方式去修改密文来攻击明文则是做不到的，因为加密过程做了大量混淆操作，导致修改一个密文会引发多个明文的改变。</p>
+<p>会被Padding Oracle攻击。细节参考<a href="http://netsecurity.51cto.com/art/201101/244089_all.htm" target="_blank" rel="noopener">Padding Oracle攻击实例分析</a></p>
+</li>
+</ul>
+<h5 id="CFB模式"><a href="#CFB模式" class="headerlink" title="CFB模式"></a>CFB模式</h5><p>相比于CBC模式，它的明文分组不需要经过加密算法加密，因此也就不需要使用padding。具体过程如下：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fr35nkscemj30m60b0juv.jpg" alt="image-20180507223256845"></p>
+<h5 id="OFB模式"><a href="#OFB模式" class="headerlink" title="OFB模式"></a>OFB模式</h5><p>类似于CFB模式，明文都不通过加密算法加密，但是区别是CFB的密文会通过加密算法加密，而CFB则是将IV加密后的结果反复加密得到中间产物，再与明文异或，具体过程如下：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1fr35t1hys8j30md0algmz.jpg" alt="image-20180507223911361"></p>
+<p>通过对比CBC与OFB还可以发现，有一个最大的不同，即OFB密钥流的产生与密文分组的生成无关，因此可以提前生成各个密钥，然后对明文进行加密。而CBC由于中间密钥的生成依赖于上一个密文分组，因此不能做到提前生成密钥。</p>
+<h5 id="CTR模式"><a href="#CTR模式" class="headerlink" title="CTR模式"></a>CTR模式</h5><p>CTR模式是一种通过将逐次累加的计数器进行加密来生成密钥流的流密码，在CTR模式中，每个分组对应一个逐次累加的计数器，并通过对计数器进行加密来生成密钥流。最终的密文分组是通过将计数器加密得到的比特序列与明文分组进行XOR而得到的，如下图所示：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1fr35t9y8hzj30io0ejwj0.jpg" alt="image-20180507224704430"></p>
+<p>可以发现CTR模式最大的优势在于可以并行的进行加密操作，每个分组的加密过程都是独立的。</p>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
+<li>算法实现中一些参数的选定，如轮函数轮次是16轮，密钥长度是56位等，都是经过实践，在保证加密安全性的前提下，考虑到加密性能的最大化，选定的最合适的参数。</li>
+<li>算法实现中的一些常量，如S盒、P盒等，也都是设计者经过测试，选用的安全性最高的实现，因此没有必要再自己去另外设计S盒等。</li>
+<li>DES算法目前已经不再安全，推荐使用AES系列算法。</li>
+<li>上述的分组密码的模式不仅仅可以用在DES上，也可以用在其他分组加密算法中，如AES。</li>
+<li>其他分块加密技术：<a href="https://csrc.nist.gov/projects/block-cipher-techniques" target="_blank" rel="noopener">Block Cipher Techniques</a></li>
+</ul>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://book.douban.com/subject/26265544/" target="_blank" rel="noopener">图解密码技术</a></p>
+<p><a href="http://huuang.com/?p=168" target="_blank" rel="noopener">对称加密算法 DES 子密钥（subkey）的生成算法</a></p>
+<p><a href="https://www.bilibili.com/video/av20135839/index_11.html" target="_blank" rel="noopener">【国家级精品课】—-密码学（ 解放军信息工程大学）(11)</a></p>
+<p><a href="http://netsecurity.51cto.com/art/201101/244089_all.htm" target="_blank" rel="noopener">Padding Oracle攻击实例分析</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/加密/" rel="tag"># 加密</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/23/Java并发编程摘记/" rel="next" title="Java并发编程摘记">
+                <i class="fa fa-chevron-left"></i> Java并发编程摘记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#对称加密"><span class="nav-number">1.0.1.</span> <span class="nav-text">对称加密</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#分组加密"><span class="nav-number">1.0.2.</span> <span class="nav-text">分组加密</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#安全原则：混乱与扩散"><span class="nav-number">1.0.3.</span> <span class="nav-text">安全原则：混乱与扩散</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#费斯妥（Feistel）密码"><span class="nav-number">1.0.4.</span> <span class="nav-text">费斯妥（Feistel）密码</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DES"><span class="nav-number">1.0.5.</span> <span class="nav-text">DES</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#整体加解密流程"><span class="nav-number">2.</span> <span class="nav-text">整体加解密流程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#图片注解"><span class="nav-number">2.0.1.</span> <span class="nav-text">图片注解</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#加密过程中的基本参数配置"><span class="nav-number">2.0.2.</span> <span class="nav-text">加密过程中的基本参数配置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#初始置换与逆初始置换"><span class="nav-number">3.</span> <span class="nav-text">初始置换与逆初始置换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Feistel"><span class="nav-number">4.</span> <span class="nav-text">Feistel</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#一轮Feistel操作"><span class="nav-number">4.0.1.</span> <span class="nav-text">一轮Feistel操作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#子密钥生成算法"><span class="nav-number">4.0.2.</span> <span class="nav-text">子密钥生成算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#f函数"><span class="nav-number">4.0.3.</span> <span class="nav-text">f函数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分组密码的模式"><span class="nav-number">5.</span> <span class="nav-text">分组密码的模式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#ECB模式"><span class="nav-number">5.0.1.</span> <span class="nav-text">ECB模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#CBC模式"><span class="nav-number">5.0.2.</span> <span class="nav-text">CBC模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#CFB模式"><span class="nav-number">5.0.3.</span> <span class="nav-text">CFB模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#OFB模式"><span class="nav-number">5.0.4.</span> <span class="nav-text">OFB模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#CTR模式"><span class="nav-number">5.0.5.</span> <span class="nav-text">CTR模式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他"><span class="nav-number">6.</span> <span class="nav-text">其他</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
