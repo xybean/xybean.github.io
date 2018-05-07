@@ -7,7 +7,7 @@
 
 <html class="theme-next gemini use-motion" lang="zh-Hans">
 <head>
-  <meta charset="UTF-8"/>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 <meta name="theme-color" content="#222">
@@ -95,7 +95,7 @@
 <meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fr35nkscemj30m60b0juv.jpg">
 <meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1fr35t1hys8j30md0algmz.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1fr35t9y8hzj30io0ejwj0.jpg">
-<meta property="og:updated_time" content="2018-05-07T15:18:17.000Z">
+<meta property="og:updated_time" content="2018-05-07T15:30:39.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="DES算法详解">
 <meta name="twitter:description" content="基本概念对称加密对称加密指的是在加密和解密过程中都使用同一个秘钥，相对于非对称加密(加解密使用不同的秘钥)，加解密速度更快。 分组加密由于DES等算法的秘钥长度是定长的，并且单次加解密的明文(密文)只能等于秘钥长度，因此会对明文(密文)先做分块处理，然后逐块加解密。具体的分组加密实现中，不一定会对每个组采用相同的秘钥，细节详见后文。 安全原则：混乱与扩散混乱：使得密文与其对应的明文和密钥的关系足够">
@@ -135,7 +135,7 @@
 
 
 
-  <title>DES算法详解 | xybean's blog</title>
+  <title>DES算法详解 | xybean's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
   
 
 
@@ -154,7 +154,7 @@
     
   
 
-  <div class="container sidebar-position-left page-post-detail">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -378,7 +378,11 @@
 <p>逆初始置换的原理也是相同的，不再赘述。</p>
 <p>这一步主要保证了混乱原则，使得最终明文与密文的关系更加复杂。</p>
 <h3 id="Feistel"><a href="#Feistel" class="headerlink" title="Feistel"></a>Feistel</h3><h5 id="一轮Feistel操作"><a href="#一轮Feistel操作" class="headerlink" title="一轮Feistel操作"></a>一轮Feistel操作</h5><p>Feistel操作是DES加密中最重要的一环，直接决定了加密强度。</p>
-<p>该过程用数学公式直观的表示一轮操作的话，如下<br>$$<br>(L_i, R<em>i) = (R</em>{i-1}, L<em>{i-1} \oplus f(R</em>{i-1}, K<em>i))<br>$$<br>其中需要注意的是1-15轮L和R的位置会交换，也就是上一轮产生的L会作为下一轮的R。但是最后一轮的L和R的位置是不会做交换的，因此最后一轮的公式应该为<br>$$<br>(L</em>{16}, R<em>{16}) = ( L</em>{15} \oplus f(R<em>{15}, K</em>{16}), R_{15})<br>$$<br>代码实现：</p>
+<p>该过程用数学公式直观的表示一轮操作的话，如下</p>
+<script type="math/tex; mode=display">
+(L_i, R_i) = (R_{i-1}, L_{i-1} \oplus f(R_{i-1}, K_i))</script><p><strong>其中</strong>需要注意的是1-15轮L和R的位置会交换，也就是上一轮产生的L会作为下一轮的R。但是最后一轮的L和R的位置是不会做交换的，因此最后一轮的公式应该为</p>
+<script type="math/tex; mode=display">
+(L_{16}, R_{16}) = ( L_{15} \oplus f(R_{15}, K_{16}), R_{15})</script><p>代码实现：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">left = ip_text[<span class="number">0</span>:<span class="number">32</span>]</span><br><span class="line">right = ip_text[<span class="number">32</span>:<span class="number">64</span>]</span><br><span class="line"><span class="keyword">for</span> round_index <span class="keyword">in</span> range(<span class="number">0</span>, self.__round):</span><br><span class="line">    subkey = self.__private_subkey(round_index)</span><br><span class="line">    key = self.__private_f(right, subkey)</span><br><span class="line">    <span class="keyword">if</span> (round_index &lt; self.__round - <span class="number">1</span>):</span><br><span class="line">        temp = right</span><br><span class="line">        right = self.__private_xor(left, key)</span><br><span class="line">        left = temp</span><br><span class="line">    <span class="keyword">else</span>: <span class="comment"># 最后一轮左右不交换</span></span><br><span class="line">        left = self.__private_xor(left, key)</span><br><span class="line">mergetext = left + right</span><br></pre></td></tr></table></figure>
 <h5 id="子密钥生成算法"><a href="#子密钥生成算法" class="headerlink" title="子密钥生成算法"></a>子密钥生成算法</h5><p>上述公式中用到的16个K就是子秘钥，子秘钥通过特定的算法生成，并作为f函数的输入，最终生成的输出将与待加密的数据直接做异或运算。</p>
 <p>具体的算法描述这里不再赘述，参考文章 <a href="http://huuang.com/?p=168" target="_blank" rel="noopener">对称加密算法 DES 子密钥（subkey）的生成算法</a></p>
@@ -387,8 +391,8 @@
 <h5 id="f函数"><a href="#f函数" class="headerlink" title="f函数"></a>f函数</h5><ul>
 <li>f函数的作用是以明文(密文)的右半部分以及子密钥生成与最终左半部分进行异或操作的字符串。用数学公式表示为：</li>
 </ul>
-<p>$$<br>f(R, k) =PS(E(R)\oplus k)<br>$$</p>
-<ul>
+<script type="math/tex; mode=display">
+f(R, k) =PS(E(R)\oplus k)</script><ul>
 <li>f函数的主要过程包括，通过E盒扩展将32位的右半部分R扩展为48位，然后与28位的子密钥取异或，再使用S盒替代将48位的异或结果再缩减到32位，最终根据P盒进行置换运算。具体过程如下图</li>
 </ul>
 <p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fqylsncy3uj315s0p8dgp.jpg" alt=""></p>
@@ -441,7 +445,7 @@
 </ul>
 <h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://book.douban.com/subject/26265544/" target="_blank" rel="noopener">图解密码技术</a></p>
 <p><a href="http://huuang.com/?p=168" target="_blank" rel="noopener">对称加密算法 DES 子密钥（subkey）的生成算法</a></p>
-<p><a href="https://www.bilibili.com/video/av20135839/index_11.html" target="_blank" rel="noopener">【国家级精品课】—-密码学（ 解放军信息工程大学）(11)</a></p>
+<p><a href="https://www.bilibili.com/video/av20135839/index_11.html" target="_blank" rel="noopener">【国家级精品课】——密码学（ 解放军信息工程大学）(11)</a></p>
 <p><a href="http://netsecurity.51cto.com/art/201101/244089_all.htm" target="_blank" rel="noopener">Padding Oracle攻击实例分析</a></p>
 
       
@@ -840,6 +844,45 @@
   
 
   
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
 
   
 
