@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android 源码分析," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Window层级结构相关类简介这里只介绍与UI层级相关的功能。 Window：抽象类，定义了window视图布局的一些规则，如是否显示ActionBar之类。 PhoneWindow：Window的唯一实现类，与Activity一一对应，持有了具体的View对象，对外提供操作这些View的具体实现。 DecorView：顶级View的具体实现，继承于FrameLayout，被PhoneWindow">
+<meta name="keywords" content="Android 源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Window机制">
+<meta property="og:url" content="https://xybean.github.io/2018/06/15/Android-Window机制/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="Window层级结构相关类简介这里只介绍与UI层级相关的功能。 Window：抽象类，定义了window视图布局的一些规则，如是否显示ActionBar之类。 PhoneWindow：Window的唯一实现类，与Activity一一对应，持有了具体的View对象，对外提供操作这些View的具体实现。 DecorView：顶级View的具体实现，继承于FrameLayout，被PhoneWindow">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1frj7rgy6fdj30830btq2s.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1frkfvk9i8vj30on0cgq42.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1frkfpy259pj30k80e3q31.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1frrcu1pdn0j30hz0dagn3.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1frzfaylpqsj30hi0bcgml.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNc79gy1fs2x0y8n02j30hi02haa5.jpg">
+<meta property="og:updated_time" content="2018-06-15T02:09:19.884Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android Window机制">
+<meta name="twitter:description" content="Window层级结构相关类简介这里只介绍与UI层级相关的功能。 Window：抽象类，定义了window视图布局的一些规则，如是否显示ActionBar之类。 PhoneWindow：Window的唯一实现类，与Activity一一对应，持有了具体的View对象，对外提供操作这些View的具体实现。 DecorView：顶级View的具体实现，继承于FrameLayout，被PhoneWindow">
+<meta name="twitter:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1frj7rgy6fdj30830btq2s.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2018/06/15/Android-Window机制/"/>
+
+
+
+
+
+  <title>Android Window机制 | xybean's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2018/06/15/Android-Window机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android Window机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-15T10:02:34+08:00">
+                2018-06-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="Window层级结构"><a href="#Window层级结构" class="headerlink" title="Window层级结构"></a>Window层级结构</h3><h5 id="相关类简介"><a href="#相关类简介" class="headerlink" title="相关类简介"></a>相关类简介</h5><p>这里只介绍与UI层级相关的功能。</p>
+<p>Window：抽象类，定义了window视图布局的一些规则，如是否显示ActionBar之类。</p>
+<p>PhoneWindow：Window的唯一实现类，与Activity一一对应，持有了具体的View对象，对外提供操作这些View的具体实现。</p>
+<p>DecorView：顶级View的具体实现，继承于FrameLayout，被PhoneWindow所持有。包含顶部状态栏与ContentView。</p>
+<p>ContentView：这个不是一个具体存在的类，而是Framework中包含了很多已经实现的Content布局，根据用户的配置来选择加载合适的放置于DecorView中，例如有无ActionBar对应了两种不同的布局资源。（这里需要注意Activity.setContentView()设置的View是ContentView的子View而不是ContentView自己）</p>
+<h5 id="WindowUI层级"><a href="#WindowUI层级" class="headerlink" title="WindowUI层级"></a>WindowUI层级</h5><p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1frj7rgy6fdj30830btq2s.jpg" alt=""></p>
+<h5 id="Window层级相关源码"><a href="#Window层级相关源码" class="headerlink" title="Window层级相关源码"></a>Window层级相关源码</h5><p>Window：主要提供与DesorView相关的配置参数，如状态栏、ActionBar之类，具体源码不再赘述。</p>
+<p>PhoneWindow：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// This is the top-level view of the window, containing the window decor.</span></span><br><span class="line"><span class="keyword">private</span> DecorView mDecor;</span><br><span class="line"></span><br><span class="line"><span class="comment">// This is the view in which the window contents are placed. It is either</span></span><br><span class="line"><span class="comment">// mDecor itself, or a child of mDecor where the contents go.</span></span><br><span class="line"><span class="comment">// 对应上图的ContentView</span></span><br><span class="line">ViewGroup mContentParent;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对应上图的TitleView</span></span><br><span class="line"><span class="keyword">private</span> TextView mTitleView;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这个方法实际上是Window中的，mContentParent、TitleView都是通过这个方法赋值的</span></span><br><span class="line"><span class="keyword">public</span> &lt;T extends View&gt; <span class="function">T <span class="title">findViewById</span><span class="params">(@IdRes <span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> getDecorView().findViewById(id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>DecorView</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 对应上图的ContentView</span></span><br><span class="line">ViewGroup mContentRoot;</span><br><span class="line"></span><br><span class="line"><span class="comment">// View added at runtime to draw under the status bar area</span></span><br><span class="line"><span class="keyword">private</span> View mStatusGuard;</span><br><span class="line"><span class="comment">// View added at runtime to draw under the navigation bar area</span></span><br><span class="line"><span class="keyword">private</span> View mNavigationGuard;</span><br></pre></td></tr></table></figure>
+<p>上述几个View的初始化流程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 以Activity.setContentView()为起点</span></span><br><span class="line"><span class="comment">// Activity</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setContentView</span><span class="params">(@LayoutRes <span class="keyword">int</span> layoutResID)</span> </span>&#123;</span><br><span class="line">    getWindow().setContentView(layoutResID);</span><br><span class="line">    initWindowDecorActionBar();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 以下代码为缩减并略作修改过的源码，便于阅读</span></span><br><span class="line"><span class="comment">// PhoneWindow</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setContentView</span><span class="params">(<span class="keyword">int</span> layoutResID)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mContentParent == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 根据设置的Window相关参数初始化DecorView</span></span><br><span class="line">        installDecor();</span><br><span class="line">    &#125;</span><br><span class="line">    mLayoutInflater.inflate(layoutResID, mContentParent);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 根据设置的Window相关参数初始化DecorView</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">installDecor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mDecor == <span class="keyword">null</span>) &#123;</span><br><span class="line">        mDecor = generateDecor(-<span class="number">1</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        mDecor.setWindow(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (mContentParent == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 初始化并绑定mContentParent与DecorView中的容器View</span></span><br><span class="line">        mContentParent = generateLayout(mDecor);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> ViewGroup <span class="title">generateLayout</span><span class="params">(DecorView decor)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 根据Window配置加载不同的系统内置ContentView布局</span></span><br><span class="line">    <span class="keyword">int</span> layoutResource;</span><br><span class="line">    <span class="keyword">if</span> ((features &amp; (<span class="number">1</span> &lt;&lt; FEATURE_SWIPE_TO_DISMISS)) != <span class="number">0</span>) &#123;</span><br><span class="line">        layoutResource = R.layout.screen_swipe_dismiss;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (condition2) &#123;</span><br><span class="line">        <span class="comment">// layoutResource = xxxx</span></span><br><span class="line">    &#125;</span><br><span class="line">    mDecor.onResourcesLoaded(mLayoutInflater, layoutResource);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 取出ContentView中的content子View，也就是Activity.setContentView()设置的View的容器</span></span><br><span class="line">    ViewGroup contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT);</span><br><span class="line">    <span class="keyword">return</span> contentParent;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 以下代码为缩减并略作修改过的源码，便于阅读</span></span><br><span class="line"><span class="comment">// DecorView</span></span><br><span class="line"><span class="comment">// 加载ContentView资源</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">onResourcesLoaded</span><span class="params">(LayoutInflater inflater, <span class="keyword">int</span> layoutResource)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// DecorCaptionView与多窗口功能有关，这里不做介绍</span></span><br><span class="line">    mDecorCaptionView = createDecorCaptionView(inflater);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 加载ContentView资源</span></span><br><span class="line">    <span class="keyword">final</span> View root = inflater.inflate(layoutResource, <span class="keyword">null</span>);</span><br><span class="line">    mContentRoot = (ViewGroup) root;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="setContentView流程图"><a href="#setContentView流程图" class="headerlink" title="setContentView流程图"></a>setContentView流程图</h5><p>上面的代码展示了setContentView()为起点的各个层级View的初始化过程，用图表示如下：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1frkfvk9i8vj30on0cgq42.jpg" alt="image-20180522213000456"></p>
+<h5 id="一些总结"><a href="#一些总结" class="headerlink" title="一些总结"></a>一些总结</h5><p>从源码分析可以得到以下结论：</p>
+<ul>
+<li>View的根视图是DecorView</li>
+<li>一个Activity系统已有的视图层次是三层，DecorView-&gt;ContentView-&gt;content(开发者设置的View的容器)</li>
+<li>设置窗口属性需要在Activity.setContentView()之前</li>
+<li>最重要的是几个类在UI布局上的分工，Window提供DecorView配置的参数，PhoneWindow提供加载DecorView的具体实现，DecorView则控制状态栏等布局的具体实现。</li>
+</ul>
+<h3 id="WindowManager与Activity"><a href="#WindowManager与Activity" class="headerlink" title="WindowManager与Activity"></a>WindowManager与Activity</h3><p>这一节主要介绍WindowManager与Activity之间的关系，以及核心实例的创建过程。</p>
+<h5 id="相关类以及它们之间的联系"><a href="#相关类以及它们之间的联系" class="headerlink" title="相关类以及它们之间的联系"></a>相关类以及它们之间的联系</h5><p>PhoneWindow：上面介绍过了，这里不再赘述。</p>
+<p>WindowManager：The interface that apps use to talk to the window manager.</p>
+<p>WindowManagerImpl：WindowManager和ViewManager的实现类，通过WindowManagerGlobal与WMS通信。</p>
+<p>WindowManagerGlobal：单例，代理了WindowManagerImpl的功能，与WMS通信。全局管理所有的Window，相当于一个消息总线。</p>
+<p>ViewRootImpl：与顶级View一一对应，绘制、触摸等事件由Window传递到View的中间节点。持有WindowSession通过Binder与WMS通信，同时持有IWindow作为WMS的回调接口，用于例如touch事件的回调。</p>
+<p>用一张图表示他们之间的关系：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1frkfpy259pj30k80e3q31.jpg" alt=""></p>
+<h5 id="从源码分析相关实例创建流程"><a href="#从源码分析相关实例创建流程" class="headerlink" title="从源码分析相关实例创建流程"></a>从源码分析相关实例创建流程</h5><p>Activity与Window相关类是绑定在一起的，因此Window相关类的实例化都是融合在Activity的生命周期中的。</p>
+<p>1、启动WMS</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ActivityThread.java</span></span><br><span class="line"><span class="comment">// 前面的步骤不做叙述，直接从这个方法开始</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handleLaunchActivity</span><span class="params">(ActivityClientRecord r, Intent customIntent, String reason)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 这个方法启动了WMS</span></span><br><span class="line">    WindowManagerGlobal.initialize();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 这里面处理的Activity resume之前的生命周期</span></span><br><span class="line">    Activity a = performLaunchActivity(r, customIntent);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 启动Activity之后进入resume的流程，细节见后面的代码</span></span><br><span class="line">    <span class="keyword">if</span> (a != <span class="keyword">null</span>) &#123;</span><br><span class="line">            r.createdConfig = <span class="keyword">new</span> Configuration(mConfiguration);</span><br><span class="line">            reportSizeConfigurations(r);</span><br><span class="line">            Bundle oldState = r.state;</span><br><span class="line">            handleResumeActivity(r.token, <span class="keyword">false</span>, r.isForward,</span><br><span class="line">                    !r.activity.mFinished &amp;&amp; !r.startsNotResumed, r.lastProcessedSeq, reason);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2、Activity的实例化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ActivityThread.java</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> Activity <span class="title">performLaunchActivity</span><span class="params">(ActivityClientRecord r, Intent customIntent)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 通过反射实例化Activity</span></span><br><span class="line">    Activity activity = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        java.lang.ClassLoader cl = appContext.getClassLoader();</span><br><span class="line">        activity = mInstrumentation.newActivity(</span><br><span class="line">            cl, component.getClassName(), r.intent);</span><br><span class="line">        StrictMode.incrementExpectedActivityCount(activity.getClass());</span><br><span class="line">        r.intent.setExtrasClassLoader(cl);</span><br><span class="line">        r.intent.prepareToEnterProcess();</span><br><span class="line">        <span class="keyword">if</span> (r.state != <span class="keyword">null</span>) &#123;</span><br><span class="line">            r.state.setClassLoader(cl);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (activity != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// ....</span></span><br><span class="line">        <span class="comment">// 进入Activity与Window的Attach流程</span></span><br><span class="line">        activity.attach(appContext, <span class="keyword">this</span>, getInstrumentation(), r.token,</span><br><span class="line">                        r.ident, app, r.intent, r.activityInfo, title, r.parent,</span><br><span class="line">                        r.embeddedID, r.lastNonConfigurationInstances, config,</span><br><span class="line">                        r.referrer, r.voiceInteractor, window, r.configCallback);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 进入Activity的onStart()生命周期</span></span><br><span class="line">        <span class="keyword">if</span> (!r.activity.mFinished) &#123;</span><br><span class="line">            activity.performStart();</span><br><span class="line">            r.stopped = <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 后面继续依次调用Activity的其他生命周期</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3、Window相关类的创建以及它们与Activity的绑定</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">attach</span><span class="params">(Context context, ActivityThread aThread,</span></span></span><br><span class="line"><span class="function"><span class="params">           Instrumentation instr, IBinder token, <span class="keyword">int</span> ident,</span></span></span><br><span class="line"><span class="function"><span class="params">           Application application, Intent intent, ActivityInfo info,</span></span></span><br><span class="line"><span class="function"><span class="params">           CharSequence title, Activity parent, String id,</span></span></span><br><span class="line"><span class="function"><span class="params">           NonConfigurationInstances lastNonConfigurationInstances,</span></span></span><br><span class="line"><span class="function"><span class="params">           Configuration config, String referrer, IVoiceInteractor voiceInteractor,</span></span></span><br><span class="line"><span class="function"><span class="params">           Window window, ActivityConfigCallback activityConfigCallback)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 实例化Window</span></span><br><span class="line">    mWindow = <span class="keyword">new</span> PhoneWindow(<span class="keyword">this</span>, window, activityConfigCallback);</span><br><span class="line">    mWindow.setWindowControllerCallback(<span class="keyword">this</span>);</span><br><span class="line">    <span class="comment">// 用于将Windw相关的事件，如触摸事件，传递给Activity</span></span><br><span class="line">    mWindow.setCallback(<span class="keyword">this</span>);</span><br><span class="line">    mWindow.setOnWindowDismissedCallback(<span class="keyword">this</span>);</span><br><span class="line">    mWindow.getLayoutInflater().setPrivateFactory(<span class="keyword">this</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 实例化WindowManager并相互绑定</span></span><br><span class="line">    mWindow.setWindowManager(</span><br><span class="line">               (WindowManager)context.getSystemService(Context.WINDOW_SERVICE),</span><br><span class="line">               mToken, mComponent.flattenToString(),</span><br><span class="line">               (info.flags &amp; ActivityInfo.FLAG_HARDWARE_ACCELERATED) != <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (mParent != <span class="keyword">null</span>) &#123;</span><br><span class="line">        mWindow.setContainer(mParent.getWindow());</span><br><span class="line">    &#125;</span><br><span class="line">    mWindowManager = mWindow.getWindowManager();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>4、WindowManager的实例化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Manages all of the system services that can be returned by &#123;<span class="doctag">@link</span> Context#getSystemService&#125;.</span></span><br><span class="line"><span class="comment"> * Used by &#123;<span class="doctag">@link</span> ContextImpl&#125;.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">SystemServiceRegistry</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> HashMap&lt;Class&lt;?&gt;, String&gt; SYSTEM_SERVICE_NAMES =</span><br><span class="line">            <span class="keyword">new</span> HashMap&lt;Class&lt;?&gt;, String&gt;();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> HashMap&lt;String, ServiceFetcher&lt;?&gt;&gt; SYSTEM_SERVICE_FETCHERS =</span><br><span class="line">            <span class="keyword">new</span> HashMap&lt;String, ServiceFetcher&lt;?&gt;&gt;();</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        registerService(Context.WINDOW_SERVICE, WindowManager.class, </span><br><span class="line">                        <span class="keyword">new</span> CachedServiceFetcher&lt;WindowManager&gt;() &#123;</span><br><span class="line">                            <span class="meta">@Override</span></span><br><span class="line">                            <span class="function"><span class="keyword">public</span> WindowManager <span class="title">createService</span><span class="params">(ContextImpl ctx)</span> </span>&#123;</span><br><span class="line">                                <span class="comment">// 在这里被实例化，被所有Activity使用</span></span><br><span class="line">                                <span class="keyword">return</span> <span class="keyword">new</span> WindowManagerImpl(ctx);</span><br><span class="line">                            &#125;&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> &lt;T&gt; <span class="function"><span class="keyword">void</span> <span class="title">registerService</span><span class="params">(String serviceName, Class&lt;T&gt; serviceClass,</span></span></span><br><span class="line"><span class="function"><span class="params">            ServiceFetcher&lt;T&gt; serviceFetcher)</span> </span>&#123;</span><br><span class="line">        SYSTEM_SERVICE_NAMES.put(serviceClass, serviceName);</span><br><span class="line">        SYSTEM_SERVICE_FETCHERS.put(serviceName, serviceFetcher);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Window.java</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setWindowManager</span><span class="params">(WindowManager wm, IBinder appToken, String appName,</span></span></span><br><span class="line"><span class="function"><span class="params">                             <span class="keyword">boolean</span> hardwareAccelerated)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 将token绑定到window上，标识当前window属于哪个Activity</span></span><br><span class="line">    mAppToken = appToken;</span><br><span class="line">    mAppName = appName;</span><br><span class="line">    mHardwareAccelerated = hardwareAccelerated</span><br><span class="line">        || SystemProperties.getBoolean(PROPERTY_HARDWARE_UI, <span class="keyword">false</span>);</span><br><span class="line">    <span class="keyword">if</span> (wm == <span class="keyword">null</span>) &#123;</span><br><span class="line">        wm = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);</span><br><span class="line">    &#125;</span><br><span class="line">    mWindowManager = ((WindowManagerImpl)wm).createLocalWindowManager(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从上面的代码可以看出，Activity与Window持有的是同一个WindowManager实例，但是这个实例不同于SystemServiceRegistry中注册的那个WindowManager实例，它们是父子关系</p>
+<p>5、RootViewImpl的实例化</p>
+<p>前面的代码实例化了Activity以及相关的Window类，接下来是处理View相关的逻辑。</p>
+<p>先继续上面提到的ActivityThread.handleResumeActivity()方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ActivityThread.handleResumeActivity()</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">handleResumeActivity</span><span class="params">(IBinder token,</span></span></span><br><span class="line"><span class="function"><span class="params">                                <span class="keyword">boolean</span> clearHide, <span class="keyword">boolean</span> isForward, </span></span></span><br><span class="line"><span class="function"><span class="params">                                <span class="keyword">boolean</span> reallyResume, <span class="keyword">int</span> seq, String reason)</span> </span>&#123;</span><br><span class="line">    ActivityClientRecord r = mActivities.get(token);</span><br><span class="line">    <span class="comment">// 这里会调用Activity.onResume()</span></span><br><span class="line">    r = performResumeActivity(token, clearHide, reason);</span><br><span class="line">    <span class="keyword">if</span> (r != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        <span class="keyword">final</span> Activity a = r.activity;</span><br><span class="line">        <span class="keyword">if</span> (r.window == <span class="keyword">null</span> &amp;&amp; !a.mFinished &amp;&amp; willBeVisible) &#123;</span><br><span class="line">            r.window = r.activity.getWindow();</span><br><span class="line">            View decor = r.window.getDecorView();</span><br><span class="line">            <span class="comment">// 注意这里设置了decor为不可见</span></span><br><span class="line">            decor.setVisibility(View.INVISIBLE);</span><br><span class="line">            ViewManager wm = a.getWindowManager();</span><br><span class="line">            WindowManager.LayoutParams l = r.window.getAttributes();</span><br><span class="line">            <span class="comment">// 将Window的DecorView绑定到Activity上，这时的DecorView已经添加过了我们在setContentView中添加的自定义布局</span></span><br><span class="line">            a.mDecor = decor;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 是否设置了Window不可见</span></span><br><span class="line">            <span class="keyword">if</span> (a.mVisibleFromClient) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!a.mWindowAdded) &#123;</span><br><span class="line">                	a.mWindowAdded = <span class="keyword">true</span>;</span><br><span class="line">                	<span class="comment">// ViewRootImpl会在这个方法之后被实例化，详细过程见下一个代码块</span></span><br><span class="line">                	wm.addView(decor, l);</span><br><span class="line">            	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                	a.onWindowAttributesChanged(l);</span><br><span class="line">            	&#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 前面设置了DecorView不可见，这里重新设置为可见</span></span><br><span class="line">        <span class="keyword">if</span> (!r.activity.mFinished &amp;&amp; willBeVisible</span><br><span class="line">            &amp;&amp; r.activity.mDecor != <span class="keyword">null</span> &amp;&amp; !r.hideForNow) &#123;</span><br><span class="line">            <span class="keyword">if</span> (r.activity.mVisibleFromClient) &#123;</span><br><span class="line">                r.activity.makeVisible();</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 最后一步</span></span><br><span class="line"><span class="comment">// Activity.setVisible()</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">makeVisible</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// mWindowAdded这个字段在前面被设置为true了，所以View不会被add两次</span></span><br><span class="line">    <span class="keyword">if</span> (!mWindowAdded) &#123;</span><br><span class="line">        ViewManager wm = getWindowManager();</span><br><span class="line">        wm.addView(mDecor, getWindow().getAttributes());</span><br><span class="line">        mWindowAdded = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 设置可见</span></span><br><span class="line">    mDecor.setVisibility(View.VISIBLE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// WindowManagerImpl.addView()</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addView</span><span class="params">(@NonNull View view, @NonNull ViewGroup.LayoutParams params)</span> </span>&#123;</span><br><span class="line">    applyDefaultToken(params);</span><br><span class="line">    <span class="comment">// ViewRootImpl最终在这个方法里被实例化</span></span><br><span class="line">    mGlobal.addView(view, params, mContext.getDisplay(), mParentWindow);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后ViewRootImpl被实例化并和DecorView一起被全局保存在WindowManagerGlobal中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// WindowManagerGlobal.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">WindowManagerGlobal</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Window对应的根View</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;View&gt; mViews = <span class="keyword">new</span> ArrayList&lt;View&gt;();</span><br><span class="line">    <span class="comment">// 与根View一一对应的ViewRootImpl</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;ViewRootImpl&gt; mRoots = <span class="keyword">new</span> ArrayList&lt;ViewRootImpl&gt;();</span><br><span class="line">    <span class="comment">// 与根View一一对应的Window参数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ArrayList&lt;WindowManager.LayoutParams&gt; mParams =</span><br><span class="line">            <span class="keyword">new</span> ArrayList&lt;WindowManager.LayoutParams&gt;();</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addView</span><span class="params">(View view, ViewGroup.LayoutParams params,</span></span></span><br><span class="line"><span class="function"><span class="params">                        Display display, Window parentWindow)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> WindowManager.LayoutParams wparams = (WindowManager.LayoutParams) params;</span><br><span class="line">        ViewRootImpl root;</span><br><span class="line">        <span class="keyword">synchronized</span> (mLock) &#123;</span><br><span class="line">            root = <span class="keyword">new</span> ViewRootImpl(view.getContext(), display);</span><br><span class="line">            view.setLayoutParams(wparams);</span><br><span class="line">            mViews.add(view);</span><br><span class="line">            mRoots.add(root);</span><br><span class="line">            mParams.add(wparams);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">//将根View和ViewRootImpl绑定，调用的是view.assignParent(this)，将</span></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 在这个方法里调用的是view.assignParent(this)，将ViewRootImpl设置为DecorView的parent</span></span><br><span class="line">                root.setView(view, wparams, panelParentView);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (RuntimeException e) &#123;</span><br><span class="line">                <span class="comment">// BadTokenException or InvalidDisplayException, clean up.</span></span><br><span class="line">                <span class="keyword">if</span> (index &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                    removeViewLocked(index, <span class="keyword">true</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">throw</span> e;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="用一张图表示创建流程"><a href="#用一张图表示创建流程" class="headerlink" title="用一张图表示创建流程"></a>用一张图表示创建流程</h5><p>补充：WindowManagerGlobal.addView()会调用到ViewRootImpl.setView()，并进一步调用到ViewRoot</p>
+<p>Impl.requestLayout()，进入View的绘制流程，完成后设置DecorView可见。</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1frrcu1pdn0j30hz0dagn3.jpg" alt="image-20180528210349449"></p>
+<h3 id="ViewRootImpl与View"><a href="#ViewRootImpl与View" class="headerlink" title="ViewRootImpl与View"></a>ViewRootImpl与View</h3><p>上一节介绍了WindowManager与Activity的关系，并且提到了ViewRottImpl的实例化，这一节会更深入的了解ViewRootImpl，并以此介绍WindowManager与View绘制、以及事件分发处理的一些细节。</p>
+<h5 id="ViewRootImpl简介"><a href="#ViewRootImpl简介" class="headerlink" title="ViewRootImpl简介"></a>ViewRootImpl简介</h5><blockquote>
+<p>The top of a view hierarchy, implementing the needed protocol between View  and the WindowManager.  This is for the most part an internal implementation  detail of WindowManagerGlobal.</p>
+</blockquote>
+<p>作为View与绘制系统的桥梁，ViewRootImpl包含了View测量、布局、绘制的起点函数，同时，它也作为触摸事件传递的中介，将触摸信号由native传递到framework。</p>
+<h5 id="ViewRootImpl与View的绘制流程"><a href="#ViewRootImpl与View的绘制流程" class="headerlink" title="ViewRootImpl与View的绘制流程"></a>ViewRootImpl与View的绘制流程</h5><ol>
+<li><p>View的测量</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ViewRootImpl.requestLayout()</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">requestLayout</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!mHandlingLayoutInLayoutRequest) &#123;</span><br><span class="line">        <span class="comment">// 在这里检查当前是否在主线程，防止在非主线程修改UI</span></span><br><span class="line">        checkThread();</span><br><span class="line">        mLayoutRequested = <span class="keyword">true</span>;</span><br><span class="line">        scheduleTraversals();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以requestLayout()为入口，调用scheduleTraversals()，然后调用doTraversal()-&gt;performTraversals()，最终通过performMeasure()调用到DecorView的measure()方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">performMeasure</span><span class="params">(<span class="keyword">int</span> childWidthMeasureSpec, <span class="keyword">int</span> childHeightMeasureSpec)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mView == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        mView.measure(childWidthMeasureSpec, childHeightMeasureSpec);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        Trace.traceEnd(Trace.TRACE_TAG_VIEW);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>View的布局<br>主要的流程与上述过程类似，以requestLayout()为入口，调用scheduleTraversals()，然后调用doTraversal()-&gt;performTraversals()，最终通过performLayout()调用到DecorView的layout()方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">performLayout</span><span class="params">(WindowManager.LayoutParams lp, <span class="keyword">int</span> desiredWindowWidth,</span></span></span><br><span class="line"><span class="function"><span class="params">                           <span class="keyword">int</span> desiredWindowHeight)</span> </span>&#123;</span><br><span class="line">    mLayoutRequested = <span class="keyword">false</span>;</span><br><span class="line">    mScrollMayChange = <span class="keyword">true</span>;</span><br><span class="line">    mInLayout = <span class="keyword">true</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">final</span> View host = mView;</span><br><span class="line">    <span class="keyword">if</span> (host == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 开始layout流程</span></span><br><span class="line">        host.layout(<span class="number">0</span>, <span class="number">0</span>, host.getMeasuredWidth(), host.getMeasuredHeight());</span><br><span class="line">        mInLayout = <span class="keyword">false</span>;</span><br><span class="line">        <span class="comment">// 这里的逻辑是处理在performLayout时，如果用户主动调用了requestLayout()，那么这个layout行为不会立即生效，而是记录在mLayoutRequesters中，在host.layout()结束后再逐一调用。关于requestLayout()的细节后文再作介绍。</span></span><br><span class="line">        <span class="keyword">int</span> numViewsRequestingLayout = mLayoutRequesters.size();</span><br><span class="line">        <span class="keyword">if</span> (numViewsRequestingLayout &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; numValidRequests; ++i) &#123;</span><br><span class="line">                <span class="keyword">final</span> View view = validLayoutRequesters.get(i);</span><br><span class="line">                view.requestLayout();</span><br><span class="line">            &#125;</span><br><span class="line">            measureHierarchy(host, lp, mView.getContext().getResources(),</span><br><span class="line">                             desiredWindowWidth, desiredWindowHeight);</span><br><span class="line">            mInLayout = <span class="keyword">true</span>;</span><br><span class="line">            host.layout(<span class="number">0</span>, <span class="number">0</span>, host.getMeasuredWidth(), host.getMeasuredHeight());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        Trace.traceEnd(Trace.TRACE_TAG_VIEW);</span><br><span class="line">    &#125;</span><br><span class="line">    mInLayout = <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>View的绘制<br>主要的流程与上述过程类似，以requestLayout()为入口，调用scheduleTraversals()，然后调用doTraversal()-&gt;performTraversals()，最终通过performDraw()调用到DecorView的draw()方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">performDraw</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 标记是否需要重新绘制整个屏幕</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">boolean</span> fullRedrawNeeded = mFullRedrawNeeded;</span><br><span class="line">    mFullRedrawNeeded = <span class="keyword">false</span>;</span><br><span class="line">    mIsDrawing = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 这个方法会调用到DecorView</span></span><br><span class="line">        draw(fullRedrawNeeded);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        mIsDrawing = <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>View.requestLayout()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// View.requestLayout</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">requestLayout</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mAttachInfo != <span class="keyword">null</span> &amp;&amp; mAttachInfo.mViewRequestingLayout == <span class="keyword">null</span>) &#123;</span><br><span class="line">        ViewRootImpl viewRoot = getViewRootImpl();</span><br><span class="line">        <span class="comment">// 如上文所说的，如果正在layout步骤，则将该请求加入等待队列</span></span><br><span class="line">        <span class="keyword">if</span> (viewRoot != <span class="keyword">null</span> &amp;&amp; viewRoot.isInLayout()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!viewRoot.requestLayoutDuringLayout(<span class="keyword">this</span>)) &#123;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 一直往上调用mParent的requestLayout()</span></span><br><span class="line">    <span class="keyword">if</span> (mParent != <span class="keyword">null</span> &amp;&amp; !mParent.isLayoutRequested()) &#123;</span><br><span class="line">        mParent.requestLayout();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由上面的代码可以知道，最终这个请求会调用到DecorView的requestLayout()，而DecorView的mParent就是RootViewImpl，因此layout的请求就会交由RootViewImpl来执行。</p>
+</li>
+<li><p>View.invalidate()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// View.java</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">invalidate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    invalidate(<span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">invalidate</span><span class="params">(<span class="keyword">boolean</span> invalidateCache)</span> </span>&#123;</span><br><span class="line">    invalidateInternal(<span class="number">0</span>, <span class="number">0</span>, mRight - mLeft, mBottom - mTop, invalidateCache, <span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">invalidateInternal</span><span class="params">(<span class="keyword">int</span> l, <span class="keyword">int</span> t, <span class="keyword">int</span> r, <span class="keyword">int</span> b, <span class="keyword">boolean</span> invalidateCache,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">boolean</span> fullInvalidate)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//这里判断该子View是否可见或者是否处于动画中</span></span><br><span class="line">    <span class="keyword">if</span> (skipInvalidate()) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//根据View的标记位来判断该子View是否需要重绘，假如View没有任何变化，那么就不需要重绘</span></span><br><span class="line">    <span class="keyword">if</span> ((mPrivateFlags &amp; (PFLAG_DRAWN | PFLAG_HAS_BOUNDS)) == (PFLAG_DRAWN | PFLAG_HAS_BOUNDS)</span><br><span class="line">            || (invalidateCache &amp;&amp; (mPrivateFlags &amp; PFLAG_DRAWING_CACHE_VALID) == PFLAG_DRAWING_CACHE_VALID)</span><br><span class="line">            || (mPrivateFlags &amp; PFLAG_INVALIDATED) != PFLAG_INVALIDATED</span><br><span class="line">            || (fullInvalidate &amp;&amp; isOpaque() != mLastIsOpaque)) &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        <span class="comment">//把需要重绘的区域传递给父容器</span></span><br><span class="line">        <span class="keyword">final</span> AttachInfo ai = mAttachInfo;</span><br><span class="line">        <span class="keyword">final</span> ViewParent p = mParent;</span><br><span class="line">        <span class="keyword">if</span> (p != <span class="keyword">null</span> &amp;&amp; ai != <span class="keyword">null</span> &amp;&amp; l &lt; r &amp;&amp; t &lt; b) &#123;</span><br><span class="line">            <span class="keyword">final</span> Rect damage = ai.mTmpInvalRect;</span><br><span class="line">            damage.set(l, t, r, b);</span><br><span class="line">            <span class="comment">//调用父容器的方法，向上传递事件</span></span><br><span class="line">            p.invalidateChild(<span class="keyword">this</span>, damage);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>与requestLayout的逻辑类似，invalidate过程会向上调用invalidateChild()，而invalidateChild()则会调用当前View的invalidateChildInParent()，这个方法的作用是计算需要绘制的子View在当前View中的位置。最后这两个方法都会调用到ViewRootImpl的同名方法中。</p>
+<p>在ViewRootImpl的invalidateChildInParent()中也会调用checkThread()进行线程判断，防止在非UI线程发起绘制请求。</p>
+<blockquote>
+<p>ViewRootImpl的invalidateChildInParent()最终依然会调用到scheduleTraversals方法，触发View的工作流程。不过由于没有添加measure和layout的标记位，因此measure、layout流程不会执行，而是直接从draw流程开始。</p>
+</blockquote>
+<p>总结一下就是每一层都需要做两件事，一个是计算需要绘制的View在当前层的坐标，一个是将绘制请求发往上一层View。</p>
+</li>
+<li><p>ViewRootImpl.setView()<br>上面的绘制流程是用户主动触发的一个流程，而在Activity的创建过程中，系统会触发一次整个流程，入口就是ViewRootImpl.setView()。这个方法会调用requestLayout()进入绘制流程。</p>
+</li>
+</ol>
+<h5 id="ViewRootImpl与MotionEvent"><a href="#ViewRootImpl与MotionEvent" class="headerlink" title="ViewRootImpl与MotionEvent"></a>ViewRootImpl与MotionEvent</h5><p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1frzfaylpqsj30hi0bcgml.jpg" alt="image-20180604203347021"></p>
+<p>上述流程需要注意的几个点：</p>
+<ul>
+<li><blockquote>
+<p>在ViewRootImpl中，有一系列类似于InputStage（输入事件舞台）的概念，每种InputStage可以处理一定的事件类型，比如AsyncInputStage、ViewPreImeInputStage、ViewPostImeInputStage等。当一个InputEvent到来时，ViewRootImpl会寻找合适它的InputStage来处理。对于点击事件来说，ViewPostImeInputStage可以处理它。</p>
+</blockquote>
+</li>
+<li><p>点击事件从DecorView传递到Activity的时候，注意到DecorView.dispatchTouchEvent()并没有调用super方法，因此避免了在此时将点击事件传入View树。这里的Callback就是Activity，绑定发生在attach()的时候。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DecorView.dispatchTouchEvent()</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dispatchTouchEvent</span><span class="params">(MotionEvent ev)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Callback cb = getCallback();</span><br><span class="line">    <span class="keyword">return</span> cb != <span class="keyword">null</span> &amp;&amp; !isDestroyed() &amp;&amp; mFeatureId &lt; <span class="number">0</span> ? cb.dispatchTouchEvent(ev)</span><br><span class="line">        : <span class="keyword">super</span>.dispatchTouchEvent(ev);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>最后进入View树是在DecorView.superDispatchTouchEvent()中调用了父类，即View的dispatchTouchEvent方法。</p>
+</li>
+</ul>
+<h5 id="一些总结-1"><a href="#一些总结-1" class="headerlink" title="一些总结"></a>一些总结</h5><ul>
+<li>布局绘制的请求发起必须要在主线程。</li>
+<li>不能在主线程中发起布局绘制请求的原因是requestLayout()和invalidateChildInParent()会checkThread。</li>
+<li>在onCreate()与onResume()过程中无法取得View的宽高值是因为绘制流程的开始是在onResume()之后。</li>
+<li>由于添加window的操作在requestlayout()之后，因此可以在onAttachedToWindow()时获取控件大小。</li>
+</ul>
+<h3 id="Window与WindowManagerService"><a href="#Window与WindowManagerService" class="headerlink" title="Window与WindowManagerService"></a>Window与WindowManagerService</h3><p>上面介绍的是Window与Activity或者与View之间的关系，并没有介绍Window自己，下面的内容则是介绍Window自己的作用以及如何被WMS管理等。</p>
+<h5 id="Window"><a href="#Window" class="headerlink" title="Window"></a>Window</h5><blockquote>
+<p>一个window恰如你在计算机中看到的一个window。它拥有唯一一个用以绘制自己的内容的surface。应用通过 Window Manager创建一个window，Window Manager 为每一个window创建一个surface，并把该surface传递给应用以便应用在上面绘制。应用可以在surface上任意进行绘制。对于Window Manager来说，surface就是一个不透明的矩形而已。</p>
+</blockquote>
+<h5 id="WindowManagerService作用"><a href="#WindowManagerService作用" class="headerlink" title="WindowManagerService作用"></a>WindowManagerService作用</h5><blockquote>
+<ul>
+<li>为所有窗口分配Surface。客户端向WMS添加一个窗口的过程，其实就是WMS为其分配一块Suiface的过程，一块块Surface在WMS的管理下有序的排布在屏幕上。Window的本质就是Surface。</li>
+<li>管理Surface的显示顺序、尺寸、位置</li>
+<li>管理窗口动画</li>
+<li>输入系统相关：WMS是派发系统按键和触摸消息的最佳人选，当接收到一个触摸事件，它需要寻找一个最合适的窗口来处理消息，而WMS是窗口的管理者，系统中所有的窗口状态和信息都在其掌握之中，完成这一工作不在话下。</li>
+</ul>
+</blockquote>
+<h5 id="Window种类"><a href="#Window种类" class="headerlink" title="Window种类"></a>Window种类</h5><ul>
+<li>应用Window：与Activity一一对应，层级范围是1-99</li>
+<li>子Window：不能单独存在，需要依附在指定的父Window上，层级范围是1000-1999</li>
+<li>系统Window：需要声明权限才能创建，例如Toast就是系统Window，层级范围是2000-2999 </li>
+</ul>
+<h5 id="Window与WMS的绑定"><a href="#Window与WMS的绑定" class="headerlink" title="Window与WMS的绑定"></a>Window与WMS的绑定</h5><p>通过ViewRootImpl完成双向的通信</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ViewRootImpl.java</span></span><br><span class="line"><span class="comment">// mWindowSession的类型是IWindowSession它的实现类是Session，用来发送消息给WMS</span></span><br><span class="line"><span class="keyword">final</span> IWindowSession mWindowSession;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ViewRootImpl</span><span class="params">(Context context, Display display)</span> </span>&#123;</span><br><span class="line">    mWindowSession = WindowManagerGlobal.getWindowSession();</span><br><span class="line">    mWindow = <span class="keyword">new</span> W(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// WMS回调的接口</span></span><br><span class="line"><span class="keyword">final</span> W mWindow;</span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">W</span> <span class="keyword">extends</span> <span class="title">IWindow</span>.<span class="title">Stub</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
+<h5 id="Window的添加"><a href="#Window的添加" class="headerlink" title="Window的添加"></a>Window的添加</h5><p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1fs2x0y8n02j30hi02haa5.jpg" alt="image-20180607210338829"></p>
+<p> 删除的过程比较类似，就不列出来了。</p>
+<h5 id="添加自己的Window"><a href="#添加自己的Window" class="headerlink" title="添加自己的Window"></a>添加自己的Window</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">WindowManager wm = (WindowManager) context.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);</span><br><span class="line">WindowManager.LayoutParams params = <span class="keyword">new</span> WindowManager.LayoutParams();</span><br><span class="line"><span class="comment">// 查文档并设置其他参数</span></span><br><span class="line">params.type = WindowManager.LayoutParams.TYPE_PHONE;</span><br><span class="line">wm.addView(view, params);</span><br></pre></td></tr></table></figure>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://book.douban.com/subject/26599538/" target="_blank" rel="noopener">Android开发艺术探索</a></p>
+<p><a href="https://www.jianshu.com/p/40a9c93b5a8d" target="_blank" rel="noopener">Android窗口机制</a></p>
+<p><a href="https://tuzhao.org/article/37" target="_blank" rel="noopener">android activity setContentView()方法执行流程分析</a></p>
+<p><a href="https://blog.csdn.net/a553181867/article/details/51583060" target="_blank" rel="noopener">Android View 深度分析requestLayout、invalidate与postInvalidate</a></p>
+<p><a href="https://blog.csdn.net/singwhatiwanna/article/details/50775201" target="_blank" rel="noopener">Android中MotionEvent的来源和ViewRootImpl</a></p>
+<p><a href="https://www.jianshu.com/p/47eca41428d6" target="_blank" rel="noopener">Android系统服务 —— WMS与AMS</a></p>
+<p><a href="https://www.jianshu.com/p/7897d97d17cc" target="_blank" rel="noopener">Android易混概念辨析之Surface,Window,View,SurfaceView,Bitmap</a></p>
+<p><a href="http://www.cnblogs.com/samchen2009/p/3367496.html" target="_blank" rel="noopener">Android 的窗口管理系统 (View, Canvas, WindowManager</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android-源码分析/" rel="tag"># Android 源码分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/08/常用设计模式/" rel="next" title="常用设计模式">
+                <i class="fa fa-chevron-left"></i> 常用设计模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Window层级结构"><span class="nav-number">1.</span> <span class="nav-text">Window层级结构</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#相关类简介"><span class="nav-number">1.0.1.</span> <span class="nav-text">相关类简介</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#WindowUI层级"><span class="nav-number">1.0.2.</span> <span class="nav-text">WindowUI层级</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Window层级相关源码"><span class="nav-number">1.0.3.</span> <span class="nav-text">Window层级相关源码</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#setContentView流程图"><span class="nav-number">1.0.4.</span> <span class="nav-text">setContentView流程图</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#一些总结"><span class="nav-number">1.0.5.</span> <span class="nav-text">一些总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WindowManager与Activity"><span class="nav-number">2.</span> <span class="nav-text">WindowManager与Activity</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#相关类以及它们之间的联系"><span class="nav-number">2.0.1.</span> <span class="nav-text">相关类以及它们之间的联系</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#从源码分析相关实例创建流程"><span class="nav-number">2.0.2.</span> <span class="nav-text">从源码分析相关实例创建流程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#用一张图表示创建流程"><span class="nav-number">2.0.3.</span> <span class="nav-text">用一张图表示创建流程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ViewRootImpl与View"><span class="nav-number">3.</span> <span class="nav-text">ViewRootImpl与View</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#ViewRootImpl简介"><span class="nav-number">3.0.1.</span> <span class="nav-text">ViewRootImpl简介</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ViewRootImpl与View的绘制流程"><span class="nav-number">3.0.2.</span> <span class="nav-text">ViewRootImpl与View的绘制流程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ViewRootImpl与MotionEvent"><span class="nav-number">3.0.3.</span> <span class="nav-text">ViewRootImpl与MotionEvent</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#一些总结-1"><span class="nav-number">3.0.4.</span> <span class="nav-text">一些总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Window与WindowManagerService"><span class="nav-number">4.</span> <span class="nav-text">Window与WindowManagerService</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Window"><span class="nav-number">4.0.1.</span> <span class="nav-text">Window</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#WindowManagerService作用"><span class="nav-number">4.0.2.</span> <span class="nav-text">WindowManagerService作用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Window种类"><span class="nav-number">4.0.3.</span> <span class="nav-text">Window种类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Window与WMS的绑定"><span class="nav-number">4.0.4.</span> <span class="nav-text">Window与WMS的绑定</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Window的添加"><span class="nav-number">4.0.5.</span> <span class="nav-text">Window的添加</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#添加自己的Window"><span class="nav-number">4.0.6.</span> <span class="nav-text">添加自己的Window</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+  
+
+</body>
+</html>
