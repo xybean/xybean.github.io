@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android,设计模式," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="MVP的简介基本架构在Android开发过程中，随着页面逻辑的越来越复杂，如果遵从MVC的模式进行开发的话，会导致Activity中的代码变得非常臃肿，增加维护的难度。为了将业务逻辑从Activity中剥离出来，引入了MVP模式。 相较于MVC模式，MVP剥离了View对Model的依赖，剥离了Activity中的业务逻辑代码，使整体的依赖复杂度得以降低。简单的模式图如下：  模块分工在MVP模式">
+<meta name="keywords" content="Android,设计模式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="聊一聊MVP">
+<meta property="og:url" content="https://xybean.github.io/2018/07/02/聊一聊MVP/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="MVP的简介基本架构在Android开发过程中，随着页面逻辑的越来越复杂，如果遵从MVC的模式进行开发的话，会导致Activity中的代码变得非常臃肿，增加维护的难度。为了将业务逻辑从Activity中剥离出来，引入了MVP模式。 相较于MVC模式，MVP剥离了View对Model的依赖，剥离了Activity中的业务逻辑代码，使整体的依赖复杂度得以降低。简单的模式图如下：  模块分工在MVP模式">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fsgp9tplbbj30a10acaa6.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNc79gy1fsowenx7ayj30eo0c8t97.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1fsq0lhci0ij30lm0amwf2.jpg">
+<meta property="og:updated_time" content="2018-07-02T15:05:19.342Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="聊一聊MVP">
+<meta name="twitter:description" content="MVP的简介基本架构在Android开发过程中，随着页面逻辑的越来越复杂，如果遵从MVC的模式进行开发的话，会导致Activity中的代码变得非常臃肿，增加维护的难度。为了将业务逻辑从Activity中剥离出来，引入了MVP模式。 相较于MVC模式，MVP剥离了View对Model的依赖，剥离了Activity中的业务逻辑代码，使整体的依赖复杂度得以降低。简单的模式图如下：  模块分工在MVP模式">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fsgp9tplbbj30a10acaa6.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2018/07/02/聊一聊MVP/"/>
+
+
+
+
+
+  <title>聊一聊MVP | xybean's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2018/07/02/聊一聊MVP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">聊一聊MVP</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-02T22:59:19+08:00">
+                2018-07-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="MVP的简介"><a href="#MVP的简介" class="headerlink" title="MVP的简介"></a>MVP的简介</h3><h5 id="基本架构"><a href="#基本架构" class="headerlink" title="基本架构"></a>基本架构</h5><p>在Android开发过程中，随着页面逻辑的越来越复杂，如果遵从MVC的模式进行开发的话，会导致Activity中的代码变得非常臃肿，增加维护的难度。为了将业务逻辑从Activity中剥离出来，引入了MVP模式。</p>
+<p>相较于MVC模式，MVP剥离了View对Model的依赖，剥离了Activity中的业务逻辑代码，使整体的依赖复杂度得以降低。简单的模式图如下：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fsgp9tplbbj30a10acaa6.jpg" alt="img"></p>
+<h5 id="模块分工"><a href="#模块分工" class="headerlink" title="模块分工"></a>模块分工</h5><p>在MVP模式中，各个模块的分工如下</p>
+<ul>
+<li>View：一般为Activity或Fragment，或其他View以及View的容器。它的工作模式就像一个黑盒，给定特定的数据输入，然后执行相应的View更新操作。</li>
+<li>Presenter：主要职责是从Model层获取数据，然后传递给View。定义了数据与视图交互的业务逻辑。</li>
+<li>Model：决定了数据获取的具体逻辑，具体实现应该与上层的业务逻辑剥离。</li>
+</ul>
+<h5 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h5><p>MVP模式对于Android项目来说，主要的优势体现在两方面，</p>
+<ul>
+<li>一个是相较于MVC模式，将大量的业务逻辑从Activity中剥离了出来，使得代码逻辑更清晰且容易维护</li>
+<li>另一方面是相较于MVC，剥离了M与V的依赖关系，这样的实现使得单元测试更容易编写。</li>
+</ul>
+<p>MVP的缺点主要体现在：</p>
+<ul>
+<li>为了实现解耦，引入了大量的接口</li>
+<li>Activity虽然不再臃肿，但是Presenter却更加臃肿了</li>
+<li>从架构图上看，所有的UI改变都是由Presenter驱动的主动更新，因此无法做到响应式的被动更新，也就不好应对一些适合响应式的场景。</li>
+</ul>
+<h3 id="MVP基类的设计"><a href="#MVP基类的设计" class="headerlink" title="MVP基类的设计"></a>MVP基类的设计</h3><h5 id="IPresenter"><a href="#IPresenter" class="headerlink" title="IPresenter"></a>IPresenter</h5><p>由于Model层的数据获取大部分都是异步的，因此有可能出现数据到达后，View因为被回收或者被遮挡而无需更新的情况，因此需要Presenter能动态绑定与解绑View。所以Presenter的基类可以这么设计</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IPresenter</span>&lt;<span class="title">V</span> <span class="keyword">extends</span> <span class="title">IView</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">bindView</span><span class="params">(V view)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">unbindView</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="IView"><a href="#IView" class="headerlink" title="IView"></a>IView</h5><p>一个空实现的IView就可以满足要求。</p>
+<p>不过有些文章的实现中，会抽取一些公共的UI逻辑到这一层，但是个人认为没有必要这样做，因为保持顶层接口的简单更有利于扩展，更灵活。如果确实有很通用的UI逻辑，那么可以实现一个接口，作为其他View的父接口，当然还得配套实现一个对应的Presenter。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IView</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 诸如此类的方法可以下沉到下层的接口中，保持IView接口为空</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">showLoading</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">hideLoading</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 单独实现一个View接口作为其他View接口的父接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ILoadingView</span> <span class="keyword">extends</span> <span class="title">IView</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">showLoading</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">hideLoading</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="MVP的具体设计"><a href="#MVP的具体设计" class="headerlink" title="MVP的具体设计"></a>MVP的具体设计</h3><h5 id="View模块"><a href="#View模块" class="headerlink" title="View模块"></a>View模块</h5><p>先讨论的是IXXView接口的设计。</p>
+<p>有两种主要的实现方案，主要区别在于接口粒度的不同，具体如下。</p>
+<p>考虑这样一个场景，Presenter获取用户数据User，然后更新用户界面的用户信息。</p>
+<p>第一种方案是很多MVPDemo中的标准设计，接口粒度小。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IUserView</span> <span class="keyword">extends</span> <span class="title">IView</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">updateUserInfo</span><span class="params">(User user)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这种设计的优点在于View是完全和业务无关的，View的具体实现层需要的就是更新用户名。但是如果有另外的场景，View在取到User后不是用来更新用户信息，而是用用户信息进行了其他的UI更新（用updateUserInfo无法描述这种更新行为），那么此时就会遇到接口难以复用的问题。为了解决这种问题，就有了下面的第二种设计方式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IUserView</span> <span class="keyword">extends</span> <span class="title">IView</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onUserInfoLoaded</span><span class="params">(User user)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>显而易见，这样设计的结果使得IXXView接口与Presenter的关系更紧密，与View的具体实现关系更疏远，使得IUserView更容易被复用。关于复用，具体会在后面再讨论，这里暂时不展开讲了。</p>
+<p>由于View的具体实现一般是Activity与Fragment，所以避不开的是监听事件的注册、Activity.onActivityResult()、Activity跳转等逻辑在哪处理的问题。个人的建议是为了保持Presenter的简单，可以将这一部分逻辑就放在Activity中完成，让View层去处理这些比较特殊的逻辑。</p>
+<h5 id="Presenter模块"><a href="#Presenter模块" class="headerlink" title="Presenter模块"></a>Presenter模块</h5><p>Presenter的主要功能就是调用Model获取数据，整合业务逻辑，最后将结果传递给View，用于更新UI。</p>
+<p>这里的重点在于理解什么是整合业务逻辑，举例来说，有一个场景，我们要获取用户信息并显示，如果获取失败则报错，这个行为其实包括以下几个子行为：获取用户信息、显示用户信息、显示错误信息。如何调节这几个行为（整合业务逻辑）就是Presenter的主要工作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 一个简单的Presenter实现</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserInfoPresenter</span> <span class="keyword">extends</span> <span class="title">IPresenter</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> IUserView view;</span><br><span class="line">	<span class="keyword">private</span> UserModel model;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">getUserInfo</span><span class="params">(<span class="keyword">long</span> id)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 这里的代码就是整合业务逻辑</span></span><br><span class="line">        view.showLoading();</span><br><span class="line">        model.getUserInfo(id, <span class="keyword">new</span> Callback&lt;User&gt; &#123;</span><br><span class="line">            <span class="function"><span class="keyword">void</span> <span class="title">onSucceed</span><span class="params">(User user)</span> </span>&#123;</span><br><span class="line">                view.onUserInfoLoaded(user);</span><br><span class="line">                view.hideLoading();</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="function"><span class="keyword">void</span> <span class="title">onFailed</span><span class="params">(Exception e)</span> </span>&#123;</span><br><span class="line">                view.onUserInfoLoadFailed(e);</span><br><span class="line">                view.hideLoading();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另外关于Presenter的细节讨论较多的有两点：</p>
+<ul>
+<li>应不应该将Context传递给它。为了保证Presenter更易于测试，我们应该保证Presenter与Android Framework是无关的。如果你一定要在Presenter中使用Context，可以参考这个问题中的建议，<a href="https://stackoverflow.com/questions/34303510/does-the-presenter-having-knowledge-of-the-activity-context-a-bad-idea-in-the" target="_blank" rel="noopener">Get Context in Presenter</a>。</li>
+<li>线程调度是否应该由Presenter实现。可以根据个人的喜好，选择将线程切换的功能放在Presenter实现或者Model中实现。如果在Presenter中实现的话，需要考虑封装一下任务调度器，以屏蔽Android Framework中的Handler对Presenter的直接侵入。具体的例子可以参考：<a href="https://github.com/googlesamples/android-architecture/blob/todo-mvp-rxjava/todoapp/app/src/main/java/com/example/android/architecture/blueprints/todoapp/util/schedulers/BaseSchedulerProvider.java" target="_blank" rel="noopener">BaseSchedulerProvider.java</a></li>
+</ul>
+<h5 id="Model模块"><a href="#Model模块" class="headerlink" title="Model模块"></a>Model模块</h5><p>Model层负责获取与管理数据，并向Presenter提供它所需要的数据，由于数据获取是异步的，因此它需要通过回调通知Presenter数据的获取状态。</p>
+<p>为了获取数据，我们首先需要实现的是提供数据获取的类，这里的实现没有任何限制。例如从网络获取数据，我们可以使用okHttp封装或使用其他你喜欢的框架。总之最后的类能做到提供接口向调用者提供所需数据即可。</p>
+<p>如果我们的数据有内存缓存的需求，那么我们可以实现一个XXXRepository类来缓存数据，并由它来调用上面实现的数据获取类，然后在获取数据后进行缓存相关的处理再返回给Presenter。</p>
+<p>如果我们没有在Presenter层与View层做线程切换的操作，那么我们的Model层需要完成这一部分工作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Repository负责管理缓存以及数据获取的相关逻辑</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserInfoRepository</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 从本地缓存获取数据</span></span><br><span class="line">    <span class="keyword">private</span> UserLocalSource localSource;</span><br><span class="line">    <span class="comment">// 从网络获取数据</span></span><br><span class="line">    <span class="keyword">private</span> UserRemoteSource remoteSource;</span><br><span class="line">    <span class="comment">// 内存缓存</span></span><br><span class="line">    <span class="keyword">private</span> User mCachedUserinfo;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUserInfo</span><span class="params">(<span class="keyword">long</span> id, <span class="keyword">boolean</span> forceUpdate, Callback callback)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 根据是否需要强制更新数据决定是否需要从内存缓存读取数据</span></span><br><span class="line">        <span class="keyword">if</span> (forceUpdate) &#123;</span><br><span class="line">            remoteSource.getUserInfo(id, <span class="keyword">new</span> Callback() &#123;</span><br><span class="line">                <span class="function"><span class="keyword">void</span> <span class="title">onSucceed</span><span class="params">(User user)</span> </span>&#123;</span><br><span class="line">                    mCachedUserinfo = user;</span><br><span class="line">                    callback.onSucceed(user);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            callback.onSucceed(user);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 从网络获取数据，这里的线程切换实现可以用任意你喜欢的方式，这里只是随便举一个例子</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserRemoteSource</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getUserInfo</span><span class="params">(<span class="keyword">long</span> id, Callback callback)</span> </span>&#123;</span><br><span class="line">        TaskManager.execute(<span class="keyword">new</span> Task&lt;User&gt;() &#123;</span><br><span class="line">            <span class="comment">// 运行在子线程</span></span><br><span class="line">            <span class="function">User <span class="title">doInBackground</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="comment">// 同步的网络请求</span></span><br><span class="line">                <span class="keyword">return</span> UserInfoApi.getUserInfo(id);</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 运行在主线程</span></span><br><span class="line">            <span class="function"><span class="keyword">void</span> <span class="title">onPostExecute</span><span class="params">(User user)</span> </span>&#123;</span><br><span class="line">                callback.onSucceed(user);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的Model层实现将Model分为了两层，好处是Presenter不需要知道数据的具体来源，数据管理的任务全权由Repository来负责。当然有的时候我们的业务很简单，只需要从网络获取数据然后显示即可，那么这时候Presenter就可以直接去持有LocalSource（要实现这样的功能，还需要一个通用的接口，即Model接口，约定数据获取接口，被Repository与XXXSource实现），而不需要Repository作为中介。如果业务更复杂，那么Model层也可以加入更多的类去辅助实现。</p>
+<p>但是无论如何，不变的是，对于Presenter来说，Model层必须提供数据获取功能，其他功能都是围绕这个核心点按需扩展的。</p>
+<p>将上面的结构画成简单的结构图，如下：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1fsowenx7ayj30eo0c8t97.jpg" alt="image-20180626212442230"></p>
+<h5 id="简单总结"><a href="#简单总结" class="headerlink" title="简单总结"></a>简单总结</h5><p>上面给出的实现方案只是我个人在实践中觉得比较合适的一种方案，可能受限于我们自己项目的特殊性质。所以在实际应用MVP模式的时候，不一定就要按照某种模板来，应该根据自己的业务场景做一定的扩展与改动。</p>
+<p>将我们上面讨论的设计画成简单的图，如下：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1fsq0lhci0ij30lm0amwf2.jpg" alt="image-20180627203504539"></p>
+<p>对于抽象层来说，我们可以抽取一些公共业务用于建立IPresenter与IView以及IModel间的依赖关系。需要注意的是，由于不同业务的Model可能复杂度差异较大，且并不是所有的Model实现都需要可复用，所以要根据实际情况决定是否定义IXXModel，避免定义过多无用的接口。通用的View接口与Presenter接口也是同理，按需去实现。</p>
+<p>业务层的实现要点在于根据业务确定Presenter的功能，然后根据这些功能设计抽象的View与Model接口。</p>
+<p>功能实现层不用多说，就是具体的View操作与数据获取的实现，根据具体业务可以调整Model层的具体设计。其他的一些设计细节在上面都讨论过了，这里就不再赘述了。</p>
+<h3 id="关于复用"><a href="#关于复用" class="headerlink" title="关于复用"></a>关于复用</h3><h5 id="View的复用"><a href="#View的复用" class="headerlink" title="View的复用"></a>View的复用</h5><p>这里的View复用指的是功能实现层的View的复用，这一层的复用与MVP的设计关系不大，所以这里就不讨论了。</p>
+<h5 id="Model的复用"><a href="#Model的复用" class="headerlink" title="Model的复用"></a>Model的复用</h5><p>这里的Model复用指的是功能实现层的复用。由于我们的Model可以说是完全独立的，所以如果有其他的Presenter也需要用到UserRemoteSource，那么就可以直接复用，没有任何额外的成本开销。</p>
+<h5 id="Presenter的复用"><a href="#Presenter的复用" class="headerlink" title="Presenter的复用"></a>Presenter的复用</h5><p>比如我们有一个评论列表展示的功能，评论列表的种类有很多，分别在展示不同的页面中，他们的展示逻辑相同，但是获取数据的网络请求以及UI细节不同。那么这时候我们就需要在这些页面复用我们的Presenter。</p>
+<p>因为我们将Model都抽象出了接口，我们就可以实现不同的Model以适应网络请求不同的需求。</p>
+<p>至于UI细节的不同，就需要考虑到我们上面提到的IXXView的接口粒度的设计，在这个场景下，一个粗粒度的接口设计更有利于Presenter的复用。这里再提一个细节，有的View接口不一定在所有的View实现中都有具体的实现，因此在复用的时候可能会有很多空实现，为了解决这个问题，可以考虑使用Java 8或者Kotlin接口默认实现的特性。</p>
+<h3 id="MVP在不同业务场景的使用"><a href="#MVP在不同业务场景的使用" class="headerlink" title="MVP在不同业务场景的使用"></a>MVP在不同业务场景的使用</h3><p>在开始这一节之前，先提一点，在根据业务去设计MVP相关类的时候，需要先梳理某个具体功能模块的需求，将这个功能模块（如果它比较复杂）拆分成独立的几个子模块，然后这几个子模块各自使用MVP去实现。这样的实现可以保证不同功能模块的View与Presenter都是独立的，不会相互影响。这样的做法一方面使得代码的逻辑更清晰，另一方面也可以规避一些MVP不好处理的场景。</p>
+<p>接下来讨论在几种较为复杂的场景下，MVP的具体应用。</p>
+<h5 id="一个界面，多个独立的View"><a href="#一个界面，多个独立的View" class="headerlink" title="一个界面，多个独立的View"></a>一个界面，多个独立的View</h5><p>这种情况就是我们在本节开头说的一种情况，页面内多个View在业务逻辑上相互独立，View相互之间不知道对方的存在。对于这种情况，只需要每个View各自实现一组业务层MVP即可。</p>
+<h5 id="多个界面，多个View，使用同一个Model"><a href="#多个界面，多个View，使用同一个Model" class="headerlink" title="多个界面，多个View，使用同一个Model"></a>多个界面，多个View，使用同一个Model</h5><p>这种情况，举例来说，列表页A是用户列表页，点击其中一个Item，跳转到用户详情页B。这两个界面使用的是同一个模型实例来渲染各自的UI。为了做到模型实例的复用，可以将Repository设计为单例模式，同时A、B使用同一组业务层MVP。</p>
+<p>具体的细节可以参考谷歌开源的安卓架构sample项目：<a href="https://github.com/googlesamples/android-architecture" target="_blank" rel="noopener">android-architecture</a></p>
+<h5 id="单个界面，多个View，使用同一个Model"><a href="#单个界面，多个View，使用同一个Model" class="headerlink" title="单个界面，多个View，使用同一个Model"></a>单个界面，多个View，使用同一个Model</h5><p>如果你遇到了这种场景，那么先要考虑能否将它变为前面介绍的<strong>一个界面，多个独立的View</strong>的场景，如果不行的话，再考虑下面介绍的方案。</p>
+<p>举例来说，有一个Activity，包含一个用户列表Fragment和一个用户详情Fragment。如果在用户详情Fragment中编辑了用户详情，那么用户列表对应的Item显示信息也要同时更新。</p>
+<p>这样的场景其实就产生了View之间需要沟通的需求，解决方案是使用Activity作为Fragment之间沟通的桥梁，两个Fragment的Presenter持有Activity，而Activity负责管理两个View之间的关系。工作时，Presenter通知Activity数据更新了，然后Activity再通知View数据更新了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// UserActivity.java</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserActivity</span> <span class="keyword">implements</span> <span class="title">IUserView</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> UserListFragment listFragment;</span><br><span class="line">    <span class="keyword">private</span> UserDetailFragment detailFragment;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onUserInfoEdited</span><span class="params">(User user)</span> </span>&#123;</span><br><span class="line">        listFragment.onUserInfoEdited(User user);</span><br><span class="line">        detailFragment.onUserInfoEdited(User user);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// UserDetailFragment.java</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserDetailFragment</span> <span class="keyword">implements</span> <span class="title">IUserView</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> UserPresenter userPresenter;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> [</span></span><br><span class="line"><span class="function">        <span class="keyword">super</span>.<span class="title">onCreate</span><span class="params">(savedInstanceState)</span></span>;</span><br><span class="line">        userPresenter = <span class="keyword">new</span> UserPresenter((IUserView)getActivity())</span><br><span class="line">    ]</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onUserInfoEdited</span><span class="params">(User user)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// update UI</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// UserListFragment.java</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserListFragment</span> <span class="keyword">implements</span> <span class="title">IUserView</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> UserPresenter userPresenter;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        userPresenter = <span class="keyword">new</span> UserPresenter((IUserView)getActivity())</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onUserInfoEdited</span><span class="params">(User user)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// update UI</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="单个界面，多个View，使用不同Model，但View的行为之间存在交互"><a href="#单个界面，多个View，使用不同Model，但View的行为之间存在交互" class="headerlink" title="单个界面，多个View，使用不同Model，但View的行为之间存在交互"></a>单个界面，多个View，使用不同Model，但View的行为之间存在交互</h5><p>与上面的例子类似，有一个Activity，包含一个文件列表和一个用户详情页，如果我们点击了其中一个文件Item，那么用户详情页就显示该文件所有者（用户）的详情。</p>
+<p>针对这样的情况，在这个问题中，有所讨论，<a href="https://stackoverflow.com/questions/39840892/android-mvp-how-to-coordinate-multiple-views" target="_blank" rel="noopener">Android MVP, how to coordinate multiple views?</a></p>
+<p>但我个人因为不喜欢使用EventBus，所以不建议使用答题者提到的实现方式。</p>
+<p>个人倾向于直接在Activity或者Fragment的IView回调接口中直接处理这种交互逻辑，因为这种交互逻辑很多时候就是这个页面专属的一种逻辑，直接在这里处理并无不妥。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// UserActivity.java</span></span><br><span class="line"><span class="comment">// 具体交互逻辑：点击文件item，请求文件item对应的userId，然后根据userId请求用户详情，然后更新UI</span></span><br><span class="line"><span class="comment">// 这样的接口设计虽然不合理，但是为了举例，就不用在意这些细节了</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UserFileActivity</span> <span class="keyword">implements</span> <span class="title">IUserView</span>, <span class="title">IFileView</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> UserPresenter userPresenter;</span><br><span class="line">    <span class="keyword">private</span> FilePresenter filePresenter;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        userPresenter = <span class="keyword">new</span> UserPresenter(<span class="keyword">this</span>));</span><br><span class="line">        filePresenter = <span class="keyword">new</span> FilePresenter(<span class="keyword">this</span>));</span><br><span class="line">        mAdapter.setOnItemClickListener(<span class="keyword">new</span> OnItemClickListener&lt;FileItem&gt;(View view, <span class="keyword">int</span> pos, FileItem file) &#123;</span><br><span class="line">            filePresenter.getFileOwner(file.id);</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">        </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFileOwnerLoaded</span><span class="params">(<span class="keyword">long</span> fileId, <span class="keyword">long</span> userId)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 在这里处理交互逻辑</span></span><br><span class="line">        userPresenter.getUserInfo(userId);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onUserInfoLoaded</span><span class="params">(User user)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 更新用户详情页</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="与其他框架组合使用"><a href="#与其他框架组合使用" class="headerlink" title="与其他框架组合使用"></a>与其他框架组合使用</h3><h5 id="RxJava"><a href="#RxJava" class="headerlink" title="RxJava"></a>RxJava</h5><p>RxJava在MVP中的使用，主要体现在Presenter与Model的实现中。在Model层中使用Observable封装数据请求，然后再在Presenter中利用RxJava处理数据并做线程切换。具体的例子参考：<a href="https://github.com/googlesamples/android-architecture/tree/todo-mvp-rxjava/" target="_blank" rel="noopener">googlesamples/android-architecture/todo-mvp-rxjava</a></p>
+<h5 id="Dagger2"><a href="#Dagger2" class="headerlink" title="Dagger2"></a>Dagger2</h5><p>MVP的实现过程中，有很多M、V、P之间绑定的代码，这些代码都可以通过Dagger2来简化，具体实现细节也可以参考谷歌官方的实现：<a href="https://github.com/googlesamples/android-architecture/tree/todo-mvp-dagger/" target="_blank" rel="noopener">googlesamples/android-architecture/todo-mvp-dagger</a></p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.reddit.com/r/androiddev/comments/3x78y3/android_mvp_and_context/" target="_blank" rel="noopener">Android MVP and Context</a></p>
+<p><a href="https://github.com/sockeqwe/mosby" target="_blank" rel="noopener">mosby</a></p>
+<p><a href="https://github.com/JessYanCoding/MVPArms" target="_blank" rel="noopener">MVPArms</a></p>
+<p><a href="https://github.com/googlesamples/android-architecture" target="_blank" rel="noopener">android-architecture</a></p>
+<p><a href="http://priocept.com/2017/10/02/implementing-mvp-on-android/" target="_blank" rel="noopener">Implementing Model-View-Presenter on Android – Part 1</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/设计模式/" rel="tag"># 设计模式</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/15/Android-Window机制/" rel="next" title="Android Window机制">
+                <i class="fa fa-chevron-left"></i> Android Window机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#MVP的简介"><span class="nav-number">1.</span> <span class="nav-text">MVP的简介</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#基本架构"><span class="nav-number">1.0.1.</span> <span class="nav-text">基本架构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#模块分工"><span class="nav-number">1.0.2.</span> <span class="nav-text">模块分工</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#优缺点"><span class="nav-number">1.0.3.</span> <span class="nav-text">优缺点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MVP基类的设计"><span class="nav-number">2.</span> <span class="nav-text">MVP基类的设计</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#IPresenter"><span class="nav-number">2.0.1.</span> <span class="nav-text">IPresenter</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#IView"><span class="nav-number">2.0.2.</span> <span class="nav-text">IView</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MVP的具体设计"><span class="nav-number">3.</span> <span class="nav-text">MVP的具体设计</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#View模块"><span class="nav-number">3.0.1.</span> <span class="nav-text">View模块</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Presenter模块"><span class="nav-number">3.0.2.</span> <span class="nav-text">Presenter模块</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Model模块"><span class="nav-number">3.0.3.</span> <span class="nav-text">Model模块</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#简单总结"><span class="nav-number">3.0.4.</span> <span class="nav-text">简单总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于复用"><span class="nav-number">4.</span> <span class="nav-text">关于复用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#View的复用"><span class="nav-number">4.0.1.</span> <span class="nav-text">View的复用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Model的复用"><span class="nav-number">4.0.2.</span> <span class="nav-text">Model的复用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Presenter的复用"><span class="nav-number">4.0.3.</span> <span class="nav-text">Presenter的复用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MVP在不同业务场景的使用"><span class="nav-number">5.</span> <span class="nav-text">MVP在不同业务场景的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#一个界面，多个独立的View"><span class="nav-number">5.0.1.</span> <span class="nav-text">一个界面，多个独立的View</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#多个界面，多个View，使用同一个Model"><span class="nav-number">5.0.2.</span> <span class="nav-text">多个界面，多个View，使用同一个Model</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#单个界面，多个View，使用同一个Model"><span class="nav-number">5.0.3.</span> <span class="nav-text">单个界面，多个View，使用同一个Model</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#单个界面，多个View，使用不同Model，但View的行为之间存在交互"><span class="nav-number">5.0.4.</span> <span class="nav-text">单个界面，多个View，使用不同Model，但View的行为之间存在交互</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#与其他框架组合使用"><span class="nav-number">6.</span> <span class="nav-text">与其他框架组合使用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#RxJava"><span class="nav-number">6.0.1.</span> <span class="nav-text">RxJava</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Dagger2"><span class="nav-number">6.0.2.</span> <span class="nav-text">Dagger2</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+  
+
+</body>
+</html>
