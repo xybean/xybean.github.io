@@ -91,7 +91,7 @@
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNc79gy1fsy8z0sdapj311q0wy48n.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNc79gy1ft2sfkuci4j31aw0q2h14.jpg">
 <meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNc79gy1ft2sghtd4qj31bq0qmwqx.jpg">
-<meta property="og:updated_time" content="2018-07-10T03:11:32.068Z">
+<meta property="og:updated_time" content="2018-07-12T09:40:44.563Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅谈JVM内存模型与垃圾回收">
 <meta name="twitter:description" content="本文主要是阅读&amp;lt;&amp;lt;深入理解Java虚拟机&amp;gt;&amp;gt;前几章节的一些摘记与总结，由于本人并不从事JVM相关工作，因此摘录整理的都是一些较为简单的概念，以期对内存模型与垃圾回收有一个宏观的认识。 Java内存模型概述Java虚拟机在运行的时候会将它所管理的内存划分成若干个不同的数据区域，如图：  程序计数器（The pc Register）程序计数器可以看做当前线程所执行的字节码的行号">
@@ -377,11 +377,19 @@
 <p>上面的四种创建对象的方法除了第一种使用new指令之外，其他三种都是使用invokespecial(构造函数的直接调用)。</p>
 <p>2、对象创建过程</p>
 <ul>
-<li>类加载检查：在串讲类之前先检查类是否被加载过。</li>
-<li>分配内存：类被加载后，其对应对象的大小就是确定的，因此JVM可以根据当前内存的分布情况为对象分配内存空间。分配的细节逻辑参考后面的章节。</li>
-<li>初始化：内存分配完成之后，虚拟机需要将分配到的内存空间都初始化为零值（不包括对象头）。</li>
-<li>设置对象头：设置对象的基本信息（如这个对象是哪个类的实例、如何才能找到类的元数据信息、对象的哈希码、对象的GC分代年龄等信息），然后存放在对象的<strong>对象头</strong>中。</li>
-<li>执行<init>方法，通常来说，<init>() 方法内包括的代码内容大概为：调用另一个 <init>() 方法；对实例变量初始化；与其对应的构造方法内的代码。执行完后，一个对象就被真正创建出来了。</init></init></init></li>
+<li><p>类加载检查：在串讲类之前先检查类是否被加载过。</p>
+</li>
+<li><p>分配内存：类被加载后，其对应对象的大小就是确定的，因此JVM可以根据当前内存的分布情况为对象分配内存空间。分配的细节逻辑参考后面的章节。</p>
+</li>
+<li><p>初始化：内存分配完成之后，虚拟机需要将分配到的内存空间都初始化为零值（不包括对象头）。</p>
+</li>
+<li><p>设置对象头：设置对象的基本信息（如这个对象是哪个类的实例、如何才能找到类的元数据信息、对象的哈希码、对象的GC分代年龄等信息），然后存放在对象的<strong>对象头</strong>中。</p>
+</li>
+<li><p>执行\<init\>方法，通常来说，\<init\>() 方法内包括的代码内容大概为：调用另一个 \<init\>() 方法；对实例变量初始化；与其对应的构造方法内的代码。</init\></init\></init\></p>
+<p>如果构造方法是明确地从调用同一个类中的另一个构造方法开始，那它对应的 \<init\>() 方法体内包括的内容为：一个对本类的\<init\>() 方法的调用；对应用构造方法内的所有字节码。</init\></init\></p>
+<p>如果构造方法不是通过调用自身类的其它构造方法开始，并且该对象不是 Object 对象，那 \<init\>() 法内则包括的内容为：一个对父类\<init\>() 方法的调用；对实例变量初始化方法的字节码；最后是对应构造子的方法体字节码。</init\></init\></p>
+<p>如果这个类是 Object，那么它的 \<init\>() 方法则不包括对父类 \<init\>() 方法的调用。</init\></init\></p>
+</li>
 </ul>
 <h5 id="对象的内存布局"><a href="#对象的内存布局" class="headerlink" title="对象的内存布局"></a>对象的内存布局</h5><p>在HotSpot虚拟机中，对象在内存中存储的布局可以分为3块区域：对象头(Header)、实例数据(Instance Data)和对齐填充(Padding)。</p>
 <p>1、对象头</p>
