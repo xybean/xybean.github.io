@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="JVM," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="概述Class文件是一组以8位字节为基础单位的二进制流，各个数据项目严格按照顺序紧凑地排列在Class文件中，中间没有任何的分隔符。当遇到需要8位字节以上空间的数据项时，则会按照高位在前（大端序）的方式分割成若干个8位字节进行存储。 按照虚拟机规范的规定，Class文件格式采用一种类似于C语言结构体的结构来表示数据，这种结构中只有两种数据类型：无符号数与表。 无符号数无符号数属于基本的数据类型，u">
+<meta name="keywords" content="JVM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Class文件格式与字节码指令">
+<meta property="og:url" content="https://xybean.github.io/2018/07/26/Class文件格式与字节码指令/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="概述Class文件是一组以8位字节为基础单位的二进制流，各个数据项目严格按照顺序紧凑地排列在Class文件中，中间没有任何的分隔符。当遇到需要8位字节以上空间的数据项时，则会按照高位在前（大端序）的方式分割成若干个8位字节进行存储。 按照虚拟机规范的规定，Class文件格式采用一种类似于C语言结构体的结构来表示数据，这种结构中只有两种数据类型：无符号数与表。 无符号数无符号数属于基本的数据类型，u">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1ftfk5nmgy6j317c0v6b29.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1ftfljwfsx1j30va0i2dj7.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1ftlcigv7ihj311i0ew76l.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1ftlddf7h77j30ws184e3w.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1ftnn35prkgj30tk0xwtid.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1ftnnu6qbd5j30u40vk482.jpg">
+<meta property="og:updated_time" content="2018-07-26T15:20:30.230Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Class文件格式与字节码指令">
+<meta name="twitter:description" content="概述Class文件是一组以8位字节为基础单位的二进制流，各个数据项目严格按照顺序紧凑地排列在Class文件中，中间没有任何的分隔符。当遇到需要8位字节以上空间的数据项时，则会按照高位在前（大端序）的方式分割成若干个8位字节进行存储。 按照虚拟机规范的规定，Class文件格式采用一种类似于C语言结构体的结构来表示数据，这种结构中只有两种数据类型：无符号数与表。 无符号数无符号数属于基本的数据类型，u">
+<meta name="twitter:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1ftfk5nmgy6j317c0v6b29.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2018/07/26/Class文件格式与字节码指令/"/>
+
+
+
+
+
+  <title>Class文件格式与字节码指令 | xybean's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2018/07/26/Class文件格式与字节码指令/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Class文件格式与字节码指令</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-26T23:17:48+08:00">
+                2018-07-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>Class文件是一组以8位字节为基础单位的二进制流，各个数据项目严格按照顺序紧凑地排列在Class文件中，中间没有任何的分隔符。当遇到需要8位字节以上空间的数据项时，则会按照高位在前（大端序）的方式分割成若干个8位字节进行存储。</p>
+<p>按照虚拟机规范的规定，Class文件格式采用一种类似于C语言结构体的结构来表示数据，这种结构中只有两种数据类型：无符号数与表。</p>
+<h5 id="无符号数"><a href="#无符号数" class="headerlink" title="无符号数"></a>无符号数</h5><p>无符号数属于基本的数据类型，u1、u2、u4、u8分别表示1个字节、2个字节、4个字节和8个字节的无符号数，无符号数可以用来描述数字、索引引用、数量值或者按照UTF-8编码构成字符串值</p>
+<h5 id="表"><a href="#表" class="headerlink" title="表"></a>表</h5><p>表由多个无符号数或其他表作为数据项构成的复合数据类型，习惯性地以“<code>_info</code>“结尾。表是用于描述有层次关系的复合结构数据，整个Class文件就是一张表。</p>
+<h5 id="整体结构"><a href="#整体结构" class="headerlink" title="整体结构"></a>整体结构</h5><p>整个class文件可以看成一张表，表的第一层级如下表：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftfk5nmgy6j317c0v6b29.jpg" alt="image-20180719225103023"></p>
+<h3 id="Class文件具体结构分析"><a href="#Class文件具体结构分析" class="headerlink" title="Class文件具体结构分析"></a>Class文件具体结构分析</h3><p>这一节会详细介绍类文件中包含的各种表。主要介绍常量池、字段表、方法表。</p>
+<h5 id="魔数与文件版本"><a href="#魔数与文件版本" class="headerlink" title="魔数与文件版本"></a>魔数与文件版本</h5><p>前1-4字节被称为<code>魔数</code>，魔数值来唯一确定文件类型，Class文件魔数是：0xCAFEBABE。</p>
+<p><code>minor_version</code>和<code>major_version</code>：5-6个字节代表次版本号，7-8个字节代表主版本号。</p>
+<h5 id="常量池（constant-pool）"><a href="#常量池（constant-pool）" class="headerlink" title="常量池（constant_pool）"></a>常量池（constant_pool）</h5><p>可以理解为Class文件的字符资源库，它存储着Class文件中其他表需要用的常量（字面量和符号引用）。</p>
+<p><code>constant_pool_count</code>：常量池的数目。容量计数从1开始，也就是说常量池第一个位置是空的，如果<code>constant_pool_count</code>值为1，则表示常量数为0。这样做的目的是，当其他地方引用常量池时，如果其索引值为0，则表示它不引用任何一个常量池项目。这样的设计可以做到这种语义表达。</p>
+<p> <code>constant_pool</code>：常量池，Class类文件中出现的第一个表类型数据，存储字面量（Literal）与符号引用（Symbolic Reference）。</p>
+<ul>
+<li>字面量（Literal）：字面量比较接近于Java语言层面的常量概念，如文本字符串、声明为final的常量值等。</li>
+<li>符号引用（Symbolic Reference）：包括以下字符常量，类和接口的全限定名（Fully Qualified Name）、字段的名称和描述符（Field Descriptor）、方法的名称和描述符（Method Descriptors）</li>
+</ul>
+<p>常量池中的每一种常量都是一张表，每张表具体结构不同，具体的细节这里不再阐述，这里仅举一个例子说明，具体的细节可以直接查阅官方文档 <a href="https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.4" target="_blank" rel="noopener">Java Virtual Machine Specification</a> 4.4 节的内容。</p>
+<p>考虑以下反编译出的字节码：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1ftfljwfsx1j30va0i2dj7.jpg" alt="image-20180719233921806"></p>
+<p>注意到#3位置的常量是类常量，结构为</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">CONSTANT_Class_info</span> &#123;</span></span><br><span class="line">    <span class="comment">// 值为7的时候代表 CONSTANT_Class_info</span></span><br><span class="line">    u1 tag;</span><br><span class="line">    <span class="comment">// 表示类全限定名字符常量所在的下标值，对应上图就是第17个常量，即为com/xybean/test/Test</span></span><br><span class="line">    u2 name_index; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而#17自然代表的就是<code>CONSTANT_Utf8_info</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">CONSTANT_Utf8_info</span> &#123;</span></span><br><span class="line">    u1 tag;</span><br><span class="line">    u2 length; <span class="comment">// 字符长度</span></span><br><span class="line">    u1 bytes[length]; <span class="comment">// 字符值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="类的访问标志（access-flags）"><a href="#类的访问标志（access-flags）" class="headerlink" title="类的访问标志（access_flags）"></a>类的访问标志（access_flags）</h5><p>常量池之后的数据结构是访问标志(access_flags),这个标志主要用于识别一些类或者接口层次的访问信息，主要包括：这个Class是类还是接口、是否定义public、是否定义abstract类型；如果是类的话是否被声明为final等。</p>
+<h5 id="类索引、父类索引、接口索引集合"><a href="#类索引、父类索引、接口索引集合" class="headerlink" title="类索引、父类索引、接口索引集合"></a>类索引、父类索引、接口索引集合</h5><p>这个数据项主要用于确定这个类的继承关系。</p>
+<p>其中类索引和父类索引都是一个u2类型的数据，而接口索引集合是一组u2类型的数据。在Java中由于不允许多继承，所以父类索引是唯一的，但是一个类可以实现多个接口，所以得到的接口索引是一个集合，表示这个类实现了哪些接口。</p>
+<h5 id="字段表（field-info）"><a href="#字段表（field-info）" class="headerlink" title="字段表（field_info）"></a>字段表（field_info）</h5><p>字段表用于描述接口或者类中声明的变量。结构如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">field_info</span> &#123;</span></span><br><span class="line">    u2             access_flags;</span><br><span class="line">    u2             name_index;</span><br><span class="line">    u2             descriptor_index;</span><br><span class="line">    u2             attributes_count;</span><br><span class="line">    attribute_info attributes[attributes_count];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>access_flags：标记字段的访问权限和属性，包括public、static、volatile等。</li>
+<li>name_index：下标值指向常量池，代表了字段的非限定名的字符字面量。（例如<code>private int number;</code> 对应的值就是字符串“number”）</li>
+<li>descriptor_index：下标值指向常量池，代表了字段的描述符的字符字面量。（例如<code>private Test test;</code> 对应的值就是字符串“Lcom/xybean/test/Test;”）</li>
+<li>attributes_count：当前字段额外属性的数量</li>
+<li>attributes[attributes_count]：额外属性。例如对于 <code>private static int number = 1;</code> 会保存意向名称为ConstantValue的属性，其值指向123。</li>
+</ul>
+<p>关于字段的描述符，具体的字符表如下：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1ftlcigv7ihj311i0ew76l.jpg" alt="image-20180724225957916"></p>
+<p>举例来说，<code>String</code>  的描述符为<code>Ljava/lang/String</code>  ，<code>int[]</code> 的描述符为 <code>[I</code> ，二维数组 <code>int[][]</code> 的描述符为<code>[[I</code>。</p>
+<h5 id="方法表（method-info）"><a href="#方法表（method-info）" class="headerlink" title="方法表（method_info）"></a>方法表（method_info）</h5><p>方法表用于描述class文件中定义的方法，其结构如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">method_info</span> &#123;</span></span><br><span class="line">    u2             access_flags;</span><br><span class="line">    u2             name_index;</span><br><span class="line">    u2             descriptor_index;</span><br><span class="line">    u2             attributes_count;</span><br><span class="line">    attribute_info attributes[attributes_count];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现其结构与字段表是一致的，区别在于在方法中不能用volatile和transient关键字修饰，所以这两个标志不能用在方法表中。同时因为方法中添加了字段不能使用的访问标志，比如方法可以使用synchronized、native、strictfp、abstract关键字修饰，所以在方法表中就增加了相应的访问标志。</p>
+<p>方法描述符的格式形如 <em>“(参数)返回值”</em> ，例如方法 <code>String getString(int[] a, long b)</code> 的方法描述符为<code>([IJ)Ljava/lang/String</code> 。至于方法名，显而易见就是 <code>getString</code> 。</p>
+<p>在上面的描述中都没有提到方法中的可执行代码，实际上这些代码会被转换成指令字符，存储在方法表中的Code属性中，这个在后面会具体介绍。</p>
+<blockquote>
+<p>值得一提的是， 在 Java 语言中，要重载（Overload）一个方法，除了要与原方法具有相同的简单名称之外，还要求必须拥有一个与原方法不同的特征签名（注：Java 代码的方法特征签名只包括方法名称、参数顺序及参数类型，而字节码的特征签名还包括方法返回值以及受查异常表），特征签名就是一个方法中各个参数在常量池中的字段符号引用的集合，也就是因为返回值不会包含在特征签名中，因此 Java 语言里面是无法仅仅依靠返回值的不同来对一个已有方法进行重载的。但是在 Class 文件格式中，特征签名的范围更大一些，只要描述符不是完全一致的两个方法也可以共存。也就是说，如果两个方法有相同的名称和特征签名，但返回值不同，那么也是可以合法共存于同一个 Class 文件中的。</p>
+</blockquote>
+<h5 id="属性表（attribute-info）"><a href="#属性表（attribute-info）" class="headerlink" title="属性表（attribute_info）"></a>属性表（attribute_info）</h5><p>在 Class 文件、字段表、方法表都可以携带自己的属性表集合，以用于描述某些场景专有的信息。</p>
+<p>常用的属性如下表：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftlddf7h77j30ws184e3w.jpg" alt="image-20180724232946102"></p>
+<p>具体的细节这里不再赘述，可以直接参考官方文档 <a href="https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7" target="_blank" rel="noopener">https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7</a></p>
+<h3 id="字节码指令简介"><a href="#字节码指令简介" class="headerlink" title="字节码指令简介"></a>字节码指令简介</h3><p>Java虚拟机的指令由一个字节长度的、 代表着某种特定操作含义的数字（称为操作码，Opcode）以及跟随其后的零至多个代表此操作所需参数（称为操作数，Operands）而构成。</p>
+<p>如果不考虑异常处理的话，JVM的解释器可以用下面的伪代码当做最基本的执行模型来理解：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    自动计算PC寄存器的值+<span class="number">1</span>;</span><br><span class="line">    根据PC寄存器的指示位置，从字节码流中取出操作码;</span><br><span class="line">    <span class="keyword">if</span> (字节码存在操作数) &#123;</span><br><span class="line">        从字节码流中取出操作数;</span><br><span class="line">    &#125;</span><br><span class="line">    执行操作码定义的操作;</span><br><span class="line">&#125; <span class="keyword">while</span> (字节码流长度 &gt; <span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<h5 id="字节码与数据类型"><a href="#字节码与数据类型" class="headerlink" title="字节码与数据类型"></a>字节码与数据类型</h5><p>在Java虚拟机的指令集中，大多数的指令都包含了其操作所对应的数据类型信息。其中i代表int，s代表short，b代表byte，c代表char，f代表float，d代表double，a代表reference。 也有一些指令的助记符中没有明确地指明操作类型的字母，如arraylength指令，它没有代表数据类型的特殊字符，但操作数永远只能是一个数组类型的对象。 还有另外一些指令，如无条件跳转指令goto则是与数据类型无关的。</p>
+<h5 id="字节码分类"><a href="#字节码分类" class="headerlink" title="字节码分类"></a>字节码分类</h5><ul>
+<li><p>加载存储指令：用于将数据在栈帧中的局部变量表和操作数栈之间来回传输</p>
+</li>
+<li><p>运算指令：运算或算术指令用于对两个操作数栈上的值进行某种特定运算，并把结果重新存入到操作栈顶。</p>
+</li>
+<li><p>类型转换指令：类型转换指令可以将两种不同的数值类型进行相互转换，这些转换操作一般用于实现用户代码中的显式类型转换操作。</p>
+</li>
+<li><p>对象创建与访问指令：虽然类实例和数组都是对象，但Java虚拟机对类实例和数组的创建与操作使用了不同的字节码指令。 对象创建后，就可以通过对象访问指令获取对象实例或者数组实例中的字段或者数组元素。</p>
+</li>
+<li><p>操作数栈管理指令：用于控制操作数栈的出入。</p>
+</li>
+<li><p>控制转移指令：控制转移指令可以让Java虚拟机有条件或无条件地从指定的位置指令而不是控制转移指令的下一条指令继续执行程序，从概念模型上理解，可以认为控制转移指令就是在有条件或无条件地修改PC寄存器的值。</p>
+</li>
+<li><p>方法调用和返回指令：执行方法调用与方法返回。</p>
+</li>
+<li><p>同步指令：Java虚拟机可以支持方法级的同步和方法内部一段指令序列的同步，这两种同步结构都是使用管程（Monitor）来支持的。</p>
+<p>方法级的同步是隐式的，即无须通过字节码指令来控制，它实现在方法调用和返回操作之中。 虚拟机可以从方法常量池的方法表结构中的ACC_SYNCHRONIZED访问标志得知一个方法是否声明为同步方法。 当方法调用时，调用指令将会检查方法的ACC_SYNCHRONIZED访问标志是否被设置，如果设置了，执行线程就要求先成功持有管程，然后才能执行方法，最后当方法完成（无论是正常完成还是非正常完成）时释放管程。 在方法执行期间，执行线程持有了管程，其他任何线程都无法再获取到同一个管程。 如果一个同步方法执行期间抛出了异常，并且在方法内部无法处理此异常，那么这个同步方法所持有的管程将在异常抛到同步方法之外时自动释放。</p>
+<p>同步一段指令集序列通常是由Java语言中的synchronized语句块来表示的，Java虚拟机的指令集中有monitorenter和monitorexit两条指令来支持synchronized关键字的语义，正确实现synchronized关键字需要Javac编译器与Java虚拟机两者共同协作支持</p>
+</li>
+</ul>
+<h5 id="字节码指令速查"><a href="#字节码指令速查" class="headerlink" title="字节码指令速查"></a>字节码指令速查</h5><p>上面两节对字节码指令做了概述，由于指令太多，并未介绍细节，需要具体了解细节的，可以直接查表。</p>
+<p><a href="https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.10.1.9" target="_blank" rel="noopener">https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.10.1.9</a></p>
+<h5 id="从方法表到字节码指令"><a href="#从方法表到字节码指令" class="headerlink" title="从方法表到字节码指令"></a>从方法表到字节码指令</h5><p>上面提到过方法表中的Code属性存储着方法中代码对应的字节码指令序列，这一节就举例介绍下字节码是如何执行的。</p>
+<p>Java文件的源代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Test.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Test</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">        number = x;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 关注这个方法就好了</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Test <span class="title">increase</span><span class="params">(<span class="keyword">int</span> in)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> a = <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">int</span> b = a + in;</span><br><span class="line">        <span class="keyword">if</span> (b &gt; <span class="number">3</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> Test(b);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> Test(a);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译后用javap分析得到Code属性表如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0</span>: iconst_2  <span class="comment">// 将int类型数据 2 压入到操作数栈中</span></span><br><span class="line"><span class="number">1</span>: istore_2  <span class="comment">// 将操作数栈栈顶的int类型数据保存到局部变量表下标为2的位置，操作数2为局部变量表的索引值</span></span><br><span class="line"><span class="number">2</span>: iload_2   <span class="comment">// 将局部变量表中索引值为2的int类型数据(a)压入操作数栈</span></span><br><span class="line"><span class="number">3</span>: iload_1   <span class="comment">// 将局部变量表中索引值为1的int类型数据(也就是上面的变量in)压入操作数栈</span></span><br><span class="line"><span class="number">4</span>: iadd      <span class="comment">// 将栈顶两个参数相加，和保存在栈顶</span></span><br><span class="line"><span class="number">5</span>: istore_3  </span><br><span class="line"><span class="number">6</span>: iload_3</span><br><span class="line"><span class="number">7</span>: iconst_3  <span class="comment">// 这一步操作之后，栈顶为3，栈中第二个数为b</span></span><br><span class="line"><span class="number">8</span>: if_icmple     <span class="number">20</span> <span class="comment">// 如果b &lt;= 3,则跳转到20执行</span></span><br><span class="line">11: new           #3               // class com/xybean/test/Test</span><br><span class="line"><span class="number">14</span>: dup  <span class="comment">// 复制栈顶数据添加到栈顶，具体细节后面会介绍</span></span><br><span class="line"><span class="number">15</span>: iload_3 <span class="comment">// 取出b</span></span><br><span class="line">16: invokespecial #4                  // Method "&lt;init&gt;":(I)V</span><br><span class="line"><span class="number">19</span>: areturn  <span class="comment">// 将栈顶的数据返回</span></span><br><span class="line">20: new           #3                  // class com/xybean/test/Test</span><br><span class="line"><span class="number">23</span>: dup</span><br><span class="line"><span class="number">24</span>: iload_2 <span class="comment">// 取出a</span></span><br><span class="line">25: invokespecial #4                  // Method "&lt;init&gt;":(I)V</span><br><span class="line"><span class="number">28</span>: areturn</span><br></pre></td></tr></table></figure>
+<p>这里对new一个对象的系列指令做一个细节的介绍：</p>
+<p>第一步new操作，会创建指定类型的对象实例、对其进行<strong>默认</strong>初始化，并且将指向该实例的一个引用压入操作数栈顶，此时栈情况由顶向下为（Test引用）；</p>
+<p>第二步dup，复制栈顶引用，此时栈情况为（Test引用 &lt;- Test引用）；</p>
+<p>第三步iload_3，去取出b的值置于栈顶，此时栈情况为（b &lt;- Test引用 &lt;- Test引用）；</p>
+<p>第四步invokespecial #4，以栈顶两个数为参数，调用初始化方法，此时栈情况为（Test引用）；</p>
+<p>第五步areturn，将栈顶的引用返回，此时栈情况为（）；</p>
+<p>更多的细节可以参考：<a href="https://www.zhihu.com/question/52749416" target="_blank" rel="noopener">关于JVM字节码中dup指令的问题？</a></p>
+<h5 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h5><p>异常处理与普通的方法执行相关却略有不同，因此这里单独介绍一下异常处理在字节码执行层面的原理。</p>
+<p>惯例先看一段Java代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Test.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">testException</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> a = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> b;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            b = a;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> e;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面是javap的分析结果，重点关注Exception table</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftnn35prkgj30tk0xwtid.jpg" alt="image-20180726223441179"></p>
+<p>异常表中的值表示的意思是在执行第2-4条指令的时候，如果抛出了Exception，就跳转执行第7条指令，可以发现第7条指令开始就是catch块中的代码，而指令10则是catch块外的代码。</p>
+<p>指的注意的是这里athrow指令的作用，其中异常初期器指的就是异常表：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftnnu6qbd5j30u40vk482.jpg" alt="image-20180726230259680"></p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html" target="_blank" rel="noopener">Java Virtual Machine Specification &gt; Chapter 4. The class File Format</a></p>
+<p><a href="https://book.douban.com/subject/24722612/" target="_blank" rel="noopener">&lt;&lt;深入理解Java虚拟机&gt;&gt;</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/10/浅谈JVM内存模型与垃圾回收/" rel="next" title="浅谈JVM内存模型与垃圾回收">
+                <i class="fa fa-chevron-left"></i> 浅谈JVM内存模型与垃圾回收
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#无符号数"><span class="nav-number">1.0.1.</span> <span class="nav-text">无符号数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#表"><span class="nav-number">1.0.2.</span> <span class="nav-text">表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#整体结构"><span class="nav-number">1.0.3.</span> <span class="nav-text">整体结构</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Class文件具体结构分析"><span class="nav-number">2.</span> <span class="nav-text">Class文件具体结构分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#魔数与文件版本"><span class="nav-number">2.0.1.</span> <span class="nav-text">魔数与文件版本</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#常量池（constant-pool）"><span class="nav-number">2.0.2.</span> <span class="nav-text">常量池（constant_pool）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#类的访问标志（access-flags）"><span class="nav-number">2.0.3.</span> <span class="nav-text">类的访问标志（access_flags）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#类索引、父类索引、接口索引集合"><span class="nav-number">2.0.4.</span> <span class="nav-text">类索引、父类索引、接口索引集合</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#字段表（field-info）"><span class="nav-number">2.0.5.</span> <span class="nav-text">字段表（field_info）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方法表（method-info）"><span class="nav-number">2.0.6.</span> <span class="nav-text">方法表（method_info）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#属性表（attribute-info）"><span class="nav-number">2.0.7.</span> <span class="nav-text">属性表（attribute_info）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字节码指令简介"><span class="nav-number">3.</span> <span class="nav-text">字节码指令简介</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#字节码与数据类型"><span class="nav-number">3.0.1.</span> <span class="nav-text">字节码与数据类型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#字节码分类"><span class="nav-number">3.0.2.</span> <span class="nav-text">字节码分类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#字节码指令速查"><span class="nav-number">3.0.3.</span> <span class="nav-text">字节码指令速查</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#从方法表到字节码指令"><span class="nav-number">3.0.4.</span> <span class="nav-text">从方法表到字节码指令</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#异常处理"><span class="nav-number">3.0.5.</span> <span class="nav-text">异常处理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+  
+
+</body>
+</html>
