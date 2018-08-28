@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="JVM," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="基本概念线程维基百科：线程 竞争条件、临界区当两个线程竞争同一资源时，如果对资源的访问顺序敏感，就称存在竞态条件。导致竞态条件发生的代码区称作临界区。在临界区中使用适当的同步就可以避免竞态条件。 同步线程同步是指线程之间所具有的一种制约关系，一个线程的执行依赖另一个线程的消息，当它没有得到另一个线程的消息时应等待，直到消息到达时才被唤醒。简而言之就是多个线程需要按照某一个特定的顺序执行。 互斥线程">
+<meta name="keywords" content="JVM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java多线程与JVM内存模型">
+<meta property="og:url" content="https://xybean.github.io/2018/08/28/Java多线程与JVM内存模型/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="基本概念线程维基百科：线程 竞争条件、临界区当两个线程竞争同一资源时，如果对资源的访问顺序敏感，就称存在竞态条件。导致竞态条件发生的代码区称作临界区。在临界区中使用适当的同步就可以避免竞态条件。 同步线程同步是指线程之间所具有的一种制约关系，一个线程的执行依赖另一个线程的消息，当它没有得到另一个线程的消息时应等待，直到消息到达时才被唤醒。简而言之就是多个线程需要按照某一个特定的顺序执行。 互斥线程">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwgy1fugj5xsu5gj30lo0i876f.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwgy1fuhql74wguj31ak0lejtp.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwgy1fuited3b9ej30we12ck3l.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwgy1fuiu3y28zrj314m0kidnv.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwgy1fuivua85bgj30ra08g75f.jpg">
+<meta property="og:updated_time" content="2018-08-28T13:59:43.253Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java多线程与JVM内存模型">
+<meta name="twitter:description" content="基本概念线程维基百科：线程 竞争条件、临界区当两个线程竞争同一资源时，如果对资源的访问顺序敏感，就称存在竞态条件。导致竞态条件发生的代码区称作临界区。在临界区中使用适当的同步就可以避免竞态条件。 同步线程同步是指线程之间所具有的一种制约关系，一个线程的执行依赖另一个线程的消息，当它没有得到另一个线程的消息时应等待，直到消息到达时才被唤醒。简而言之就是多个线程需要按照某一个特定的顺序执行。 互斥线程">
+<meta name="twitter:image" content="https://ws2.sinaimg.cn/large/006tNbRwgy1fugj5xsu5gj30lo0i876f.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2018/08/28/Java多线程与JVM内存模型/"/>
+
+
+
+
+
+  <title>Java多线程与JVM内存模型 | xybean's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2018/08/28/Java多线程与JVM内存模型/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java多线程与JVM内存模型</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-28T21:58:07+08:00">
+                2018-08-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><h5 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h5><p><a href="https://zh.wikipedia.org/wiki/%E7%BA%BF%E7%A8%8B" target="_blank" rel="noopener">维基百科：线程</a></p>
+<h5 id="竞争条件、临界区"><a href="#竞争条件、临界区" class="headerlink" title="竞争条件、临界区"></a>竞争条件、临界区</h5><p>当两个线程竞争同一资源时，如果对资源的访问顺序敏感，就称存在竞态条件。导致竞态条件发生的代码区称作临界区。在临界区中使用适当的同步就可以避免竞态条件。</p>
+<h5 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h5><p>线程同步是指线程之间所具有的一种制约关系，一个线程的执行依赖另一个线程的消息，当它没有得到另一个线程的消息时应等待，直到消息到达时才被唤醒。简而言之就是多个线程需要按照某一个特定的顺序执行。</p>
+<h5 id="互斥"><a href="#互斥" class="headerlink" title="互斥"></a>互斥</h5><p>线程互斥是线程之间的间接制约关系。当一个线程进入临界区使用临界资源时，另一个线程必须等待。只有当使用临界资源的线程退出临界区后，这个线程才会解除阻塞状态。</p>
+<h5 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h5><p>根据上面几个概念，概括多线程编程：在多线程编程中，会遇到资源竞争的问题，通过一些手段我们可以实现线程互斥以使得程序正常运行；同时也会遇到线程顺序执行的需求，那也可以通过一些同步访问技术（如信号量）实现线程间的同步，而这些手段就是多线程编程的主要工作内容。</p>
+<h3 id="内存模型"><a href="#内存模型" class="headerlink" title="内存模型"></a>内存模型</h3><h5 id="内存模型-1"><a href="#内存模型-1" class="headerlink" title="内存模型"></a>内存模型</h5><p>由于计算机的存储设备与处理器的运算能力之间有几个数量级的差距，所以现代计算机系统都不得不加入一层读写速度尽可能接近处理器运算速度的高速缓存（cache）来作为内存与处理器之间的缓冲：将运算需要使用到的数据复制到缓存中，让运算能快速进行，当运算结束后再从缓存同步回内存之中，这样处理器就无需等待缓慢的内存读写了。</p>
+<p>JVM在设计内存模型的时候也是参照了上述的设计，因此在线程与主存之间增加了当前线程私有的本地内存，作用相当于高速缓存（cache）。在实际运行的时候，线程对变量的所有操作（读取、赋值）都必须在工作内存中进行，而不能直接读写主内存中的变量。不同线程之间无法直接访问对方工作内存中的变量，线程间变量值的传递均需要在主内存来完成。</p>
+<p>在之前的博文中，我们将JVM的内存区域划分为了堆、栈等区域，而现在的内存划分，则是从不同维度上进行了分层，如果要将两种划分方式对应起来。那么本地内存对应的即是虚拟机栈，而主存，则对应着堆。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwgy1fugj5xsu5gj30lo0i876f.jpg" alt="image-20180820222240167"></p>
+<h5 id="共享变量"><a href="#共享变量" class="headerlink" title="共享变量"></a>共享变量</h5><p>如上所述，在Java中，所有实例域、静态域和数组元素存放在堆内存中，线程之间共享，称之为“共享变量”。局部变量、方法参数等不会在线程之间共享，不存在内存可见性问题，也不受内存模型的影响。</p>
+<h5 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h5><p>由于上面本地内存的设计，那么必然会引出本地内存与主存的数据同步的问题，为了解决这一问题，JVM约定了一系列这两者之间的基本操作（协议），以保证数据同步正常。</p>
+<p>Java内存模型中定义了以下8中操作来完成主内存与工作内存之间交互的实现细节，并且JVM确保以下的操作都是原子操作。</p>
+<ul>
+<li>lock（锁定）：作用于主内存的变量，它把一个变量标示为一条线程独占的状态。</li>
+<li>unlock（解锁）：作用于主内存的变量，它把一个处于锁定状态的变量释放出来，释放后的变量才可以被其他线程锁定。</li>
+<li>read（读取）：作用于主内存的变量，它把一个变量的值从主内存传输到工作内存中，以便随后的load动作使用。</li>
+<li>load（载入）：作用于工作内存的变量，它把read操作从主内存中得到的变量值放入工作内存的变量副本中。</li>
+<li>use（使用）：作用于工作内存的变量，它把工作内存中的一个变量的值传递给执行引擎，每当虚拟机遇到一个需要使用到变量的值得字节码指令时将会执行这个操作。</li>
+<li>assign（赋值）：作用于工作内存的变量，它把一个从执行引擎接收到的值赋给工作内存的变量，每当虚拟机遇到一个给变量赋值的字节码指令时执行这个操作。</li>
+<li>store（存储）：作用于工作内存的变量，它把工作内存中的一个变量的值传递到主内存中，以便随后的write操作使用。</li>
+<li>write（写入）：作用于主内存的变量，它把store操作从工作内存中得到的变量值放入主内存的变量中。</li>
+</ul>
+<p>Java内存模型还规定了在执行上述八种基本操作时，必须满足如下规则：</p>
+<ul>
+<li>如果要把一个变量从主内存中复制到工作内存，就需要按顺寻地执行read和load操作， 如果把变量从工作内存中同步回主内存中，就要按顺序地执行store和write操作。但Java内存模型只要求上述操作必须按顺序执行，而没有保证必须是连续执行。</li>
+<li>不允许read和load、store和write操作之一单独出现</li>
+<li>不允许一个线程丢弃它的最近assign的操作，即变量在工作内存中改变了之后必须同步到主内存中。</li>
+<li>不允许一个线程无原因地（没有发生过任何assign操作）把数据从工作内存同步回主内存中。</li>
+<li>一个新的变量只能在主内存中诞生，不允许在工作内存中直接使用一个未被初始化（load或assign）的变量。即就是对一个变量实施use和store操作之前，必须先执行过了assign和load操作。</li>
+<li>一个变量在同一时刻只允许一条线程对其进行lock操作，但lock操作可以被同一条线程重复执行多次，多次执行lock后，只有执行相同次数的unlock操作，变量才会被解锁。lock和unlock必须成对出现</li>
+<li>如果对一个变量执行lock操作，将会清空工作内存中此变量的值，在执行引擎使用这个变量前需要重新执行load或assign操作初始化变量的值</li>
+<li>如果一个变量事先没有被lock操作锁定，则不允许对它执行unlock操作；也不允许去unlock一个被其他线程锁定的变量。</li>
+<li>对一个变量执行unlock操作之前，必须先把此变量同步到主内存中（执行store和write操作）。</li>
+</ul>
+<h5 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h5><p>可见性指的是一个线程对共享变量值的修改，能否及时地被其他线程看到。回顾上面JVM内存模型的设计，我们会发现线程修改变量值并同步到主存需要经过以下几个原子操作assign-&gt;store-&gt;write。显而易见，这几个操作之间是有可能插入其他线程的读取操作的，那么就会出现一种情况，即线程A已经修改了变量x，但是并没有同步到主存中，而线程b此时读取了变量x，那么就会导致线程b读到了一个过期的x值。</p>
+<p>因为可见性的问题，下面的代码的执行结果可能是一致循环或者输出的number不等于43。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NoVisibility</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> ready; </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> number;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span>(!ready) &#123;</span><br><span class="line">                Thread.yield();</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(number);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> ReaderThread().start(); <span class="comment">//启动一个线程</span></span><br><span class="line">        number = <span class="number">43</span>;</span><br><span class="line">        ready = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="重排序"><a href="#重排序" class="headerlink" title="重排序"></a>重排序</h3><h5 id="重排序-1"><a href="#重排序-1" class="headerlink" title="重排序"></a>重排序</h5><p>重排序通常是编译器或运行时环境为了优化程序性能而采取的对指令进行重新排序执行的一种手段。因为多CPU、多核架构的存在，为了提升程序性能，JVM允许将一些<strong>单线程</strong>逻辑上无先后关系的指令按照新的顺序执行，但是JVM需要保证<strong>在单线程环境下，指令执行的最终效果应当与其在顺序执行下的效果一致</strong>。</p>
+<p>举例来说</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">boolean</span> flag = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程1</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    a = <span class="number">1</span>;</span><br><span class="line">    flag = <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//线程2</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (flag) &#123;</span><br><span class="line">        <span class="keyword">int</span> i = a + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码执行后，i的值可能为1，也可能为0。因为JVM只保证单线程上逻辑无关的指令顺序执行，换言之，因为在线程1中a与flag的赋值指令是无逻辑关系的，因此在实际执行的时候，可能先执行flag的赋值，再执行a的赋值。</p>
+<h5 id="先行发生原则（happens-before）"><a href="#先行发生原则（happens-before）" class="headerlink" title="先行发生原则（happens-before）"></a>先行发生原则（happens-before）</h5><p>因为重排序的存在，导致Java代码在多线程的情况下变得非常复杂，为了限制这种复杂度，Java语言规范约定了重排序的一些规则，被称为先行发生原则，这些规则主要从可见性的角度进行了约束。</p>
+<p>核心思想：Happens-before的前后两个操作不会被重排序且后者对前者的内存可见。</p>
+<ul>
+<li><p>程序次序法则：线程中的每个动作A都happens-before于该线程中的每一个动作B，其中，在程序中，所有的动作B都能出现在A之后。注意这里的动作A与B需要有逻辑上的先后关系，参考文档原文的这一段：</p>
+<blockquote>
+<p>It should be noted that the presence of a <em>happens-before</em> relationship between two actions does not necessarily imply that they have to take place in that order in an implementation. If the reordering produces results consistent with a legal execution, it is not illegal.</p>
+</blockquote>
+</li>
+<li><p>监视器锁法则：对一个监视器锁的解锁 happens-before于每一个后续对同一监视器锁的加锁。</p>
+</li>
+<li><p>volatile变量法则：对volatile域的写入操作happens-before于每一个后续对同一个域的读写操作。</p>
+</li>
+<li><p>线程启动法则：在一个线程里，对Thread.start的调用会happens-before于每个启动线程的动作。</p>
+</li>
+<li><p>线程终结法则：线程中的任何动作都happens-before于其他线程检测到这个线程已经终结、或者从Thread.join调用中成功返回，或Thread.isAlive返回false。</p>
+</li>
+<li><p>中断法则：一个线程调用另一个线程的interrupt happens-before于被中断的线程发现中断。</p>
+</li>
+<li><p>终结法则：一个对象的构造函数的结束happens-before于这个对象finalizer的开始。</p>
+</li>
+<li><p>传递性：如果A happens-before于B，且B happens-before于C，则A happens-before于C</p>
+</li>
+</ul>
+<p><a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.4.5" target="_blank" rel="noopener">具体细节查看文档原文</a></p>
+<h3 id="实现线程安全"><a href="#实现线程安全" class="headerlink" title="实现线程安全"></a>实现线程安全</h3><h5 id="互斥同步"><a href="#互斥同步" class="headerlink" title="互斥同步"></a>互斥同步</h5><p>互斥同步是常见的一种并发正确性保障手段。最基本的互斥手段是 synchronized 关键字，也是最简单的一种方式。 此关键字在经过编译之后，会在同步块前后形成monitorenter和monitorexit这两个字节码的指令，这两个字节码都需要一个reference来指定对象参数，来指明要锁定和解锁的对象。除此之外，还有并发库中提供的其他锁以及各种并发工具类。</p>
+<h5 id="非阻塞同步"><a href="#非阻塞同步" class="headerlink" title="非阻塞同步"></a>非阻塞同步</h5><p>互斥同步最主要的问题就是进行线程阻塞和唤醒所带来的性能问题，因此这种同步也称为阻塞同步。互斥同步属于一种悲观的并发策略，总是认为只要不去做正确的同步措施（如加锁），那就肯定会出现问题，无论共享数据是否会发生竞争，都要进行加锁等操作。</p>
+<p>而非阻塞同步则基于CAS实现了在数据进行提交更新的时候，才正式对数据的冲突与否进行检测，再根据检测结果决定是否更新数据。关于CAS，可以查看 <a href="https://zh.wikipedia.org/wiki/%E6%AF%94%E8%BE%83%E5%B9%B6%E4%BA%A4%E6%8D%A2" target="_blank" rel="noopener">CAS维基百科</a></p>
+<h5 id="无同步方案"><a href="#无同步方案" class="headerlink" title="无同步方案"></a>无同步方案</h5><ul>
+<li>可重入代码：即纯函数，因为无状态，所以在多线程下可以保证绝对的线程安全。</li>
+<li>线程本地存储：即通过编码保证对状态值的修改都在同一个线程中发生，这样也就保证了线程安全。</li>
+</ul>
+<h3 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h3><p>注意以下介绍的锁的分类并不是彼此独立的，可能会有一种锁的实现同时属于多种类型</p>
+<h5 id="公平锁-非公平锁"><a href="#公平锁-非公平锁" class="headerlink" title="公平锁/非公平锁"></a>公平锁/非公平锁</h5><p>公平锁是指多个线程按照申请锁的顺序来获取锁。 非公平锁是指多个线程获取锁的顺序并不是按照申请锁的顺序，有可能后申请的线程比先申请的线程优先获取锁。有可能，会造成优先级反转或者饥饿现象。</p>
+<h5 id="可重入锁"><a href="#可重入锁" class="headerlink" title="可重入锁"></a>可重入锁</h5><p>可重入锁又名递归锁，是指在同一个线程在外层方法获取锁的时候，在进入内层方法会自动获取锁。</p>
+<h5 id="独享锁-共享锁"><a href="#独享锁-共享锁" class="headerlink" title="独享锁/共享锁"></a>独享锁/共享锁</h5><p>独享锁是指该锁一次只能被一个线程所持有。 共享锁是指该锁可被多个线程所持有。典型的共享锁如读写锁，即允许多个线程进行读操作的锁。</p>
+<h5 id="悲观锁-乐观锁"><a href="#悲观锁-乐观锁" class="headerlink" title="悲观锁/乐观锁"></a>悲观锁/乐观锁</h5><ul>
+<li><p>悲观锁：悲观锁认为对于同一个数据的并发操作，一定是会发生修改的，哪怕没有修改，也会认为修改。因此对于同一个数据的并发操作，悲观锁采取加锁的形式。悲观的认为，不加锁的并发操作一定会出问题。</p>
+</li>
+<li><p>乐观锁：乐观锁假设认为数据一般情况下不会造成冲突，所以在数据进行提交更新的时候，才会正式对数据的冲突与否进行检测，如果发现冲突了，则让返回用户错误的信息，让用户决定如何去做。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (;;) &#123;  </span><br><span class="line">    <span class="keyword">int</span> current = get();  </span><br><span class="line">    <span class="keyword">int</span> next = current + <span class="number">1</span>;  </span><br><span class="line">    <span class="keyword">if</span> (compareAndSet(current, next))  </span><br><span class="line">        <span class="keyword">return</span> current;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>从上面的描述我们可以看出，悲观锁适合写操作非常多的场景，乐观锁适合读操作非常多的场景，不加锁会带来大量的性能提升。</p>
+<h5 id="自旋锁"><a href="#自旋锁" class="headerlink" title="自旋锁"></a>自旋锁</h5><p>在Java中，自旋锁是指尝试获取锁的线程不会立即阻塞，而是采用循环的方式去尝试获取锁，这样的好处是减少线程上下文切换的消耗，缺点是循环会消耗CPU。</p>
+<h5 id="分段锁"><a href="#分段锁" class="headerlink" title="分段锁"></a>分段锁</h5><p>分段锁其实是一种锁的设计，并不是具体的一种锁，对于<code>ConcurrentHashMap</code>而言，其并发的实现就是通过分段锁的形式来实现高效的并发操作。 我们以<code>ConcurrentHashMap</code>来说一下分段锁的含义以及设计思想，<code>ConcurrentHashMap</code>中的分段锁称为Segment，它即类似于HashMap（JDK7与JDK8中HashMap的实现）的结构，即内部拥有一个Entry数组，数组中的每个元素又是一个链表；同时又是一个ReentrantLock（Segment继承了ReentrantLock)。 当需要put元素的时候，并不是对整个hashmap进行加锁，而是先通过hashcode来知道他要放在那一个分段中，然后对这个分段进行加锁，所以当多线程put的时候，只要不是放在一个分段中，就实现了真正的并行的插入。 但是，在统计size的时候，可就是获取hashmap全局信息的时候，就需要获取所有的分段锁才能统计。 分段锁的设计目的是细化锁的粒度，当操作不需要更新整个数组的时候，就仅仅针对数组中的一项进行加锁操作。</p>
+<h5 id="重量级锁-轻量级锁-偏向锁"><a href="#重量级锁-轻量级锁-偏向锁" class="headerlink" title="重量级锁/轻量级锁/偏向锁"></a>重量级锁/轻量级锁/偏向锁</h5><p>在介绍这几个锁之前先了解下Java对象头的作用。Java对象头被称为“Mark Word”，在锁的实现中用于存储锁相关的信息，具体存放形式如下表：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwgy1fuhql74wguj31ak0lejtp.jpg" alt="image-20180821232411591"></p>
+<p>锁的状态总共有四种：无锁状态、偏向锁、轻量级锁和重量级锁。随着锁的竞争，锁可以从偏向锁升级到轻量级锁，再升级的重量级锁（但是锁的升级是单向的，也就是说只能从低到高升级，不会出现锁的降级）。</p>
+<p>tip：注意下面一开始获取锁的时候都使用了CAS，是因为存在两个线程同时去竞争一个锁的场景，因此需要用CAS保证在这一场景下的线程安全。</p>
+<ul>
+<li><p>重量级锁：重量级锁（Synchronized关键字）是通过对象内部的一个叫做监视器锁（monitor）来实现的。但是监视器锁本质又是依赖于底层的操作系统的Mutex Lock来实现的。而操作系统实现线程之间的切换这就需要从用户态转换到核心态，这个成本非常高，状态之间的转换需要相对比较长的时间，这就是为什么重量级锁效率低的原因。</p>
+</li>
+<li><p>轻量级锁：自旋锁的目标是降低线程切换的成本。如果锁竞争激烈，我们不得不依赖于重量级锁，让竞争失败的线程阻塞；如果完全没有实际的锁竞争，那么申请重量级锁都是浪费的。<strong>轻量级锁的目标是，减少无实际竞争情况下，使用重量级锁产生的性能消耗</strong>，包括系统调用引起的内核态与用户态切换、线程阻塞造成的线程切换等。<br>加锁过程：</p>
+<p>　　（1）在代码进入同步块的时候，如果同步对象锁状态为无锁状态（锁标志位为“01”状态，是否为偏向锁为“0”），虚拟机首先将在当前线程的栈帧中建立一个名为锁记录（Lock Record）的空间，用于存储锁对象目前的Mark Word的拷贝，官方称之为 Displaced Mark Word。这时候线程堆栈与对象头的状态如图2.1所示。</p>
+<pre><code>   （2）拷贝对象头中的Mark Word复制到锁记录中。
+</code></pre><p>　　（3）拷贝成功后，虚拟机将使用CAS操作尝试将对象的Mark Word更新为指向Lock Record的指针，并将Lock record里的owner指针指向object mark word。如果更新成功，则执行步骤（4），否则执行步骤（5）。</p>
+<p>　　（4）如果这个更新动作成功了，那么这个线程就拥有了该对象的锁，并且对象Mark Word的锁标志位设置为“00”，即表示此对象处于轻量级锁定状态，这时候线程堆栈与对象头的状态如图2.2所示。</p>
+<p>　　（5）如果这个更新操作失败了，虚拟机首先会检查对象的Mark Word是否指向当前线程的栈帧，如果是就说明当前线程已经拥有了这个对象的锁，那就可以直接进入同步块继续执行。否则说明多个线程竞争锁，轻量级锁就要膨胀为重量级锁，锁标志的状态值变为“10”，Mark Word中存储的就是指向重量级锁（互斥量）的指针，后面等待锁的线程也要进入阻塞状态。 而当前线程便尝试使用自旋来获取锁，自旋就是为了不让线程阻塞，而采用循环去获取锁的过程。<br><img src="https://ws4.sinaimg.cn/large/006tNbRwgy1fuited3b9ej30we12ck3l.jpg" alt="image-20180822213050230"></p>
+<p>解锁过程：</p>
+<p>　　（1）通过CAS操作尝试把线程中复制的Displaced Mark Word对象替换当前的Mark Word。</p>
+<p>　　（2）如果替换成功，整个同步过程就完成了。</p>
+<p>　　（3）如果替换失败，说明有其他线程尝试过获取该锁（此时锁已膨胀），那就要在释放锁的同时，唤醒被挂起的线程。</p>
+</li>
+<li><p>偏向锁：在没有实际竞争的情况下，还能够针对部分场景继续优化。如果不仅仅没有实际竞争，自始至终，使用锁的线程都只有一个，那么，维护轻量级锁都是浪费的。<strong>偏向锁的目标是，减少无竞争且只有一个线程使用锁的情况下，使用轻量级锁产生的性能消耗</strong>。轻量级锁每次申请、释放锁都至少需要一次CAS，但偏向锁只有初始化时需要一次CAS。<br>加锁过程：</p>
+<pre><code>   （1）访问Mark Word中偏向锁的标识是否设置成1，锁标志位是否为01——确认为可偏向状态。
+</code></pre><p>　　（2）如果为可偏向状态，则测试线程ID是否指向当前线程，如果是，进入步骤（5），否则进入步骤（3）。</p>
+<p>　　（3）如果线程ID并未指向当前线程，则通过CAS操作竞争锁。如果竞争成功，则将Mark Word中线程ID设置为当前线程ID，然后执行（5）；如果竞争失败，执行（4）。</p>
+<p>　　（4）如果CAS获取偏向锁失败，则表示有竞争。当到达全局安全点（safepoint）时获得偏向锁的线程被挂起，偏向锁升级为轻量级锁，然后被阻塞在安全点的线程继续往下执行同步代码。</p>
+<p>　　（5）执行同步代码。<br>解锁过程：</p>
+<p>偏向锁的撤销在上述第四步骤中有提到<strong>。</strong>偏向锁只有遇到其他线程尝试竞争偏向锁时，持有偏向锁的线程才会释放锁，线程不会主动去释放偏向锁。偏向锁的撤销，需要等待全局安全点（在这个时间点上没有字节码正在执行），它会首先暂停拥有偏向锁的线程，判断锁对象是否处于被锁定状态，撤销偏向锁后恢复到未锁定（标志位为“01”）或轻量级锁（标志位为“00”）的状态。</p>
+<p>更多的细节可以参考 <a href="https://blog.csdn.net/fycghy0803/article/details/74910238" target="_blank" rel="noopener">Java并发之彻底搞懂偏向锁升级为轻量级锁</a></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwgy1fuiu3y28zrj314m0kidnv.jpg" alt="image-20180822221227536"></p>
+</li>
+</ul>
+<h5 id="全局安全点"><a href="#全局安全点" class="headerlink" title="全局安全点"></a>全局安全点</h5><p>从线程角度看，safepoint可以理解成是在代码执行过程中的一些特殊位置，当线程执行到这些位置的时候，说明虚拟机当前的状态是安全的，如果有需要，可以在这个位置暂停。</p>
+<h3 id="volatile、final、synchronized与内存屏障"><a href="#volatile、final、synchronized与内存屏障" class="headerlink" title="volatile、final、synchronized与内存屏障"></a>volatile、final、synchronized与内存屏障</h3><p>先看一个例子，经典的DCL实现单例，考虑下这样的写法会导致什么问题</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton singleton = <span class="keyword">null</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getSingleton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (singleton == mull) &#123;  <span class="comment">// 1</span></span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton.class)&#123;</span><br><span class="line">            	<span class="keyword">if</span>(singleton == <span class="keyword">null</span>)&#123;</span><br><span class="line">                	singleton = <span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> singleton;</span><br><span class="line">    &#125;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h5><p>第一眼可能会觉得是因为可见性的问题，线程A <code>singleton = new Singleton();</code> 的赋值对线程B不可见，但是实际上由于<code>synchronized</code> 关键字的作用（细节下面会说），不会发生这种情况。</p>
+<p>这样的实现真正的问题在于<code>singleton = new Singleton();</code>这个语句包含了两个指令（实际上更多，这里仅取关键指令）：初始化与返回对象地址。因为指令重排序的问题，可能会导致在线程A中先执行返回指令，再执行对象初始化。如果在此时线程B执行到了A，那么它就会取到一个初始化未完成的singleton，进而引发错误。</p>
+<p>至于如何规避这种情况，下面再说。</p>
+<p>更多的细节可以参考文章：<a href="http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html" target="_blank" rel="noopener">The “Double-Checked Locking is Broken” Declaration</a></p>
+<h5 id="对可见性的影响"><a href="#对可见性的影响" class="headerlink" title="对可见性的影响"></a>对可见性的影响</h5><ul>
+<li>synchronized：会创建一个<strong>内存屏障</strong>，内存屏障指令保证了所有CPU操作结果都会直接刷到主存中，从而保证了操作的内存可见性，同时也使得先获得这个锁的线程的所有操作，都<strong>happens-before</strong>于随后获得这个锁的线程的操作。</li>
+<li>volatile：当写一个volatile变量时，JMM会把该线程对应的本地内存中的共享变量值刷新到主内存。当读一个volatile变量时，JMM会把该线程对应的本地内存置为无效，线程接下来 将从主内存中读取共享变量。</li>
+<li>final：在构造函数内对一个final域的写入，与随后把这个被构造对象的引用赋值给一个引用变量，这两个操作之间不能重排序。初次读一个包含final域的对象的引用，与诉后初次读这个final域，这两个操作之间不能重排序。</li>
+</ul>
+<h5 id="内存屏障"><a href="#内存屏障" class="headerlink" title="内存屏障"></a>内存屏障</h5><p>内存屏障（Memory Barrier，或有时叫做内存栅栏，Memory Fence）是一种CPU指令，用于控制特定条件下的重排序和内存可见性问题。Java编译器也会根据内存屏障的规则禁止重排序。</p>
+<p> 内存屏障可以被分为以下几种类型：</p>
+<p> LoadLoad屏障：对于这样的语句Load1; LoadLoad; Load2，在Load2及后续读取操作要读取的数据被访问前，保证Load1要读取的数据被读取完毕。 </p>
+<p>StoreStore屏障：对于这样的语句Store1; StoreStore; Store2，在Store2及后续写入操作执行前，保证Store1的写入操作对其它处理器可见。</p>
+<p> LoadStore屏障：对于这样的语句Load1; LoadStore; Store2，在Store2及后续写入操作被刷出前，保证Load1要读取的数据被读取完毕。</p>
+<p> StoreLoad屏障：对于这样的语句Store1; StoreLoad; Load2，在Load2及后续所有读取操作执行前，保证Store1的写入对所有处理器可见。它的开销是四种屏障中最大的。在大多数处理器的实现中，这个屏障是个万能屏障，兼具其它三种内存屏障的功能。</p>
+<h5 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h5><p>以volatile为例。</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwgy1fuivua85bgj30ra08g75f.jpg" alt="image-20180822231224148"></p>
+<p>举例来说，第三行最后一个单元格的意思是，当第一个操作是普通变量的读/写时，如果第二个操作为volatile写，则编译器不能重排序这两个操作。 </p>
+<p>JMM通过插入内存屏障来实现以上语义，实质上有四种内存屏障策略：</p>
+<ul>
+<li>volatile写操作前插入StoreStore屏障</li>
+<li>volatile写操作后插入StoreLoad屏障</li>
+<li>volatile读操作前插入LoadLoad屏障</li>
+<li>volatile读操作后插入LoadStore屏障</li>
+</ul>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.cnblogs.com/qifengshi/p/6831055.html" target="_blank" rel="noopener">Java中的锁分类</a> </p>
+<p><a href="http://ifeve.com/easy-happens-before/" target="_blank" rel="noopener">happens-before俗解</a></p>
+<p><a href="https://tech.meituan.com/java_memory_reordering.html" target="_blank" rel="noopener">Java内存访问重排序的研究</a></p>
+<p><a href="https://www.cnblogs.com/paddix/p/5405678.html" target="_blank" rel="noopener">Java并发编程：Synchronized底层优化（偏向锁、轻量级锁</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/13/JVM类加载机制/" rel="next" title="JVM类加载机制">
+                <i class="fa fa-chevron-left"></i> JVM类加载机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#线程"><span class="nav-number">1.0.1.</span> <span class="nav-text">线程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#竞争条件、临界区"><span class="nav-number">1.0.2.</span> <span class="nav-text">竞争条件、临界区</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#同步"><span class="nav-number">1.0.3.</span> <span class="nav-text">同步</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#互斥"><span class="nav-number">1.0.4.</span> <span class="nav-text">互斥</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#概述"><span class="nav-number">1.0.5.</span> <span class="nav-text">概述</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存模型"><span class="nav-number">2.</span> <span class="nav-text">内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#内存模型-1"><span class="nav-number">2.0.1.</span> <span class="nav-text">内存模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#共享变量"><span class="nav-number">2.0.2.</span> <span class="nav-text">共享变量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#基本操作"><span class="nav-number">2.0.3.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#可见性"><span class="nav-number">2.0.4.</span> <span class="nav-text">可见性</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重排序"><span class="nav-number">3.</span> <span class="nav-text">重排序</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#重排序-1"><span class="nav-number">3.0.1.</span> <span class="nav-text">重排序</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#先行发生原则（happens-before）"><span class="nav-number">3.0.2.</span> <span class="nav-text">先行发生原则（happens-before）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现线程安全"><span class="nav-number">4.</span> <span class="nav-text">实现线程安全</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#互斥同步"><span class="nav-number">4.0.1.</span> <span class="nav-text">互斥同步</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#非阻塞同步"><span class="nav-number">4.0.2.</span> <span class="nav-text">非阻塞同步</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#无同步方案"><span class="nav-number">4.0.3.</span> <span class="nav-text">无同步方案</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#锁"><span class="nav-number">5.</span> <span class="nav-text">锁</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#公平锁-非公平锁"><span class="nav-number">5.0.1.</span> <span class="nav-text">公平锁/非公平锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#可重入锁"><span class="nav-number">5.0.2.</span> <span class="nav-text">可重入锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#独享锁-共享锁"><span class="nav-number">5.0.3.</span> <span class="nav-text">独享锁/共享锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#悲观锁-乐观锁"><span class="nav-number">5.0.4.</span> <span class="nav-text">悲观锁/乐观锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#自旋锁"><span class="nav-number">5.0.5.</span> <span class="nav-text">自旋锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#分段锁"><span class="nav-number">5.0.6.</span> <span class="nav-text">分段锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#重量级锁-轻量级锁-偏向锁"><span class="nav-number">5.0.7.</span> <span class="nav-text">重量级锁/轻量级锁/偏向锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#全局安全点"><span class="nav-number">5.0.8.</span> <span class="nav-text">全局安全点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile、final、synchronized与内存屏障"><span class="nav-number">6.</span> <span class="nav-text">volatile、final、synchronized与内存屏障</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#存在的问题"><span class="nav-number">6.0.1.</span> <span class="nav-text">存在的问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#对可见性的影响"><span class="nav-number">6.0.2.</span> <span class="nav-text">对可见性的影响</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#内存屏障"><span class="nav-number">6.0.3.</span> <span class="nav-text">内存屏障</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#实现原理"><span class="nav-number">6.0.4.</span> <span class="nav-text">实现原理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+  
+
+</body>
+</html>
