@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="JVM," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="概述前端编译器与后端编译器根据完成任务不同，可以将编译器的组成部分划分为前端（Front End）与后端（Back End）。 前端主要指与源语言有关但与目标机无关的部分，包括词法分析、语法分析、语义分析与中间表示生成。 后端主要指与目标机有关的部分，包括代码优化和目标代码生成等。 Java编译器Java体系中的三种编译方式：  前端编译器主要是把.java文件转变成.class文件。主要种类有：">
+<meta name="keywords" content="JVM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java编译优化">
+<meta property="og:url" content="https://xybean.github.io/2018/09/10/Java编译优化/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="概述前端编译器与后端编译器根据完成任务不同，可以将编译器的组成部分划分为前端（Front End）与后端（Back End）。 前端主要指与源语言有关但与目标机无关的部分，包括词法分析、语法分析、语义分析与中间表示生成。 后端主要指与目标机有关的部分，包括代码优化和目标代码生成等。 Java编译器Java体系中的三种编译方式：  前端编译器主要是把.java文件转变成.class文件。主要种类有：">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/0069RVTdgy1fuz140ubptj31960r4dn1.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwgy1fuwqoc7td2j316k0gmwws.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwgy1fuwre35dhsj311g0nqx1o.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwgy1fuxvoux9l0j315w0p87v8.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwgy1fuxwomy9k2j30xy0ay11w.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0069RVTdgy1fuz0xnwus1j312s1a21kx.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/0069RVTdgy1fuz1pzh2u9j30wu0m0mzw.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/0069RVTdgy1fuz1w3aju4j30t60x67b0.jpg">
+<meta property="og:updated_time" content="2018-09-10T11:52:07.295Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java编译优化">
+<meta name="twitter:description" content="概述前端编译器与后端编译器根据完成任务不同，可以将编译器的组成部分划分为前端（Front End）与后端（Back End）。 前端主要指与源语言有关但与目标机无关的部分，包括词法分析、语法分析、语义分析与中间表示生成。 后端主要指与目标机有关的部分，包括代码优化和目标代码生成等。 Java编译器Java体系中的三种编译方式：  前端编译器主要是把.java文件转变成.class文件。主要种类有：">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/0069RVTdgy1fuz140ubptj31960r4dn1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2018/09/10/Java编译优化/"/>
+
+
+
+
+
+  <title>Java编译优化 | xybean's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2018/09/10/Java编译优化/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java编译优化</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-10T19:48:25+08:00">
+                2018-09-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><h5 id="前端编译器与后端编译器"><a href="#前端编译器与后端编译器" class="headerlink" title="前端编译器与后端编译器"></a>前端编译器与后端编译器</h5><p>根据完成任务不同，可以将编译器的组成部分划分为前端（Front End）与后端（Back End）。</p>
+<p>前端主要指与源语言有关但与目标机无关的部分，包括词法分析、语法分析、语义分析与中间表示生成。</p>
+<p>后端主要指与目标机有关的部分，包括代码优化和目标代码生成等。</p>
+<h5 id="Java编译器"><a href="#Java编译器" class="headerlink" title="Java编译器"></a>Java编译器</h5><p>Java体系中的三种编译方式：</p>
+<ul>
+<li>前端编译器<br>主要是把.java文件转变成.class文件。主要种类有：Sun的Javac、Eclipse JDT的增量式编译器（ECJ）。</li>
+<li>JIT编译器<br>虚拟机的后端运行期编译器（JIT编译器：Just In Time Compiler），把「字节码」变成「机器码」，主要有：Hotspot VM的C1、C2编译器。</li>
+<li>AOT编译器（Ahead Of Time Compiler）<br>静态提前编译，在编译期直接把*.java变成本地机器码，这样代码的执行效率更高。</li>
+</ul>
+<h3 id="前端编译器工作流程"><a href="#前端编译器工作流程" class="headerlink" title="前端编译器工作流程"></a>前端编译器工作流程</h3><h5 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h5><p>图片出自：<a href="https://segmentfault.com/a/1190000003901063" target="_blank" rel="noopener">Java虚拟机 ：Java字节码的编译生成和运行优化</a></p>
+<p><img src="https://ws4.sinaimg.cn/large/0069RVTdgy1fuz140ubptj31960r4dn1.jpg" alt="image-20180905222347175"></p>
+<h5 id="词法分析、语法分析"><a href="#词法分析、语法分析" class="headerlink" title="词法分析、语法分析"></a>词法分析、语法分析</h5><p>这个过程以源代码为输入，输出一个抽象语法树。最终生成的语法树是以所有token为节点的树结构，对语法树遍历即可得到输入源代码的所有信息。</p>
+<h5 id="填充符号表"><a href="#填充符号表" class="headerlink" title="填充符号表"></a>填充符号表</h5><p>将解析的到的相关信息存储到符号表中。更细节的资料可以查看：</p>
+<p><a href="https://zh.wikipedia.org/wiki/%E7%AC%A6%E5%8F%B7%E8%A1%A8" target="_blank" rel="noopener">符号表</a></p>
+<p><a href="https://www.ctolib.com/docs//sfile/teach-yourself-scheme/888-java-symbol-table.html" target="_blank" rel="noopener">Java 符号表设计的相关问题</a></p>
+<h5 id="注解处理"><a href="#注解处理" class="headerlink" title="注解处理"></a>注解处理</h5><p>在 JDK 1.5 之后，Java 语言提供了对注解（Annotation）的支持，这些注解与普通 Java 代码一样，是在运行期间发挥作用的。在 JDK 1.6 中实现了 JSR-269 规范（JSR-269：Pluggable Annotations Processing API（插入式注解处理 API）），提供了一组插入式注解处理器的标准 API 在编译期间对注解进行处理，我们可以把它看做是一组编译器的插件，在这些插件里面，可以读取、修改、添加抽象语法树中的任意元素。如果这些插件在处理注解期间对语法树进行了修改，编译器将回到解析及填充符号表的过程重新处理，知道所有插入式注解处理器都没有再对语法树进行修改为止。</p>
+<h5 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h5><p>语法分析之后，编译器获得了程序代码的抽象语法树表示，语法树能表示一个结构正确的源程序的抽象，但无法保证源程序是符合逻辑的。而语义分析的主要任务是对结构上正确的源程序进行上下文有关性质的审查，如进行类型审查。</p>
+<p>Javac 的编译过程中，语义分析过程分为标注检查以及数据及控制流分析两个步骤。</p>
+<p>1、标注检查</p>
+<p>标注检查步骤检查的内容包括诸如变量使用前是否已被声明、变量与赋值之间的数据类型是否能够匹配等。在标注检查时还会进行常量折叠，如 <code>int a = 1 + 2;</code> 会被折叠为 <code>int a = 3;</code> </p>
+<p>2、数据及控制流分析</p>
+<p>数据及控制流分析是对程序上下文逻辑更进一步的验证，它可以检测出诸如程序局部变量是在使用前是否有赋值、方法的每条路径是否都有返回值、是否所有的受查异常都被正确处理了等问题。</p>
+<p>3、解语法糖</p>
+<p>即去除代码中的语法糖，还原代码。</p>
+<h5 id="字节码生成"><a href="#字节码生成" class="headerlink" title="字节码生成"></a>字节码生成</h5><p>字节码生成是 Javac 编译过程的最后一个阶段，不仅仅是把前面各个步骤所生成的信息（语法树、符号表）转化成字节码写到磁盘中，编译器还进行了少量的代码添加和转换工作。</p>
+<p>如果用户代码中没有提供任何构造函数，那编译器将会添加实例构造器init()方法。除了生成构造器以外，还有其他的一些代码替换工作，如把字符串的 + 操作替换为 StringBuffer 或 StringBuilder（取决于目标代码的版本是否大于或等于 JDK 1.5）的 append() 操作等。</p>
+<h3 id="语法糖泛型实现原理"><a href="#语法糖泛型实现原理" class="headerlink" title="语法糖泛型实现原理"></a>语法糖泛型实现原理</h3><p>这一节不会介绍泛型语法层面的使用，只介绍编译器为了实现泛型的语法糖做了哪些处理。</p>
+<h5 id="类型擦除"><a href="#类型擦除" class="headerlink" title="类型擦除"></a>类型擦除</h5><p>编译器在将java文件转换成class文件时，会将泛型信息替换为对应的原始类型进行语法检查，同事为了防止泛型与原始类型匹配的混乱，会在class文件中保留相应的匹配信息。</p>
+<p>如下面的java代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">Runnable</span>, <span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">test</span><span class="params">(T t, V v)</span> </span>&#123;</span><br><span class="line">        t.run();</span><br><span class="line">        <span class="keyword">return</span> v.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译成class文件后，为：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwgy1fuwqoc7td2j316k0gmwws.jpg" alt="image-20180903225133608"></p>
+<p>注意到T被替换成了Runnable，而V被替换成了Object。</p>
+<p>PS：上面的Signature是属性表中的一个属性，用于支持有泛型情况下泛型签名的记录。</p>
+<h5 id="插入类型检查"><a href="#插入类型检查" class="headerlink" title="插入类型检查"></a>插入类型检查</h5><p>类型被擦除以后，可能会引起一个问题，参考如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> T t;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.t = t;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> T <span class="title">get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> t;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;	</span><br><span class="line">		Test&lt;String&gt; test = <span class="keyword">new</span> Test&lt;String&gt;();</span><br><span class="line">		test.set(<span class="string">"hello"</span>);</span><br><span class="line">        <span class="comment">// 在这里发生了类型转换</span></span><br><span class="line">		String value = test.get();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于类型擦除，<code>test.get()</code> 实际返回的应该是一个Object对象，但是我们需要的是一个String对象。为了解决这个问题，编译器会在这个位置插入类型检查的指令。参考编译后的class文件：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwgy1fuwre35dhsj311g0nqx1o.jpg" alt="image-20180903231620634"></p>
+<p>可以发现取到的Object对象通过调用checkcast指令进行了类型检查，如果目标类型确实是String则通过检查，否则就抛出ClassCastException异常。</p>
+<h5 id="生成桥方法"><a href="#生成桥方法" class="headerlink" title="生成桥方法"></a>生成桥方法</h5><p>同样也是因为类型擦除的原因，Java方法override在实现上也做了特殊处理。对于下面这个类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为类型擦除的原因，T会变成Object，因此方法override的时候，子类的test方法的参数应该是Object，而不是具体的类型。但是我们在实际编写代码的时候，写的其实是具体类型，原因就在于编译器帮我们生成了一个桥方法，这个方法是以Object为参数的，它才是真正实现override的那个方法。具体看下面的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Son</span> <span class="keyword">extends</span> <span class="title">Test</span>&lt;<span class="title">String</span>&gt; </span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">(String t)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">super</span>.test(t);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>反编译Son类之后，可以看到实际的字节码为：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwgy1fuxvoux9l0j315w0p87v8.jpg" alt="image-20180904223035631"></p>
+<p>注意到方法1的参数为Object，方法2的参数为String。同时需要关注的是方法1的具体实现，可以发现方法1做的事情就是做类型检查并调用方法2，然后方法二再调用父类方法。换言之，整体的逻辑就是方法1override父类方法，然后具体的实现逻辑由方法2代理。</p>
+<p>另外一个细节值得一提的是，因为编译器会帮我们生成参数为Object的方法，因此如果我们自己在子类中添加Object为参数的方法，就会报方法重复的错误。不过一个比较hack的方法可以避免报错，就是给这个方法的返回参数改变一个值，因为Java语法是以方法参数作为方法签名的，但是在class文件格式中，则是以方法参数与方法返回值作为方法签名的。</p>
+<h5 id="泛型的有界类型"><a href="#泛型的有界类型" class="headerlink" title="泛型的有界类型"></a>泛型的有界类型</h5><p>对于下面的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">String</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">(T t)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于约束了泛型的边界，因此T擦除后最终会变成设定的边界值，具体如下：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwgy1fuxwomy9k2j30xy0ay11w.jpg" alt="image-20180904230501693"></p>
+<h3 id="final关键字与闭包"><a href="#final关键字与闭包" class="headerlink" title="final关键字与闭包"></a>final关键字与闭包</h3><h5 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h5><blockquote>
+<p>定义一个闭包的要点如下:</p>
+<ul>
+<li>一个依赖于外部环境的<code>自由变量</code>的函数.</li>
+<li>这个函数能够访问外部环境的<code>自由变量</code>.</li>
+</ul>
+</blockquote>
+<p>更加具体的介绍可以参考 <a href="https://sylvanassun.github.io/2017/07/30/2017-07-30-JavaClosure/" target="_blank" rel="noopener">Java中的闭包之争</a></p>
+<h5 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h5><p>在Java中，可以通过将外部的自由变量设置为final，实现闭包的效果（虽然是阉割版的，不能修改自由变量的值）。那么具体是如何实现的呢？先来看下面的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Runnable <span class="title">add</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">    	<span class="keyword">return</span> <span class="keyword">new</span> Runnable()&#123;</span><br><span class="line">			<span class="meta">@Override</span></span><br><span class="line">			<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">				<span class="keyword">int</span> b = x + <span class="number">1</span>;</span><br><span class="line">				System.out.print(b);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码是典型的闭包的应用，查看编译出来的class文件（只看匿名内部类）：</p>
+<p><img src="https://ws1.sinaimg.cn/large/0069RVTdgy1fuz0xnwus1j312s1a21kx.jpg" alt="image-20180905221707483"></p>
+<p>可以看到在1处，编译器帮我们给匿名内部类添加了一个int类型的final字段，同时2处的构造方法也同样添加了一个int参数，至于3、4则是对该字段的写入与读取。</p>
+<p>可以发现，实现闭包的关键在于编译器给内部类添加了一个放置外部自由变量值拷贝的字段。这样内部函数实际上访问的就是这个copy值。</p>
+<p>从内存模型的角度讲，这样的实现将方法栈上的局部变量复制到了堆上，使之生命周期变长，为闭包提供了实现基础。</p>
+<h3 id="JVM的后端编译器"><a href="#JVM的后端编译器" class="headerlink" title="JVM的后端编译器"></a>JVM的后端编译器</h3><p>JVM编译优化的主要工作都在这一层，相关的内容非常多，这里只简单的介绍JIT相关的技术。</p>
+<h5 id="JIT概述"><a href="#JIT概述" class="headerlink" title="JIT概述"></a>JIT概述</h5><p>JIT即just in time，动态编译或即时编译。因为JVM是通过解释器解释执行指令的，因此效率比较低，为了提高效率，会将部分热点代码编译成native代码来代替解释执行，提高效率。</p>
+<h5 id="JIT工作过程"><a href="#JIT工作过程" class="headerlink" title="JIT工作过程"></a>JIT工作过程</h5><p>当 JIT 编译启用时（默认是启用的），JVM 读入.class 文件解释后，将其发给 JIT 编译器。JIT 编译器根据其是否为热点代码，选择性地将字节码编译成本机机器代码，下图展示了该过程。</p>
+<p><img src="https://ws2.sinaimg.cn/large/0069RVTdgy1fuz1pzh2u9j30wu0m0mzw.jpg" alt="image-20180905224454335"></p>
+<h5 id="热点代码"><a href="#热点代码" class="headerlink" title="热点代码"></a>热点代码</h5><p>上面提到JIT只会编译热点代码，所谓的热点代码，包括被多次调用的方法以及被多次执行的循环体。相应的，为了检测热点代码，就有了热点判定算法，现在主流的实现有以下两种：</p>
+<ul>
+<li>基于采样的热点探测：采用这种方法的虚拟机会周期性地检查各个线程的栈顶如果发现某个（或某些）方法经常出现在栈顶，那这个方法就是“热点方法”。</li>
+<li>基于计数器的热点探测：采用这种方法的虚拟机会为每个方法（甚至是代码块）建立计数器，统计方法的执行次数，如果次数超过一定的阈值就认为它是“热点方法”。</li>
+</ul>
+<p>用图来描述计数器算法，如下：</p>
+<p><img src="https://ws4.sinaimg.cn/large/0069RVTdgy1fuz1w3aju4j30t60x67b0.jpg" alt="image-20180905225045391"></p>
+<h3 id="静态提前编译（Ahead-Of-Time，AOT编译）"><a href="#静态提前编译（Ahead-Of-Time，AOT编译）" class="headerlink" title="静态提前编译（Ahead Of Time，AOT编译）"></a>静态提前编译（Ahead Of Time，AOT编译）</h3><p>JIT编译器工作于VM运行时，而AOT编译器则在VM启动前完成工作。它提前将源代码编译为本地机器码，更直接地提高了代码的运行效率。</p>
+<p>这一节主要介绍AOT在Android虚拟机中的应用。</p>
+<p><a href="https://www.zhihu.com/question/55652975" target="_blank" rel="noopener">Android 7.0对ART有什么改进？</a></p>
+<blockquote>
+<ul>
+<li>Android 4.x(Interpreter + JIT)</li>
+<li><ul>
+<li>原理：平时代码走解释器，但热点trace会执行JIT进行即时编译</li>
+<li>优点：占用内存少</li>
+<li>缺点：耗电(退出App下次启动还会重复编译)，卡顿(JIT编译时)</li>
+</ul>
+</li>
+<li>Android 5.0/5.1/6.0(interpreter + AOT)</li>
+<li><ul>
+<li>原理: 在AOT模式下，App在安装过程时， 就会完成所有编译。</li>
+<li>优点: 性能好</li>
+<li>缺点: App安装时间长，占用存储空间多。</li>
+</ul>
+</li>
+<li>Android 7.0/7.1的ART引入了全新的Hybrid模式(Interpreter + JIT + AOT)</li>
+<li><ul>
+<li>原理: </li>
+<li><ul>
+<li>App在安装时不编译， 所以安装速度快。</li>
+<li>在运行App时， 先走解释器， 然后热点函数会被识别，并被JIT进行编译， 存储在jit code cache， 并产生profile文件(记录热点函数信息)。 </li>
+<li>等手机进入charging和idle状态下， 系统会每隔一段时间扫描App目录下profile文件，并执行AOT编译(Google官方称之为profile-guided compilation)。</li>
+<li>不论是jit编译的binary code, 还是AOT编译的binary code, 它们之间的性能差别不大， 因为它们使用同一个optimizing compiler进行编译。</li>
+</ul>
+</li>
+<li>优点: App安装速度快，占用存储少(只编译热点函数)。</li>
+<li>缺点: 前几次运行会较慢， 只有用户操作得次数越多，jit 和AOT编译后， 性能才会跟上来。</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.ibm.com/developerworks/cn/java/j-lo-just-in-time/index.html" target="_blank" rel="noopener">深入浅出 JIT 编译器</a></p>
+<p><a href="https://book.douban.com/subject/24722612/" target="_blank" rel="noopener">深入理解Java虚拟机（第2版）</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/30/JVM字节码执行引擎/" rel="next" title="JVM字节码执行引擎">
+                <i class="fa fa-chevron-left"></i> JVM字节码执行引擎
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#前端编译器与后端编译器"><span class="nav-number">1.0.1.</span> <span class="nav-text">前端编译器与后端编译器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Java编译器"><span class="nav-number">1.0.2.</span> <span class="nav-text">Java编译器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#前端编译器工作流程"><span class="nav-number">2.</span> <span class="nav-text">前端编译器工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#概述-1"><span class="nav-number">2.0.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#词法分析、语法分析"><span class="nav-number">2.0.2.</span> <span class="nav-text">词法分析、语法分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#填充符号表"><span class="nav-number">2.0.3.</span> <span class="nav-text">填充符号表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#注解处理"><span class="nav-number">2.0.4.</span> <span class="nav-text">注解处理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#语义分析"><span class="nav-number">2.0.5.</span> <span class="nav-text">语义分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#字节码生成"><span class="nav-number">2.0.6.</span> <span class="nav-text">字节码生成</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#语法糖泛型实现原理"><span class="nav-number">3.</span> <span class="nav-text">语法糖泛型实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#类型擦除"><span class="nav-number">3.0.1.</span> <span class="nav-text">类型擦除</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#插入类型检查"><span class="nav-number">3.0.2.</span> <span class="nav-text">插入类型检查</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#生成桥方法"><span class="nav-number">3.0.3.</span> <span class="nav-text">生成桥方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#泛型的有界类型"><span class="nav-number">3.0.4.</span> <span class="nav-text">泛型的有界类型</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#final关键字与闭包"><span class="nav-number">4.</span> <span class="nav-text">final关键字与闭包</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#闭包"><span class="nav-number">4.0.1.</span> <span class="nav-text">闭包</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#实现原理"><span class="nav-number">4.0.2.</span> <span class="nav-text">实现原理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM的后端编译器"><span class="nav-number">5.</span> <span class="nav-text">JVM的后端编译器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#JIT概述"><span class="nav-number">5.0.1.</span> <span class="nav-text">JIT概述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#JIT工作过程"><span class="nav-number">5.0.2.</span> <span class="nav-text">JIT工作过程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#热点代码"><span class="nav-number">5.0.3.</span> <span class="nav-text">热点代码</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态提前编译（Ahead-Of-Time，AOT编译）"><span class="nav-number">6.</span> <span class="nav-text">静态提前编译（Ahead Of Time，AOT编译）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+  
+
+</body>
+</html>
