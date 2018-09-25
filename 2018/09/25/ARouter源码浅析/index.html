@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="源码分析," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="这篇文章主要分析ARouter中路由与服务相关的源码（不涉及依赖注入）。 路由框架要解决哪些问题？在开始源码分析之前，先考虑一下这个问题。 在这一节，会抛出几个问题，而下面的源码分析，就会围绕这一节的问题而展开。 1、路由信息如何搜集？ 2、如何完成跳转，如何传参？ 3、跳转过程中需要插入一些公用逻辑怎么办？ 4、跳转过程中出现异常或者跳转失败怎么办？ 框架整体设计在开始具体的代码流程分析之前，可">
+<meta name="keywords" content="源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ARouter源码浅析">
+<meta property="og:url" content="https://xybean.github.io/2018/09/25/ARouter源码浅析/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="这篇文章主要分析ARouter中路由与服务相关的源码（不涉及依赖注入）。 路由框架要解决哪些问题？在开始源码分析之前，先考虑一下这个问题。 在这一节，会抛出几个问题，而下面的源码分析，就会围绕这一节的问题而展开。 1、路由信息如何搜集？ 2、如何完成跳转，如何传参？ 3、跳转过程中需要插入一些公用逻辑怎么办？ 4、跳转过程中出现异常或者跳转失败怎么办？ 框架整体设计在开始具体的代码流程分析之前，可">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwgy1fv71ty2p2qj30ib05qdg0.jpg">
+<meta property="og:updated_time" content="2018-09-25T14:24:40.564Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ARouter源码浅析">
+<meta name="twitter:description" content="这篇文章主要分析ARouter中路由与服务相关的源码（不涉及依赖注入）。 路由框架要解决哪些问题？在开始源码分析之前，先考虑一下这个问题。 在这一节，会抛出几个问题，而下面的源码分析，就会围绕这一节的问题而展开。 1、路由信息如何搜集？ 2、如何完成跳转，如何传参？ 3、跳转过程中需要插入一些公用逻辑怎么办？ 4、跳转过程中出现异常或者跳转失败怎么办？ 框架整体设计在开始具体的代码流程分析之前，可">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tNbRwgy1fv71ty2p2qj30ib05qdg0.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2018/09/25/ARouter源码浅析/"/>
+
+
+
+
+
+  <title>ARouter源码浅析 | xybean's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2018/09/25/ARouter源码浅析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ARouter源码浅析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-25T22:22:56+08:00">
+                2018-09-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这篇文章主要分析ARouter中路由与服务相关的源码（不涉及依赖注入）。</p>
+<h3 id="路由框架要解决哪些问题？"><a href="#路由框架要解决哪些问题？" class="headerlink" title="路由框架要解决哪些问题？"></a>路由框架要解决哪些问题？</h3><p>在开始源码分析之前，先考虑一下这个问题。</p>
+<p>在这一节，会抛出几个问题，而下面的源码分析，就会围绕这一节的问题而展开。</p>
+<p>1、路由信息如何搜集？</p>
+<p>2、如何完成跳转，如何传参？</p>
+<p>3、跳转过程中需要插入一些公用逻辑怎么办？</p>
+<p>4、跳转过程中出现异常或者跳转失败怎么办？</p>
+<h3 id="框架整体设计"><a href="#框架整体设计" class="headerlink" title="框架整体设计"></a>框架整体设计</h3><p>在开始具体的代码流程分析之前，可以先大致了解下框架的整体设计。简单整理下主要的类与模块，可以得到下面的结构图：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwgy1fv71ty2p2qj30ib05qdg0.jpg" alt="image-20180912205308489"></p>
+<p>简单介绍下每个类或模块的大概职责。</p>
+<h5 id="ARouter"><a href="#ARouter" class="headerlink" title="ARouter"></a>ARouter</h5><p>外部调用的最主要功能接口，提供路由跳转的入口。</p>
+<h5 id="IProvider"><a href="#IProvider" class="headerlink" title="IProvider"></a>IProvider</h5><p>服务提供者的抽象。</p>
+<h5 id="annotation"><a href="#annotation" class="headerlink" title="annotation"></a>annotation</h5><p>因为ARouter的基本实现是基于APT的，所以需要通过annotation暴露路由注册功能。</p>
+<h5 id="Arouter"><a href="#Arouter" class="headerlink" title="_Arouter"></a>_Arouter</h5><p>路由跳转的具体实现。</p>
+<h5 id="LogisticsCenter"><a href="#LogisticsCenter" class="headerlink" title="LogisticsCenter"></a>LogisticsCenter</h5><p>负责路由数据的初始化以及管理。</p>
+<h5 id="APT"><a href="#APT" class="headerlink" title="APT"></a>APT</h5><p>用于生成路由表（路由所需的基本信息）</p>
+<h3 id="路由注册"><a href="#路由注册" class="headerlink" title="路由注册"></a>路由注册</h3><p>搜集路由信息使用了APT技术，相关细节这里不再讨论，我们主要关注一下APT的生成类，看下主要搜集了哪些信息。</p>
+<p>对于Activity</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Route(path = <span class="meta-string">"/com/activity/ResultActivity"</span>)</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ResultActivity</span> : <span class="type">AppCompatActivity</span></span>() &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">(savedInstanceState: <span class="type">Bundle</span>?)</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState)</span><br><span class="line">        setContentView(R.layout.activity_result)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>会生成对应的路由信息类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE!!! IT WAS GENERATED BY AROUTER. */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ARouter</span>$$<span class="title">Group</span>$$<span class="title">com</span> <span class="keyword">implements</span> <span class="title">IRouteGroup</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadInto</span><span class="params">(Map&lt;String, RouteMeta&gt; atlas)</span> </span>&#123;</span><br><span class="line">      atlas.put(<span class="string">"/com/activity/ResultActivity"</span>, RouteMeta.build(RouteType.ACTIVITY, ResultActivity.class, <span class="string">"/com/activity/resultactivity"</span>, <span class="string">"com"</span>, <span class="keyword">null</span>, -<span class="number">1</span>, -<span class="number">2147483648</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现搜集的信息主要为路径字符串与路由目标的映射，以及一些路由元数据RouteMeta。</p>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>初始化以ARouter.init()为入口，最后进入到LogisticsCenter.init()。</p>
+<p>初始化的过程可以通过插件完成，我们这里只关注不通过插件完成的逻辑，提取我们关心的核心逻辑，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 这里的代码是经过修改与裁剪的，仅为展示逻辑用，与源代码有一定差距</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(Context context, ThreadPoolExecutor tpe)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 存储APT生成的路由信息类的类名</span></span><br><span class="line">    Set&lt;String&gt; routerMap;</span><br><span class="line">    <span class="keyword">if</span> (PackageUtils.isNewVersion(context)) &#123;</span><br><span class="line">        <span class="comment">// 通过包名查找路由信息类</span></span><br><span class="line">        routerMap = ClassUtils.getFileNameByPackageName(packageName);</span><br><span class="line">        <span class="keyword">if</span> (!routerMap.isEmpty()) &#123;</span><br><span class="line">            <span class="comment">// 在这里将routerMap持久化</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// Save new version name when router map update finishes.</span></span><br><span class="line">        PackageUtils.updateVersion(context);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 如果app没有更新，则说明路由表没变，则从持久化缓存中取出路由信息</span></span><br><span class="line">        routerMap = getRouterMapFromCache();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 根据路由信息类的不同类型将其分类存储于Warehouse中</span></span><br><span class="line">    <span class="keyword">for</span> (String className : routerMap) &#123;</span><br><span class="line">        <span class="keyword">if</span> (isRoot(className)) &#123;</span><br><span class="line">            Class.forName(className)</span><br><span class="line">                .getConstructor()</span><br><span class="line">                .newInstance()</span><br><span class="line">                .loadInto(Warehouse.groupsIndex);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isInterceptor(className)) &#123; </span><br><span class="line">            <span class="comment">// 注册拦截器</span></span><br><span class="line">            Class.forName(className)</span><br><span class="line">                .getConstructor()</span><br><span class="line">                .newInstance()</span><br><span class="line">                .loadInto(Warehouse.interceptorsIndex);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isProvider(className)) &#123;</span><br><span class="line">            Class.forName(className)</span><br><span class="line">                .getConstructor()</span><br><span class="line">                .newInstance()</span><br><span class="line">                .loadInto(Warehouse.providersIndex);             </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现初始化的主要工作就是将APT收集的类信息加载到内存中。</p>
+<p>除此之外，_ARouter.afterInit()会在初始化完成后被调用，用以初始化拦截器服务，其具体的功能后面会介绍。</p>
+<h3 id="路由跳转"><a href="#路由跳转" class="headerlink" title="路由跳转"></a>路由跳转</h3><p>路由跳转最终会进入到_ARouter的navigation()，具体过程可以分解为路由查找与路由跳转两步骤，接下来分析路由跳转的具体过程。</p>
+<h5 id="参数传递"><a href="#参数传递" class="headerlink" title="参数传递"></a>参数传递</h5><p>参数传递主要通过类Postcard，由它来接收并传递路由跳转过程中需要的参数。换个角度想，要完成路由的功能，我们所需要的信息包含两部分，一部分是路由的目标相关的信息，这些信息在我们开始写业务代码之前就可以预先知道，因此可以通过APT生成，而另外一部分，比如要传给目标路由的参数，这个则是与具体的业务有关的，因此需要我们在业务代码中完成信息传递，而这部分信息的承载者，就是Postcard。具体的细节直接去看Postcard的类结构就行了，这里不再赘述。</p>
+<h5 id="路由查找"><a href="#路由查找" class="headerlink" title="路由查找"></a>路由查找</h5><p>路由跳转的第一步就是先查找到目标路由，路由查找的具体实现在LogisticsCenter.completion(postcard)中，其核心逻辑可以概括为，从路由信息仓库Warehouse中查找路由信息，然后缓存，便于下次快速访问。其代码可以精简如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">completion</span><span class="params">(Postcard postcard)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Warehouse.routes是用于快速访问的缓存</span></span><br><span class="line">    RouteMeta routeMeta = Warehouse.routes.get(postcard.getPath());</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">null</span> == routeMeta) &#123; </span><br><span class="line">        <span class="comment">// 从Warehouse中读取路由信息并缓存</span></span><br><span class="line">        Class&lt;IRouteGroup&gt; groupMeta = Warehouse.groupsIndex.get(postcard.getGroup());</span><br><span class="line">        IRouteGroup iGroupInstance = groupMeta.getConstructor().newInstance();</span><br><span class="line">        iGroupInstance.loadInto(Warehouse.routes);</span><br><span class="line">        Warehouse.groupsIndex.remove(postcard.getGroup());</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 将路由信息类中的路由信息也一并整理到postcard中</span></span><br><span class="line">        postcard.setDestination(routeMeta.getDestination());</span><br><span class="line">        postcard.setType(routeMeta.getType());</span><br><span class="line">        postcard.setPriority(routeMeta.getPriority());</span><br><span class="line">        postcard.setExtra(routeMeta.getExtra());</span><br><span class="line">        <span class="comment">// 因为支持uri，所以这里还有从uri中解析出查询语句，并将其传入postcard的逻辑</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Service是单例，在这里进行查找或实例化(个人觉得这个逻辑放在路由跳转中会更统一一点)</span></span><br><span class="line">    <span class="keyword">switch</span> (routeMeta.getType()) &#123;</span><br><span class="line">    	<span class="keyword">case</span> PROVIDER: </span><br><span class="line">            <span class="comment">// 实例化Service并将其缓存在Warehouse.providers中</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="路由跳转-1"><a href="#路由跳转-1" class="headerlink" title="路由跳转"></a>路由跳转</h5><p>跳转的最终实现在_navigation()中，该方法的实现可以概括为，对于Activity，跳转意味着跳转到该Activity；对于Service来说，跳转意味着返回之前实例化的单例；对于Fragment来说，意味着实例化Fragment并返回。代码精简如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Object <span class="title">_navigation</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (postcard.getType()) &#123;</span><br><span class="line">		<span class="keyword">case</span> ACTIVITY:</span><br><span class="line">            <span class="comment">// 先将postcard中的信息取出，包括动画、flag等信息，一并设置到intent中</span></span><br><span class="line">            startActivity();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> PROVIDER:</span><br><span class="line">            <span class="keyword">return</span> postcard.getProvider();</span><br><span class="line">        <span class="keyword">case</span> FRAGMENT:</span><br><span class="line">            Object instance = fragmentMeta.getConstructor().newInstance();</span><br><span class="line">            ((Fragment) instance).setArguments(postcard.getExtras());</span><br><span class="line">            <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>作者这里还预留了其他类型，比如方法、CONTENT_PROVIDER等未实现。不过不论如何，这里的逻辑都是获取路由信息，然后跳转并传递。</p>
+<h3 id="拦截器"><a href="#拦截器" class="headerlink" title="拦截器"></a>拦截器</h3><h5 id="注册与查找拦截器"><a href="#注册与查找拦截器" class="headerlink" title="注册与查找拦截器"></a>注册与查找拦截器</h5><p>拦截器是Provider的一种，因此其注册方式也是与其他的Provider一样，都是通过APT生成路由表。</p>
+<p>在初始化那一节中提到，_ARouter.afterInit()会在初始化完成后被调用，用以初始化拦截器服务。而这个拦截器服务InterceptorServiceImpl初始化的时候，则会完成拦截器的查找与缓存。具体的逻辑在InterceptorServiceImpl的init()方法中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(<span class="keyword">final</span> Context context)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (Map.Entry&lt;Integer, Class&lt;? extends IInterceptor&gt;&gt; entry : Warehouse.interceptorsIndex.entrySet()) &#123;</span><br><span class="line">        Class&lt;? extends IInterceptor&gt; interceptorClass = entry.getValue();</span><br><span class="line">        IInterceptor iInterceptor = interceptorClass.getConstructor().newInstance();</span><br><span class="line">        <span class="comment">// 每个拦截器自己还有自己的初始化逻辑</span></span><br><span class="line">        iInterceptor.init(context);</span><br><span class="line">        <span class="comment">// 将拦截器单例缓存到Warehouse.interceptors中</span></span><br><span class="line">        Warehouse.interceptors.add(iInterceptor);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="调用拦截器"><a href="#调用拦截器" class="headerlink" title="调用拦截器"></a>调用拦截器</h5><p>InterceptorServiceImpl本质上就是拦截器的管理器，因此它不仅负责拦截器的注册查找，还负责拦截器的调用。</p>
+<p>拦截器的调用发生在LogisticsCenter.completion(postcard)与Arouter._navigation()之间，也就是发生在路由查找与路由跳转之间。</p>
+<p>其具体实现都在InterceptorServiceImpl的doInterceptions()方法中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doInterceptions</span><span class="params">(<span class="keyword">final</span> Postcard postcard, <span class="keyword">final</span> InterceptorCallback callback)</span> </span>&#123;</span><br><span class="line">    LogisticsCenter.executor.execute(<span class="keyword">new</span> Runnable()&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            CancelableCountDownLatch interceptorCounter = <span class="keyword">new</span> CancelableCountDownLatch(Warehouse.interceptors.size());</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                _excute(<span class="number">0</span>, interceptorCounter, postcard);</span><br><span class="line">                interceptorCounter.await(postcard.getTimeout(), TimeUnit.SECONDS);</span><br><span class="line">                <span class="keyword">if</span> (interceptorCounter.getCount() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                    callback.onInterrupt(<span class="keyword">new</span> HandlerException());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                callback.onInterrupt(e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">_excute</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> index, <span class="keyword">final</span> CancelableCountDownLatch counter, <span class="keyword">final</span> Postcard postcard)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (index &lt; Warehouse.interceptors.size()) &#123;</span><br><span class="line">        IInterceptor iInterceptor = Warehouse.interceptors.get(index);</span><br><span class="line">        iInterceptor.process(postcard, <span class="keyword">new</span> InterceptorCallback() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onContinue</span><span class="params">(Postcard postcard)</span> </span>&#123;</span><br><span class="line">                counter.countDown();</span><br><span class="line">                _excute(index + <span class="number">1</span>, counter, postcard);  </span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onInterrupt</span><span class="params">(Throwable exception)</span> </span>&#123;</span><br><span class="line">                counter.cancel();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>拦截的主要步骤为依次调用所有拦截器的process()方法，并且使用一个CountDownLatch来计数，然后在onContinue()方法中使计数器-1。假如是在其他线程中执行的拦截，那么拦截器Server的主线程会阻塞，直到所有的拦截器都执行完毕。需要注意的是，CountDownLatch设置了一个超时时间，也就意味着如果异步（与拦截器Server异步）的拦截器没有在限定时间内执行完，那么最外层就回回调超时异常，导致跳转失败。虽然跳转失败了，但是只要拦截器仍然调用了onContinue()，那后续的拦截器逻辑都会走一遍，只不过最后不会再回调最外层的onContinue()。</p>
+<h3 id="降级策略"><a href="#降级策略" class="headerlink" title="降级策略"></a>降级策略</h3><p>降级策略指的是在路由失败后的客户端的行为。</p>
+<h5 id="降级入口"><a href="#降级入口" class="headerlink" title="降级入口"></a>降级入口</h5><p>从降级的定义来看，也可以猜到降级的入口应该在路由查找这里。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">navigation</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">    	LogisticsCenter.completion(postcard);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (NoRouteFoundException ex) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> != callback) &#123;</span><br><span class="line">            callback.onLost(postcard);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;   </span><br><span class="line">            DegradeService degradeService = ARouter.getInstance().navigation(DegradeService.class);</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">null</span> != degradeService) &#123;</span><br><span class="line">                degradeService.onLost(context, postcard);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从这里也可以看出降级有两个策略，一个是通过回调单独降级，一个是通过Service的形式进行全局降级，并且单独降级的优先级高于全局降级。</p>
+<h5 id="单独降级"><a href="#单独降级" class="headerlink" title="单独降级"></a>单独降级</h5><p>NavigationCallback的onLost()方法可以实现单独降级。</p>
+<h5 id="全局降级"><a href="#全局降级" class="headerlink" title="全局降级"></a>全局降级</h5><p>DegradeService 则被用来实现全局降级。全局降级的注册方式和上面的其他服务是一样的，但是由于Warehouse.providersIndex这个map的key是服务接口的全限定名，因此我们只能实现一个降级处理器，多实现的处理器会被覆盖掉。具体的细节可以参考APT生成的Providers路由表类。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://github.com/alibaba/ARouter" target="_blank" rel="noopener">https://github.com/alibaba/ARouter</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/10/Java编译优化/" rel="next" title="Java编译优化">
+                <i class="fa fa-chevron-left"></i> Java编译优化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#路由框架要解决哪些问题？"><span class="nav-number">1.</span> <span class="nav-text">路由框架要解决哪些问题？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#框架整体设计"><span class="nav-number">2.</span> <span class="nav-text">框架整体设计</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#ARouter"><span class="nav-number">2.0.1.</span> <span class="nav-text">ARouter</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#IProvider"><span class="nav-number">2.0.2.</span> <span class="nav-text">IProvider</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#annotation"><span class="nav-number">2.0.3.</span> <span class="nav-text">annotation</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Arouter"><span class="nav-number">2.0.4.</span> <span class="nav-text">_Arouter</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LogisticsCenter"><span class="nav-number">2.0.5.</span> <span class="nav-text">LogisticsCenter</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#APT"><span class="nav-number">2.0.6.</span> <span class="nav-text">APT</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#路由注册"><span class="nav-number">3.</span> <span class="nav-text">路由注册</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化"><span class="nav-number">4.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#路由跳转"><span class="nav-number">5.</span> <span class="nav-text">路由跳转</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#参数传递"><span class="nav-number">5.0.1.</span> <span class="nav-text">参数传递</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#路由查找"><span class="nav-number">5.0.2.</span> <span class="nav-text">路由查找</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#路由跳转-1"><span class="nav-number">5.0.3.</span> <span class="nav-text">路由跳转</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拦截器"><span class="nav-number">6.</span> <span class="nav-text">拦截器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#注册与查找拦截器"><span class="nav-number">6.0.1.</span> <span class="nav-text">注册与查找拦截器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#调用拦截器"><span class="nav-number">6.0.2.</span> <span class="nav-text">调用拦截器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#降级策略"><span class="nav-number">7.</span> <span class="nav-text">降级策略</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#降级入口"><span class="nav-number">7.0.1.</span> <span class="nav-text">降级入口</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#单独降级"><span class="nav-number">7.0.2.</span> <span class="nav-text">单独降级</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#全局降级"><span class="nav-number">7.0.3.</span> <span class="nav-text">全局降级</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">8.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+  
+
+</body>
+</html>
