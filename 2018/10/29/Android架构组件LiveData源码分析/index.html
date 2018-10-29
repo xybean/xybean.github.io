@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="源码分析," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文主要从源码角度介绍架构组件LiveData的实现原理，默认读者已经熟悉LiveData的基本使用。 观察者模式与发布-订阅模式之前一直没有特别关注过观察者模式与发布-订阅模式的区别，刚好借此机会去了解了一下。简单来说，两者的核心区别是： 在观察者模式的实现中，观察者（订阅者）是由发布者来维护的，也就是说，发布者是可以感知到观察者的。 但是在发布-订阅模式中，会有一个专门的中介来维护订阅者，发布">
+<meta name="keywords" content="源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android架构组件LiveData源码分析">
+<meta property="og:url" content="https://xybean.github.io/2018/10/29/Android架构组件LiveData源码分析/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="本文主要从源码角度介绍架构组件LiveData的实现原理，默认读者已经熟悉LiveData的基本使用。 观察者模式与发布-订阅模式之前一直没有特别关注过观察者模式与发布-订阅模式的区别，刚好借此机会去了解了一下。简单来说，两者的核心区别是： 在观察者模式的实现中，观察者（订阅者）是由发布者来维护的，也就是说，发布者是可以感知到观察者的。 但是在发布-订阅模式中，会有一个专门的中介来维护订阅者，发布">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwpc16cw1cj319s0gkmz2.jpg">
+<meta property="og:updated_time" content="2018-10-29T13:56:10.963Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android架构组件LiveData源码分析">
+<meta name="twitter:description" content="本文主要从源码角度介绍架构组件LiveData的实现原理，默认读者已经熟悉LiveData的基本使用。 观察者模式与发布-订阅模式之前一直没有特别关注过观察者模式与发布-订阅模式的区别，刚好借此机会去了解了一下。简单来说，两者的核心区别是： 在观察者模式的实现中，观察者（订阅者）是由发布者来维护的，也就是说，发布者是可以感知到观察者的。 但是在发布-订阅模式中，会有一个专门的中介来维护订阅者，发布">
+<meta name="twitter:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwpc16cw1cj319s0gkmz2.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2018/10/29/Android架构组件LiveData源码分析/"/>
+
+
+
+
+
+  <title>Android架构组件LiveData源码分析 | xybean's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2018/10/29/Android架构组件LiveData源码分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android架构组件LiveData源码分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-29T21:55:16+08:00">
+                2018-10-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文主要从源码角度介绍架构组件LiveData的实现原理，默认读者已经熟悉LiveData的基本使用。</p>
+<h3 id="观察者模式与发布-订阅模式"><a href="#观察者模式与发布-订阅模式" class="headerlink" title="观察者模式与发布-订阅模式"></a>观察者模式与发布-订阅模式</h3><p>之前一直没有特别关注过观察者模式与发布-订阅模式的区别，刚好借此机会去了解了一下。简单来说，两者的核心区别是：</p>
+<p>在观察者模式的实现中，观察者（订阅者）是由发布者来维护的，也就是说，发布者是可以感知到观察者的。</p>
+<p>但是在发布-订阅模式中，会有一个专门的中介来维护订阅者，发布者与订阅者是无法直接交互的，它们是无法感知另一方的存在的。</p>
+<p>具体的细节可以参考这篇文章：<a href="https://juejin.im/post/5a14e9edf265da4312808d86" target="_blank" rel="noopener">观察者模式 vs 发布-订阅模式</a></p>
+<h3 id="功能与使用场景"><a href="#功能与使用场景" class="headerlink" title="功能与使用场景"></a>功能与使用场景</h3><h5 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h5><ul>
+<li>可以包装数据，使之可被观察，达到响应式的效果。</li>
+<li>与页面的生命周期是绑定的，防止内存泄露。</li>
+<li>有类似RxJava中运算符的实现，数据处理更灵活。</li>
+<li>…</li>
+</ul>
+<h5 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h5><p>多数情况是搭配ViewModel与Lifecycle组件一起使用，使ViewModel具有响应式的效果。</p>
+<h3 id="整体架构图"><a href="#整体架构图" class="headerlink" title="整体架构图"></a>整体架构图</h3><p>整体采用了观察者模式，核心的类结构图如下：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwpc16cw1cj319s0gkmz2.jpg" alt="image-20181029194637438"></p>
+<p>简单介绍下其中的关键类：</p>
+<ul>
+<li>抽象类LiveData：架构组件的核心类，代表着可被观察的数据本身，是观察者模式中的发布者，负责被观察数据的维护、观察者的维护以及数据变化后的消息分发。</li>
+<li>Observer接口：代表着观察者，只有一个最简单的 onChanged()方法用于接收变化消息。</li>
+<li>抽象类ObserverWrapper：顾名思义，Observer的Wrapper，扩展了Observer的功能，使之不仅仅是接收消息那么简单，例如其具体实现LifecycleBoundObserver就赋予了Observer与Lifecycle组件并用的功能。</li>
+</ul>
+<h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><p>LiveData的源码不多，具体如下</p>
+<h5 id="观察者模式在LiveData中如何实现"><a href="#观察者模式在LiveData中如何实现" class="headerlink" title="观察者模式在LiveData中如何实现"></a>观察者模式在LiveData中如何实现</h5><p>观察者模式主要涉及观察者注册、观察者维护、消息发送三个部分。</p>
+<p>1、先来看看观察者的注册</p>
+<p>以LiveData的observe()/observeForever()方法为入口，这里以observe()为例，两者的区别后面再介绍。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">observe</span><span class="params">(@NonNull LifecycleOwner owner, @NonNull Observer&lt;T&gt; observer)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果观察者已经DESTROYED，就不再订阅LiveData</span></span><br><span class="line">    <span class="keyword">if</span> (owner.getLifecycle().getCurrentState() == DESTROYED) &#123;</span><br><span class="line">        <span class="comment">// ignore</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    LifecycleBoundObserver wrapper = <span class="keyword">new</span> LifecycleBoundObserver(owner, observer);</span><br><span class="line">    <span class="comment">// 将Observer放入mObservers（观察者map）中</span></span><br><span class="line">    ObserverWrapper existing = mObservers.putIfAbsent(observer, wrapper);</span><br><span class="line">    <span class="comment">// 一个Activity/Fragment等仅能有一个observer</span></span><br><span class="line">    <span class="keyword">if</span> (existing != <span class="keyword">null</span> &amp;&amp; !existing.isAttachedTo(owner)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Cannot add the same observer"</span></span><br><span class="line">                                           + <span class="string">" with different lifecycles"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (existing != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 同时订阅生命周期的变化</span></span><br><span class="line">    owner.getLifecycle().addObserver(wrapper);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现注册的过程就是将Observer与ObserverWrapper放入map中维护。</p>
+<p>2、如何移除观察者</p>
+<p>移除观察者与注册观察者类似，如果Observer是有生命周期的，那就会根据Observer的生命周期变化自动移除，具体实现看LifecycleBoundObserver.onStateChanged()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LifecycleBoundObserver</span> <span class="keyword">extends</span> <span class="title">ObserverWrapper</span> <span class="keyword">implements</span> <span class="title">GenericLifecycleObserver</span> </span>&#123;</span><br><span class="line">    <span class="meta">@NonNull</span> <span class="keyword">final</span> LifecycleOwner mOwner;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onStateChanged</span><span class="params">(LifecycleOwner source, Lifecycle.Event event)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (mOwner.getLifecycle().getCurrentState() == DESTROYED) &#123;</span><br><span class="line">            <span class="comment">// LiveData的removeObserver()会直接从map中移除Observer</span></span><br><span class="line">            removeObserver(mObserver);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        activeStateChanged(shouldBeActive());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果Observer没有生命周期，那么就需要外部调用LiveData的removeObserver()完成移除操作。</p>
+<p>3、如何向观察者发送数据变化的通知</p>
+<p>数据的变化以LiveData.setValue()为入口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 被观察的数据，值只能通过setValue改变。</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> Object mData = NOT_SET;</span><br><span class="line"></span><br><span class="line"><span class="meta">@MainThread</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">setValue</span><span class="params">(T value)</span> </span>&#123;</span><br><span class="line">    assertMainThread(<span class="string">"setValue"</span>);</span><br><span class="line">    <span class="comment">// mVersion用于记录当前通知的版本，Observer也会记录最近收到的版本，如果不一致则会调用一次onChange</span></span><br><span class="line">    <span class="comment">// 主要用于实现有生命周期的Observer在回复活跃后，再接收一次错过的消息的最后一条</span></span><br><span class="line">    mVersion++;</span><br><span class="line">    mData = value;</span><br><span class="line">    <span class="comment">// 分发消息给观察者</span></span><br><span class="line">    dispatchingValue(<span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">dispatchingValue</span><span class="params">(@Nullable ObserverWrapper initiator)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (Iterator&lt;Map.Entry&lt;Observer&lt;T&gt;, ObserverWrapper&gt;&gt; iterator =</span><br><span class="line">         mObservers.iteratorWithAdditions(); iterator.hasNext(); ) &#123;</span><br><span class="line">        considerNotify(iterator.next().getValue());</span><br><span class="line">    &#125;      </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">considerNotify</span><span class="params">(ObserverWrapper observer)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!observer.mActive) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 不会通知非Active的Observer</span></span><br><span class="line">    <span class="keyword">if</span> (!observer.shouldBeActive()) &#123;</span><br><span class="line">        observer.activeStateChanged(<span class="keyword">false</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (observer.mLastVersion &gt;= mVersion) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    observer.mLastVersion = mVersion;</span><br><span class="line">    <span class="comment">// 最终调用通知方法</span></span><br><span class="line">    observer.mObserver.onChanged((T) mData);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>前面提到如果Observer在恢复活跃后会收到最近的一次变化，其具体实现在ObserverWrapper的activeStateChanged()中，即恢复活跃后会调用activeStateChanged，然后调用dispatchingValue()，代码比较简单，这里就不再贴出来了。</p>
+<h5 id="Transformations如何实现LiveData转换"><a href="#Transformations如何实现LiveData转换" class="headerlink" title="Transformations如何实现LiveData转换"></a>Transformations如何实现LiveData转换</h5><p>LiveData还可以做到类似RxJava中运算符的一些功能，具体实现方式如下。</p>
+<p>以map为例，实现的关键在于类MediatorLiveData，它本身就是一个LiveData，并且它持有另外一个LiveData，所以它既是一个观察者，又是一个发布者。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MediatorLiveData</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">MutableLiveData</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">// LiveData&lt;?&gt;是被Source&lt;?&gt;观察的发布者，也是未经过Transformations转换的原始发布者</span></span><br><span class="line">    <span class="keyword">private</span> SafeIterableMap&lt;LiveData&lt;?&gt;, Source&lt;?&gt;&gt; mSources = <span class="keyword">new</span> SafeIterableMap&lt;&gt;();</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@MainThread</span></span><br><span class="line">    <span class="keyword">public</span> &lt;S&gt; <span class="function"><span class="keyword">void</span> <span class="title">addSource</span><span class="params">(@NonNull LiveData&lt;S&gt; source, Observer&lt;S&gt; onChanged)</span> </span>&#123;</span><br><span class="line">        Source&lt;S&gt; e = <span class="keyword">new</span> Source&lt;&gt;(source, onChanged);</span><br><span class="line">        Source&lt;?&gt; existing = mSources.putIfAbsent(source, e);</span><br><span class="line">        <span class="keyword">if</span> (hasActiveObservers()) &#123;</span><br><span class="line">            <span class="comment">// 将observer注册到livedata</span></span><br><span class="line">            e.plug();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Source使得MediatorLiveData成为观察者</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Source</span>&lt;<span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">Observer</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> LiveData&lt;V&gt; mLiveData;</span><br><span class="line">        <span class="comment">// 这个mObserver是属于Transformations的，用于通知Transformations数据变化了</span></span><br><span class="line">        <span class="keyword">final</span> Observer&lt;V&gt; mObserver;</span><br><span class="line">        <span class="keyword">int</span> mVersion = START_VERSION;</span><br><span class="line"></span><br><span class="line">        Source(LiveData&lt;V&gt; liveData, <span class="keyword">final</span> Observer&lt;V&gt; observer) &#123;</span><br><span class="line">            mLiveData = liveData;</span><br><span class="line">            mObserver = observer;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onChanged</span><span class="params">(@Nullable V v)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (mVersion != mLiveData.getVersion()) &#123;</span><br><span class="line">                mVersion = mLiveData.getVersion();</span><br><span class="line">                mObserver.onChanged(v);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着再看Transformations的map的实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@MainThread</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;X, Y&gt; <span class="function">LiveData&lt;Y&gt; <span class="title">map</span><span class="params">(@NonNull LiveData&lt;X&gt; source,</span></span></span><br><span class="line"><span class="function"><span class="params">                                     @NonNull <span class="keyword">final</span> Function&lt;X, Y&gt; func)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> MediatorLiveData&lt;Y&gt; result = <span class="keyword">new</span> MediatorLiveData&lt;&gt;();</span><br><span class="line">    result.addSource(source, <span class="keyword">new</span> Observer&lt;X&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onChanged</span><span class="params">(@Nullable X x)</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 将func作用于MediatorLiveData并通知外部</span></span><br><span class="line">            result.setValue(func.apply(x));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="comment">// 外部实际拿到的是MediatorLiveData</span></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>总结上面的代码就是，MediatorLiveData中的Observer监听原始LiveData的变化，当其变化后MediatorLiveData中的Observer就将Transformations提供的func作用于变化后的数据，然后再将这个数据通过MediatorLiveData中的LiveData通知到外部。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://developer.android.com/topic/libraries/architecture/livedata" target="_blank" rel="noopener">LiveData Overview</a></p>
+<p><a href="https://juejin.im/post/5a14e9edf265da4312808d86" target="_blank" rel="noopener">观察者模式 vs 发布-订阅模式</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/14/Android架构组件Lifecycle源码分析/" rel="next" title="Androd架构组件Lifecycle源码分析">
+                <i class="fa fa-chevron-left"></i> Androd架构组件Lifecycle源码分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#观察者模式与发布-订阅模式"><span class="nav-number">1.</span> <span class="nav-text">观察者模式与发布-订阅模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#功能与使用场景"><span class="nav-number">2.</span> <span class="nav-text">功能与使用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#功能"><span class="nav-number">2.0.1.</span> <span class="nav-text">功能</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用场景"><span class="nav-number">2.0.2.</span> <span class="nav-text">使用场景</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#整体架构图"><span class="nav-number">3.</span> <span class="nav-text">整体架构图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#源码分析"><span class="nav-number">4.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#观察者模式在LiveData中如何实现"><span class="nav-number">4.0.1.</span> <span class="nav-text">观察者模式在LiveData中如何实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Transformations如何实现LiveData转换"><span class="nav-number">4.0.2.</span> <span class="nav-text">Transformations如何实现LiveData转换</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+  
+
+</body>
+</html>
