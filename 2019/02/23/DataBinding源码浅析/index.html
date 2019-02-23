@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="源码分析,设计模式," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文假设读者对MVVM模式以及DataBinding的使用有基本的了解，在此基础上再深入讨论DataBinding在MVVM模式中承担的功能，以及其实现的原理。 DataBinding与MVVM这一节主要讨论DataBinding在MVVM中起到的作用，先来看下MVVM模式的基本结构图：  注意到View与ViewModel有一个Binding的关系。Binding的这一层关系使得我们的View">
+<meta name="keywords" content="源码分析,设计模式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DataBinding源码浅析">
+<meta property="og:url" content="https://xybean.github.io/2019/02/23/DataBinding源码浅析/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="本文假设读者对MVVM模式以及DataBinding的使用有基本的了解，在此基础上再深入讨论DataBinding在MVVM模式中承担的功能，以及其实现的原理。 DataBinding与MVVM这一节主要讨论DataBinding在MVVM中起到的作用，先来看下MVVM模式的基本结构图：  注意到View与ViewModel有一个Binding的关系。Binding的这一层关系使得我们的View">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fyb6xqrj9hj30zs0l242l.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcly1g0g6gepekgj315y0jwach.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fylkg0dwb5j30hx0fk791.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fylkhcfon9j30fj09yado.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fyllvkh6bgj30ss0mggt2.jpg">
+<meta property="og:updated_time" content="2019-02-23T03:42:18.388Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DataBinding源码浅析">
+<meta name="twitter:description" content="本文假设读者对MVVM模式以及DataBinding的使用有基本的了解，在此基础上再深入讨论DataBinding在MVVM模式中承担的功能，以及其实现的原理。 DataBinding与MVVM这一节主要讨论DataBinding在MVVM中起到的作用，先来看下MVVM模式的基本结构图：  注意到View与ViewModel有一个Binding的关系。Binding的这一层关系使得我们的View">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fyb6xqrj9hj30zs0l242l.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2019/02/23/DataBinding源码浅析/"/>
+
+
+
+
+
+  <title>DataBinding源码浅析 | xybean's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2019/02/23/DataBinding源码浅析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">DataBinding源码浅析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-23T11:37:24+08:00">
+                2019-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p> <em>本文假设读者对MVVM模式以及DataBinding的使用有基本的了解，在此基础上再深入讨论DataBinding在MVVM模式中承担的功能，以及其实现的原理。</em></p>
+<h3 id="DataBinding与MVVM"><a href="#DataBinding与MVVM" class="headerlink" title="DataBinding与MVVM"></a>DataBinding与MVVM</h3><p>这一节主要讨论DataBinding在MVVM中起到的作用，先来看下MVVM模式的基本结构图：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fyb6xqrj9hj30zs0l242l.jpg" alt="image-20181112221854298"></p>
+<p>注意到View与ViewModel有一个Binding的关系。Binding的这一层关系使得我们的ViewModel与View可以实现双向通信。如果不借助DataBinding框架，我们自己用framework原生的能力的话，容易想到的办法就是在ViewModel中将View与ViewModel绑定，毕竟View主要是由xml来实现的，能力有限。</p>
+<p>而DataBinding框架就是用来解决这一问题的，它可以将绑定的这部分代码从ViewModel中剥离出来，迁移到xml文件中，使ViewModel可以专注于业务逻辑。</p>
+<p>除此之外，如果你实现过不基于Databinding的MVVM，那可能会遇到过这样的问题，对于数据分解映射多个View（即一个对象的多个属性分别独立对应多个View）的情况难以处理，而Databinding则可以优雅的解决这一问题。</p>
+<h3 id="DataBinding基本功能模块与整体架构"><a href="#DataBinding基本功能模块与整体架构" class="headerlink" title="DataBinding基本功能模块与整体架构"></a>DataBinding基本功能模块与整体架构</h3><h5 id="功能模块"><a href="#功能模块" class="headerlink" title="功能模块"></a>功能模块</h5><ul>
+<li>compiler：APT模块，负责xml解析以及根据解析出的信息结合注解生成所需要的辅助文件。</li>
+<li>baseLibrary：向外提供DataBinding可用的注解</li>
+<li>library：提供可被观察的model</li>
+<li>adapters：封装view的属性改变方法，隔离VM与实际的View</li>
+</ul>
+<h5 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h5><p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1g0g6gepekgj315y0jwach.jpg" alt="image-20190223110527681"></p>
+<h3 id="XML解析与APT"><a href="#XML解析与APT" class="headerlink" title="XML解析与APT"></a>XML解析与APT</h3><p>这一节主要介绍Databinding通过xml解析与APT的技术提取了哪些信息，并用这些信息生成了哪些文件，以及这些生成文件各自的作用。(*表示通配符)</p>
+<h5 id="layout-xml"><a href="#layout-xml" class="headerlink" title="*-layout.xml"></a>*-layout.xml</h5><p>文件地址：app/build/intermediates/data-binding/debug/layout-info/activity_data_binding-layout.xml</p>
+<p>在看这个文件的内容之前，先看看我们编写的activity_data_binding.xml在编译前后的有什么不一样。</p>
+<p>编译前：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fylkg0dwb5j30hx0fk791.jpg" alt="image-20181227201603191"></p>
+<p>编译后（反编译apk得到）：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fylkhcfon9j30fj09yado.jpg" alt="image-20181227201724640"></p>
+<p>可以发现编译后的xml为原始xml的第二部分，需要注意的是这里所有的View都添加了属性<code>android:tag</code>。那第一部分的信息哪里去了呢？很自然的，可以知道，这部分信息被解析出来后存储到了最前面提到的*-layout.xml中，主要内容如下</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fyllvkh6bgj30ss0mggt2.jpg" alt="image-20181227210523668">这里的部分1与上图的1是一一对应的，除此之外，部分2也记录了View的tag信息，也就是说，我们声明的数据与View的绑定关系在这个生成文件中依然保存着。</p>
+<p>接着看这几个标签，Variables与Imports和布局文件中的variable与import标签对应，Targets标签则告诉VM变化时对应的V（通过tag信息）、绑定关系是单向还是双向的以及DataBinding的表达式Expressions。</p>
+<p>至于这个生成文件的具体解析生成过程可以参考compiler模块的这几个类 <a href="https://android.googlesource.com/platform/frameworks/data-binding/+/c1560e6/compilerCommon/src/main/java/android/databinding/tool/store/LayoutFileParser.java" target="_blank" rel="noopener">LayoutFileParser.java</a>、<a href="https://android.googlesource.com/platform/frameworks/base/+/c8f786b1ed5d3d4a4447289c4505ea7842809f42/tools/data-binding/compiler/src/main/java/android/databinding/tool/LayoutXmlProcessor.java" target="_blank" rel="noopener">LayoutXmlProcessor.java</a>、<a href="https://android.googlesource.com/platform/frameworks/base/+/c8f786b1ed5d3d4a4447289c4505ea7842809f42/tools/data-binding/compiler/src/main/java/android/databinding/tool/store/ResourceBundle.java" target="_blank" rel="noopener">ResourceBundle.java</a></p>
+<p>在完成这个xml的生成之后，之后会利用APT根据*-layout.xml中保存的映射信息进一步生成下面要介绍的几个类，具体的实现过程参考源码<a href="https://android.googlesource.com/platform/frameworks/data-binding/+/master/compiler/src/main/java/android/databinding" target="_blank" rel="noopener">compiler</a>包中的代码。</p>
+<h5 id="BR-java"><a href="#BR-java" class="headerlink" title="BR.java"></a>BR.java</h5><p>BR文件为每个model唯一分配了一个id，功能与R文件类似。</p>
+<h5 id="DataBinderMapperImpl-java"><a href="#DataBinderMapperImpl-java" class="headerlink" title="DataBinderMapperImpl.java"></a>DataBinderMapperImpl.java</h5><p>保存了上文提到的view tag与layout id的映射，也保存了布局文件和与之对应的ViewDataBinding的映射关系。</p>
+<h5 id="ActivityDataBindingBinding-java、ActivityDataBindingBindingImpl-java"><a href="#ActivityDataBindingBinding-java、ActivityDataBindingBindingImpl-java" class="headerlink" title="ActivityDataBindingBinding.java、ActivityDataBindingBindingImpl.java"></a>ActivityDataBindingBinding.java、ActivityDataBindingBindingImpl.java</h5><p>真正建立与实现View与数据（双向）绑定的地方。具体的细节参考下一节的内容。</p>
+<h3 id="View与Model的绑定"><a href="#View与Model的绑定" class="headerlink" title="View与Model的绑定"></a>View与Model的绑定</h3><h5 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h5><p>model可以是最简单的实体类。也可以是继承自Observable的，具有消息通知功能的被观察者类。</p>
+<h5 id="ViewModel"><a href="#ViewModel" class="headerlink" title="ViewModel"></a>ViewModel</h5><p>ViewModel在该框架中的实现，就是所有ViewDataBinding的具体实现，例如上文提到的ActivityDataBindingBindingImpl。当然我们也可以实现自己的ViewModel类，然后与ViewDataBinding组合。</p>
+<h5 id="view的绑定"><a href="#view的绑定" class="headerlink" title="view的绑定"></a>view的绑定</h5><p>绑定这一步的工作是在VM中建立View与Model之间的联系，使得Model与View能相互通信。</p>
+<p>简单来说就是让VM持有View（可以更新View），并具有监听View变化的能力。</p>
+<p>以Activity为例的话，第一次绑定的入口是DataBindingUtil.setContentView()。该方法最终会调用到DataBindingUtil.bind()。看一下这个方法的具体实现(简化代码)：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T extends ViewDataBinding&gt; <span class="function">T <span class="title">bind</span><span class="params">(@NonNull View root, DataBindingComponent bindingComponent)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ViewDataBinding以tag的形式保存在view中，因此如果已经绑定过，则可以直接从view中取出</span></span><br><span class="line">    T binding = getBinding(root);</span><br><span class="line">    <span class="keyword">if</span> (binding != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> binding;</span><br><span class="line">    &#125;</span><br><span class="line">    Object tagObj = root.getTag();</span><br><span class="line">    <span class="comment">// 上一节提到过自动生成的代码为View设置了tag，并且tag值与布局文件之间的映射信息保存在了</span></span><br><span class="line">    <span class="comment">// DataBinderMapperImpl 也就是 sMapper 中</span></span><br><span class="line">    String tag = (String) tagObj;</span><br><span class="line">    <span class="keyword">int</span> layoutId = sMapper.getLayoutId(tag);</span><br><span class="line">    <span class="comment">// 同时DataBinderMapperImpl中也存有layoutId与其VM（ViewDataBinding）的映射</span></span><br><span class="line">    <span class="keyword">return</span> (T) sMapper.getDataBinder(bindingComponent, root, layoutId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>继续跟进看sMapper.getDataBinder()方法的实现(简化代码)：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ViewDataBinding <span class="title">getDataBinder</span><span class="params">(DataBindingComponent component, View view, <span class="keyword">int</span> layoutId)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> localizedLayoutId = INTERNAL_LAYOUT_ID_LOOKUP.get(layoutId);</span><br><span class="line">    <span class="keyword">if</span>(localizedLayoutId &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">final</span> Object tag = view.getTag();</span><br><span class="line">        <span class="keyword">switch</span>(localizedLayoutId) &#123;</span><br><span class="line">            <span class="keyword">case</span>  LAYOUT_ACTIVITYDATABINDING: &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="string">"layout/activity_data_binding_0"</span>.equals(tag)) &#123;</span><br><span class="line">                    <span class="comment">// 可以发现每次都会new新的VM，也即View的每次初始化都会重新生成新的VM与之绑定</span></span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> ActivityDataBindingBindingImpl(component, view);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>继续跟进代码可以发现，最关键的实现在于ViewDataBinding.mapBindings()方法，该方法的作用是递归遍历View树，将真实的需要被绑定的View实例都取出来，然后再赋值给VM。</p>
+<p>完成VM对View的持有之外，完全完成VM与View的绑定还需要VM监听View的状态变化，这部分代码在ActivityDataBindingBindingImpl.executeBindings()中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ActivityDataBindingBindingImpl.class</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">executeBindings</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">long</span> dirtyFlags = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>) &#123;</span><br><span class="line">        dirtyFlags = mDirtyFlags;</span><br><span class="line">        mDirtyFlags = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    String userInfoName = <span class="keyword">null</span>;</span><br><span class="line">    User userInfo = mUserInfo;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> ((dirtyFlags &amp; <span class="number">0x2L</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 添加对View状态的监听，完成VM对View状态的监听</span></span><br><span class="line">        TextViewBindingAdapter.setTextWatcher(<span class="keyword">this</span>.mboundView1, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, mboundView1androidTextAttrChanged);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="model的绑定"><a href="#model的绑定" class="headerlink" title="model的绑定"></a>model的绑定</h5><p>这个过程简单来说就是让VM持有Model（可以操作Model），并具有监听Model变化的能力。</p>
+<p>以上面的例子为例，模型userInfo的初始化绑定，通过第一次调用ActivityDataBindingBindingImpl.setUserInfo()开始：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ActivityDataBindingBindingImpl.class</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUserInfo</span><span class="params">(@Nullable User UserInfo)</span> </span>&#123;</span><br><span class="line">    updateRegistration(<span class="number">0</span>, UserInfo);</span><br><span class="line">    <span class="comment">// 使VM 持有 Model</span></span><br><span class="line">    <span class="keyword">this</span>.mUserInfo = UserInfo;</span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>) &#123;</span><br><span class="line">        mDirtyFlags |= <span class="number">0x1L</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    notifyPropertyChanged(BR.userInfo);</span><br><span class="line">    <span class="keyword">super</span>.requestRebind();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>核心的绑定过程在updateRegistration()方法中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ViewDataBinding.class</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">updateRegistration</span><span class="params">(<span class="keyword">int</span> localFieldId, Object observable,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   CreateWeakListener listenerCreator)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果被观察数据为空，则取消对他的监听</span></span><br><span class="line">    <span class="keyword">if</span> (observable == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> unregisterFrom(localFieldId);</span><br><span class="line">    &#125;</span><br><span class="line">    WeakListener listener = mLocalFieldObservers[localFieldId];</span><br><span class="line">    <span class="keyword">if</span> (listener == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 如果之前没有对该数据做监听，则监听该数据</span></span><br><span class="line">        registerTo(localFieldId, observable, listenerCreator);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (listener.getTarget() == observable) &#123;</span><br><span class="line">        <span class="comment">// 被监听的实例已被注册监听器，不需要重新绑定</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>; <span class="comment">// nothing to do, same object</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果被监听的对象实例改变(并不是对象值改变)，则重新绑定新的对象实例</span></span><br><span class="line">    unregisterFrom(localFieldId);</span><br><span class="line">    registerTo(localFieldId, observable, listenerCreator);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着看registerTo()方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ViewDataBinding.class</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">registerTo</span><span class="params">(<span class="keyword">int</span> localFieldId, Object observable,</span></span></span><br><span class="line"><span class="function"><span class="params">                          CreateWeakListener listenerCreator)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (observable == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    WeakListener listener = mLocalFieldObservers[localFieldId];</span><br><span class="line">    <span class="keyword">if</span> (listener == <span class="keyword">null</span>) &#123;</span><br><span class="line">        listener = listenerCreator.create(<span class="keyword">this</span>, localFieldId);</span><br><span class="line">        <span class="comment">// 保存listener</span></span><br><span class="line">        mLocalFieldObservers[localFieldId] = listener;</span><br><span class="line">        <span class="keyword">if</span> (mLifecycleOwner != <span class="keyword">null</span>) &#123;</span><br><span class="line">            listener.setLifecycleOwner(mLifecycleOwner);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 这一步完成observable与listener的绑定</span></span><br><span class="line">    listener.setTarget(observable);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>listener.setTarget(observable);以及后面的方法不再给出，总之经过一系列调用后，会形成observable-&gt;listener-&gt;ViewDataBinding的持有链。换言之，observable可以通过该链路将变化通知到ViewDataBinding，并最终通知到View。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">requestRebind</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 省略了通过标记位控制冗余绑定，以及在Lifecycle未到达STARTED前不绑定的逻辑</span></span><br><span class="line">    <span class="keyword">if</span> (USE_CHOREOGRAPHER) &#123;</span><br><span class="line">        mChoreographer.postFrameCallback(mFrameCallback);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        mUIThreadHandler.post(mRebindRunnable);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 接着会走到mRebindRunnable-&gt;executeBindingsInternal()中</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">executeBindingsInternal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 省略部分逻辑</span></span><br><span class="line">    mIsExecutingPendingBindings = <span class="keyword">true</span>;</span><br><span class="line">    mRebindHalted = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (mRebindCallbacks != <span class="keyword">null</span>) &#123;</span><br><span class="line">        mRebindCallbacks.notifyCallbacks(<span class="keyword">this</span>, REBIND, <span class="keyword">null</span>);</span><br><span class="line">        <span class="comment">// The onRebindListeners will change mPendingHalted</span></span><br><span class="line">        <span class="keyword">if</span> (mRebindHalted) &#123;</span><br><span class="line">            mRebindCallbacks.notifyCallbacks(<span class="keyword">this</span>, HALTED, <span class="keyword">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!mRebindHalted) &#123;</span><br><span class="line">        executeBindings();</span><br><span class="line">        <span class="keyword">if</span> (mRebindCallbacks != <span class="keyword">null</span>) &#123;</span><br><span class="line">            mRebindCallbacks.notifyCallbacks(<span class="keyword">this</span>, REBOUND, <span class="keyword">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    mIsExecutingPendingBindings = <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终真正实现绑定的地方是ActivityDataBindingBindingImpl.executeBindings()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">executeBindings</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> dirtyFlags = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">synchronized</span>(<span class="keyword">this</span>) &#123;</span><br><span class="line">            dirtyFlags = mDirtyFlags;</span><br><span class="line">            mDirtyFlags = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        String userInfoName = <span class="keyword">null</span>;</span><br><span class="line">        User userInfo = mUserInfo;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> ((dirtyFlags &amp; <span class="number">0x3L</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (userInfo != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    <span class="comment">// read userInfo.name</span></span><br><span class="line">                    userInfoName = userInfo.getName();</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// batch finished</span></span><br><span class="line">        <span class="keyword">if</span> ((dirtyFlags &amp; <span class="number">0x3L</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// api target 1</span></span><br><span class="line">            TextViewBindingAdapter.setText(<span class="keyword">this</span>.mboundView1, userInfoName);</span><br><span class="line">            TextViewBindingAdapter.setText(<span class="keyword">this</span>.mboundView2, userInfoName);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> ((dirtyFlags &amp; <span class="number">0x2L</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// api target 1</span></span><br><span class="line">            <span class="comment">// 添加对View状态的监听，完成VM对View状态的监听</span></span><br><span class="line">         TextViewBindingAdapter.setTextWatcher(<span class="keyword">this</span>.mboundView1, (TextViewBindingAdapter.BeforeTextChanged)<span class="keyword">null</span>, (TextViewBindingAdapter.OnTextChanged)<span class="keyword">null</span>, (TextViewBindingAdapter.AfterTextChanged)<span class="keyword">null</span>, mboundView1androidTextAttrChanged);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="消息通知"><a href="#消息通知" class="headerlink" title="消息通知"></a>消息通知</h3><p>这一节介绍绑定之后双向的消息发送的实现细节。</p>
+<h5 id="model变化通知到view"><a href="#model变化通知到view" class="headerlink" title="model变化通知到view"></a>model变化通知到view</h5><p>以改变上文提到的userInfo为例，调用入口为ActivityDataBindingBindingImpl.setUserInfo()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUserInfo</span><span class="params">(@Nullable com.xybean.mvpdemo.databinding.User UserInfo)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.mUserInfo = UserInfo;</span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>) &#123;</span><br><span class="line">        <span class="comment">// 该值就等于BR文件中指定的userInfo对应的id值</span></span><br><span class="line">        mDirtyFlags |= <span class="number">0x1L</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    notifyPropertyChanged(BR.userInfo);</span><br><span class="line">    <span class="keyword">super</span>.requestRebind();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// BR文件</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BR</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> _all = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> userInfo = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>super.requestRebind()</code>最终也会调用到<code>ActivityDataBindingBindingImpl.executeBindings()</code>，其过程与第一次数据绑定时几乎一样，区别在于不会执行以下逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ((dirtyFlags &amp; <span class="number">0x2L</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">    TextViewBindingAdapter.setTextWatcher(mboundView1androidTextAttrChanged);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>显然这是监听View变化通知Model的监听器，因此只要在初始化的时候注册一次即可，具体的细节下一节再讨论。</p>
+<h5 id="view通知model变化"><a href="#view通知model变化" class="headerlink" title="view通知model变化"></a>view通知model变化</h5><p>这里需要关注的类是<code>android.databinding.InverseBindingListener</code>，从名字上也可以看出来它的作用是反向绑定，即view通过这个监听器将变化发送到model。</p>
+<p>同样以前面的UserInfo为例子，当我们改变了与之绑定的TextView的值的时候，由于TextView事先被注册了TextWatcher，具体见setTextWatcher.setTextWatcher()，而这个监听器最终会将Text的变化信息传递到InverseBindingListener中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ActivityDataBindingBindingImpl.class</span></span><br><span class="line"><span class="keyword">private</span> InverseBindingListener mboundView1androidTextAttrChanged = <span class="keyword">new</span>  InverseBindingListener() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onChange</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="comment">// Inverse of userInfo.name</span></span><br><span class="line">            <span class="comment">//         is userInfo.setName((java.lang.String) callbackArg_0)</span></span><br><span class="line">            String callbackArg_0 = TextViewBindingAdapter.getTextString(mboundView1);</span><br><span class="line">            <span class="comment">// localize variables for thread safety</span></span><br><span class="line">            <span class="comment">// userInfo != null</span></span><br><span class="line">            <span class="keyword">boolean</span> userInfoJavaLangObjectNull = <span class="keyword">false</span>;</span><br><span class="line">            <span class="comment">// userInfo.name</span></span><br><span class="line">            String userInfoName = <span class="keyword">null</span>;</span><br><span class="line">            <span class="comment">// userInfo</span></span><br><span class="line">            User userInfo = mUserInfo;</span><br><span class="line"></span><br><span class="line">            userInfoJavaLangObjectNull = (userInfo) != (<span class="keyword">null</span>);</span><br><span class="line">            <span class="keyword">if</span> (userInfoJavaLangObjectNull) &#123;</span><br><span class="line">                <span class="comment">// 在这里改变了model的值</span></span><br><span class="line">                userInfo.setName(((java.lang.String) (callbackArg_0)));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br></pre></td></tr></table></figure>
+<p>同时也注意到，上面view改变后，只通知了数据实例改变值，却没有进一步通知其他绑定了该数据的view也同时刷新视图，对于这种情况，下一节展开讨论。</p>
+<h5 id="model变化自动驱动view改变"><a href="#model变化自动驱动view改变" class="headerlink" title="model变化自动驱动view改变"></a>model变化自动驱动view改变</h5><p>上面实现的绑定，想要model的改变通知到view，需要用户手动调用通知方法。如果想要完成自动驱动UI改变，则需要使用Observable系列的类封装model，以及使用@Bindable注解指示需要被监听的字段。</p>
+<p>首先被@Bindable注解标记的字段会在BR文件中生成唯一的key，然后不论是用BaseObservable还是使用ObservableField的方式来包装被观察字段，最后的实现逻辑都是类似的，这里以BaseObservable为例。</p>
+<p>监听绑定的过程上面介绍过了，这里就直接从BaseObservable的notifyPropertyChanged()开始，接下来会直接调用CallbackRegistry.notifyCallbacks()，然后会调用到PropertyChangeRegistry.onNotifyCallback()，并最终调用到WeakPropertyListener的onPropertyChanged()方法中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">notifyCallbacks</span><span class="params">(T sender, <span class="keyword">int</span> arg, A arg2, <span class="keyword">final</span> <span class="keyword">int</span> startIndex,</span></span></span><br><span class="line"><span class="function"><span class="params">                             <span class="keyword">final</span> <span class="keyword">int</span> endIndex, <span class="keyword">final</span> <span class="keyword">long</span> bits)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">long</span> bitMask = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = startIndex; i &lt; endIndex; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> ((bits &amp; bitMask) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// (mCallbacks.get(i)即为前文建立VM与Model联系的listener</span></span><br><span class="line">            mNotifier.onNotifyCallback(mCallbacks.get(i), sender, arg, arg2);</span><br><span class="line">        &#125;</span><br><span class="line">        bitMask &lt;&lt;= <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终的处理逻辑会回到ViewDataBinding.handleFieldChange()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handleFieldChange</span><span class="params">(<span class="keyword">int</span> mLocalFieldId, Object object, <span class="keyword">int</span> fieldId)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 在这里根据fieldId 设置mDirtyFlags 标记发生更新的字段</span></span><br><span class="line">    <span class="keyword">boolean</span> result = onFieldChange(mLocalFieldId, object, fieldId);</span><br><span class="line">    <span class="keyword">if</span> (result) &#123;</span><br><span class="line">        <span class="comment">// 根据mDirtyFlags刷新UI</span></span><br><span class="line">        requestRebind();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着看requestRebind()的逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">requestRebind</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 省略了通过标记位控制冗余绑定，以及在Lifecycle未到达STARTED前不绑定的逻辑</span></span><br><span class="line">    <span class="keyword">if</span> (USE_CHOREOGRAPHER) &#123;</span><br><span class="line">        mChoreographer.postFrameCallback(mFrameCallback);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        mUIThreadHandler.post(mRebindRunnable);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 接着会走到mRebindRunnable-&gt;executeBindingsInternal()中</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">executeBindingsInternal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 省略部分逻辑</span></span><br><span class="line">    mIsExecutingPendingBindings = <span class="keyword">true</span>;</span><br><span class="line">    mRebindHalted = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (mRebindCallbacks != <span class="keyword">null</span>) &#123;</span><br><span class="line">        mRebindCallbacks.notifyCallbacks(<span class="keyword">this</span>, REBIND, <span class="keyword">null</span>);</span><br><span class="line">        <span class="comment">// The onRebindListeners will change mPendingHalted</span></span><br><span class="line">        <span class="keyword">if</span> (mRebindHalted) &#123;</span><br><span class="line">            mRebindCallbacks.notifyCallbacks(<span class="keyword">this</span>, HALTED, <span class="keyword">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!mRebindHalted) &#123;</span><br><span class="line">        executeBindings();</span><br><span class="line">        <span class="keyword">if</span> (mRebindCallbacks != <span class="keyword">null</span>) &#123;</span><br><span class="line">            mRebindCallbacks.notifyCallbacks(<span class="keyword">this</span>, REBOUND, <span class="keyword">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    mIsExecutingPendingBindings = <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终真正实现UI更新的地方是ActivityDataBindingBindingImpl.executeBindings()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">executeBindings</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> dirtyFlags = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">synchronized</span>(<span class="keyword">this</span>) &#123;</span><br><span class="line">            dirtyFlags = mDirtyFlags;</span><br><span class="line">            mDirtyFlags = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        String userInfoName = <span class="keyword">null</span>;</span><br><span class="line">        User userInfo = mUserInfo;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> ((dirtyFlags &amp; <span class="number">0x3L</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (userInfo != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    <span class="comment">// read userInfo.name</span></span><br><span class="line">                    userInfoName = userInfo.getName();</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// batch finished</span></span><br><span class="line">        <span class="keyword">if</span> ((dirtyFlags &amp; <span class="number">0x3L</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 在这里更新UI</span></span><br><span class="line">            TextViewBindingAdapter.setText(<span class="keyword">this</span>.mboundView1, userInfoName);</span><br><span class="line">            TextViewBindingAdapter.setText(<span class="keyword">this</span>.mboundView2, userInfoName);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h5 id="避免冗余的UI更新"><a href="#避免冗余的UI更新" class="headerlink" title="避免冗余的UI更新"></a>避免冗余的UI更新</h5><p>根据上文的源码分析，可以发现，在这样一个场景下（View自己更新UI导致model更新，而model的更新又会导致View再更新一次），可能会导致UI的重复更新。</p>
+<p>但是实际上这样的情况是不会发生的，原因就在于，Model改变后，我们更新UI不会直接调用View的原生方法传递model更新UI，而是通过一个Adapter，间接调用View的更新方法。以TextView为例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 先看ActivityDataBindingBindingImpl.executeBindings()</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">executeBindings</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="comment">// 可以发现这里更新UI是通过调用TextViewBindingAdapter的封装方法</span></span><br><span class="line">    TextViewBindingAdapter.setText(<span class="keyword">this</span>.btnTest, userInfoName);</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来看TextViewBindingAdapter.setText()的逻辑：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@BindingAdapter</span>(<span class="string">"android:text"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setText</span><span class="params">(TextView view, CharSequence text)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> CharSequence oldText = view.getText();</span><br><span class="line">    <span class="keyword">if</span> (text == oldText || (text == <span class="keyword">null</span> &amp;&amp; oldText.length() == <span class="number">0</span>)) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (text <span class="keyword">instanceof</span> Spanned) &#123;</span><br><span class="line">        <span class="keyword">if</span> (text.equals(oldText)) &#123;</span><br><span class="line">            <span class="keyword">return</span>; <span class="comment">// No change in the spans, so don't set anything.</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!haveContentsChanged(text, oldText)) &#123;</span><br><span class="line">        <span class="keyword">return</span>; <span class="comment">// No content changes, so don't set anything.</span></span><br><span class="line">    &#125;</span><br><span class="line">    view.setText(text);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现，正是几次模型变化的校验，保证了内容不变时不刷新UI的逻辑，也就解决了重复刷新UI的问题。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://draveness.me/mvx" target="_blank" rel="noopener">浅谈 MVC、MVP 和 MVVM 架构模式</a></p>
+<p><a href="https://android.googlesource.com/platform/frameworks/data-binding/" target="_blank" rel="noopener">AOSP data-binding</a></p>
+<p><a href="https://blog.csdn.net/u012933743/article/details/78207447" target="_blank" rel="noopener">DataBinding源码解析</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+            <a href="/tags/设计模式/" rel="tag"># 设计模式</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/29/Android架构组件LiveData源码分析/" rel="next" title="Android架构组件LiveData源码分析">
+                <i class="fa fa-chevron-left"></i> Android架构组件LiveData源码分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#DataBinding与MVVM"><span class="nav-number">1.</span> <span class="nav-text">DataBinding与MVVM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DataBinding基本功能模块与整体架构"><span class="nav-number">2.</span> <span class="nav-text">DataBinding基本功能模块与整体架构</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#功能模块"><span class="nav-number">2.0.1.</span> <span class="nav-text">功能模块</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#整体架构"><span class="nav-number">2.0.2.</span> <span class="nav-text">整体架构</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XML解析与APT"><span class="nav-number">3.</span> <span class="nav-text">XML解析与APT</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#layout-xml"><span class="nav-number">3.0.1.</span> <span class="nav-text">*-layout.xml</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#BR-java"><span class="nav-number">3.0.2.</span> <span class="nav-text">BR.java</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DataBinderMapperImpl-java"><span class="nav-number">3.0.3.</span> <span class="nav-text">DataBinderMapperImpl.java</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ActivityDataBindingBinding-java、ActivityDataBindingBindingImpl-java"><span class="nav-number">3.0.4.</span> <span class="nav-text">ActivityDataBindingBinding.java、ActivityDataBindingBindingImpl.java</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#View与Model的绑定"><span class="nav-number">4.</span> <span class="nav-text">View与Model的绑定</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Model"><span class="nav-number">4.0.1.</span> <span class="nav-text">Model</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ViewModel"><span class="nav-number">4.0.2.</span> <span class="nav-text">ViewModel</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#view的绑定"><span class="nav-number">4.0.3.</span> <span class="nav-text">view的绑定</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#model的绑定"><span class="nav-number">4.0.4.</span> <span class="nav-text">model的绑定</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#消息通知"><span class="nav-number">5.</span> <span class="nav-text">消息通知</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#model变化通知到view"><span class="nav-number">5.0.1.</span> <span class="nav-text">model变化通知到view</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#view通知model变化"><span class="nav-number">5.0.2.</span> <span class="nav-text">view通知model变化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#model变化自动驱动view改变"><span class="nav-number">5.0.3.</span> <span class="nav-text">model变化自动驱动view改变</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#避免冗余的UI更新"><span class="nav-number">5.0.4.</span> <span class="nav-text">避免冗余的UI更新</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+  
+
+</body>
+</html>
