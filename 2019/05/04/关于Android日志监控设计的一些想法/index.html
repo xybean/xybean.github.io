@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="软件设计," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文是笔者具实践的一些总结，并不会涉及太具体的技术细节，更倾向于为有同样需求的小伙伴提供一个实现上的方向参考。 日志系统的整体架构设计在参考了一些日志系统的设计介绍之后，发现端上的日志系统设计其实大同小异，各个模块的解决方案也都较为成熟，简单总结了一个架构设计如下图：  从左往右看，依次是客户端、服务端、前端的设计图。由于本文只讨论客户端上的日志系统设计，因此服务端与前端的设计只是一笔带过。 端上">
+<meta name="keywords" content="软件设计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于Android日志监控设计的一些想法">
+<meta property="og:url" content="https://xybean.github.io/2019/05/04/关于Android日志监控设计的一些想法/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="本文是笔者具实践的一些总结，并不会涉及太具体的技术细节，更倾向于为有同样需求的小伙伴提供一个实现上的方向参考。 日志系统的整体架构设计在参考了一些日志系统的设计介绍之后，发现端上的日志系统设计其实大同小异，各个模块的解决方案也都较为成熟，简单总结了一个架构设计如下图：  从左往右看，依次是客户端、服务端、前端的设计图。由于本文只讨论客户端上的日志系统设计，因此服务端与前端的设计只是一笔带过。 端上">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcly1g0qjbgrsjij30ui0eeq4i.jpg">
+<meta property="og:updated_time" content="2019-05-04T06:39:15.741Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="关于Android日志监控设计的一些想法">
+<meta name="twitter:description" content="本文是笔者具实践的一些总结，并不会涉及太具体的技术细节，更倾向于为有同样需求的小伙伴提供一个实现上的方向参考。 日志系统的整体架构设计在参考了一些日志系统的设计介绍之后，发现端上的日志系统设计其实大同小异，各个模块的解决方案也都较为成熟，简单总结了一个架构设计如下图：  从左往右看，依次是客户端、服务端、前端的设计图。由于本文只讨论客户端上的日志系统设计，因此服务端与前端的设计只是一笔带过。 端上">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tKfTcly1g0qjbgrsjij30ui0eeq4i.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2019/05/04/关于Android日志监控设计的一些想法/"/>
+
+
+
+
+
+  <title>关于Android日志监控设计的一些想法 | xybean's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2019/05/04/关于Android日志监控设计的一些想法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">关于Android日志监控设计的一些想法</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-04T14:32:41+08:00">
+                2019-05-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><em>本文是笔者具实践的一些总结，并不会涉及太具体的技术细节，更倾向于为有同样需求的小伙伴提供一个实现上的方向参考。</em></p>
+<h3 id="日志系统的整体架构设计"><a href="#日志系统的整体架构设计" class="headerlink" title="日志系统的整体架构设计"></a>日志系统的整体架构设计</h3><p>在参考了一些日志系统的设计介绍之后，发现端上的日志系统设计其实大同小异，各个模块的解决方案也都较为成熟，简单总结了一个架构设计如下图：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1g0qjbgrsjij30ui0eeq4i.jpg" alt="image-20190304100537312"></p>
+<p>从左往右看，依次是客户端、服务端、前端的设计图。由于本文只讨论客户端上的日志系统设计，因此服务端与前端的设计只是一笔带过。</p>
+<p>端上的日志系统看上图大致可以分为三层，下面逐一介绍各层。</p>
+<h5 id="日志采集层"><a href="#日志采集层" class="headerlink" title="日志采集层"></a>日志采集层</h5><p>日志采集层主要的工作是埋点与采集，是日志数据的输入源。这里的主要工作是确定埋点的位置与约定日志的输出格式。涉及到的技术点是一些无埋点的技术，在Android端表现为基于AOP的无埋点。</p>
+<p>具体日志采集的一些思路后文会展开，这里就不再赘述。</p>
+<h5 id="日志存储层"><a href="#日志存储层" class="headerlink" title="日志存储层"></a>日志存储层</h5><p>日志存储层，顾名思义，它的工作就是在日志采集层收集到日志之后，将日志存储到本地。</p>
+<p>移动端与前端不同，前端可能在采集到信息后会实时上报到后端，但由于移动端的流量较前端更为宝贵，且移动端天然拥有更好的存储特性，因此在多数的移动端日志系统实现中，都会有一个日志存储层去完成持久化的工作。</p>
+<p>在实现细节上，这一层主要需要考虑的点包括：</p>
+<ul>
+<li>IO队列管理，需要实现一个IO任务的调度器，来管理日志读写的任务。</li>
+<li>缓存管理器，包括内存缓存与磁盘缓存。内存缓存的作用是控制单次IO的阈值，防止频繁的IO读写。磁盘缓存的作用是制定日志过期的逻辑，防止日志无限制增加，同时在某些设计中可能会有多个种类的日志文件的存在，那么这一层就还需要包括这些日志如何归档管理的逻辑。</li>
+<li>数据加密，有些完善的日志系统会考虑安全性问题，因此会对缓存在本地的数据进行加密处理，服务端需要解密数据才能获取真实信息。</li>
+<li>高性能与日志完整性，这里的解决方案也很成熟，使用<strong>mmap</strong>技术即可，具体可以参考<a href="https://juejin.im/post/5b6d26016fb9a04f86065cdf" target="_blank" rel="noopener">Android 高性能日志写入方案</a></li>
+</ul>
+<p>对于移动端的日志系统来说，这一层的实现往往较为复杂，因为需要考虑各种情况下的稳定性与数据完整性，好在针对这一层的开源项目也较多，建议不要重复造轮子，比较有名的如腾讯开源的xlog。</p>
+<h5 id="日志上报层"><a href="#日志上报层" class="headerlink" title="日志上报层"></a>日志上报层</h5><p>这一层在技术上较为简单，就是一个简单的上传网络请求，如果考虑的复杂一些的话，就要涉及到网络稳定性与网络性能这一块的技术，这里不再赘述。</p>
+<p>不过从业务上考虑，上传主要包括以下几个场景，在实现的时候需要一一兼顾：</p>
+<ul>
+<li>自动上报：在日志大小达到一定程度后主动上报。</li>
+<li>事件触发上报：Crash后自动上报、触发某些自定义的事件后自动上报。</li>
+<li>用户主动上报：用户在出现问题后，由用户行为触发上传器主动上报日志。</li>
+</ul>
+<h3 id="项目需求与现状"><a href="#项目需求与现状" class="headerlink" title="项目需求与现状"></a>项目需求与现状</h3><p>由于笔者前段时间处理了大量的TS（用户反馈）问题，发现在处理这些问题的过程中，百分之八十的时间可能都用在了复现问题之上，而修复bug所花的时间其实并不多。</p>
+<p>换言之，目前处理TS问题的瓶颈在于如何复现客户问题。而复现客户问题，就会需要取得用户操作的上下文，这时候一个有效的日志系统就可能起到最关键的作用。</p>
+<p>不过不幸的是，公司并没有分配任何资源去完成日志系统的任务，因此笔者只能基于目前仅有的资源尽可能完成眼前最迫切的需求，即记录用户操作的上下文，辅助定位各类线上问题。</p>
+<h5 id="目前资源与初步方案"><a href="#目前资源与初步方案" class="headerlink" title="目前资源与初步方案"></a>目前资源与初步方案</h5><p>Android开发一名，Bugly系统一套。</p>
+<p>基于上述资源，似乎没有其他选择了，在短期内想要达到目的，只能基于Bugly去实现一个简单的日志系统。好在Bugly本身功能较为完善，踉踉跄跄地算是涵盖了上面的架构图中的日志存储层、日志上报层以及前后端的日志系统。</p>
+<p>虽然Bugly在每层的实现相较我们最理想的实现仍有差距，但如果将目标定位进一步辅助Bug定位的话，这套方案还是可以完成任务的。</p>
+<h5 id="基本实现思路"><a href="#基本实现思路" class="headerlink" title="基本实现思路"></a>基本实现思路</h5><p>由于Bugly完成了大部分的工作，因此端上剩下的工作就是考虑埋点的问题，同时，也需要自己去补齐Bugly在日志上传上的一些不足（非重点，不赘述）。</p>
+<p>从长远来看，基于Bugly实现的采集系统终将被放弃，因此笔者在具体实现过程中，不能直接使用Bugly的接口，需要抽象出公共接口，其实现内核为Bugly，届时资源补齐之后，可以无缝替换为其他的具体实现。</p>
+<h3 id="讲一讲埋点"><a href="#讲一讲埋点" class="headerlink" title="讲一讲埋点"></a>讲一讲埋点</h3><p>埋点给人的直观感觉是很简单的，似乎只要在合适的位置输出合适的信息即可。诚然如是，但它麻烦的地方也在于此，如何去定义什么叫“合适”，正是埋点的工作重点。接下来会从几个角度去聊一下这个问题：</p>
+<h5 id="埋点的方式"><a href="#埋点的方式" class="headerlink" title="埋点的方式"></a>埋点的方式</h5><ul>
+<li>无埋点技术：这个上文提到过，在Android端主要是通过一些AOP的技术从字节码层面做无埋点的技术实现，如AspectJ框架、AOP处理等等，具体的细节就不展开了。具体的效果就是可以定义一些简单的Hook点，由埋点工具自动帮开发者完成埋点的任务，无需开发者额外写Log输出的代码。多用于业务无关的一些场景，如路由信息采集，网络信息采集等。</li>
+<li>手动埋点：即开发者手写埋点的代码。多用于业务强相关的代码，如业务流程日志输出等。</li>
+</ul>
+<h5 id="埋点的分类"><a href="#埋点的分类" class="headerlink" title="埋点的分类"></a>埋点的分类</h5><p>笔者根据自己的理解将埋点做了简单的分类：</p>
+<ul>
+<li>业务无关的埋点：包括网络信息、路由信息等，这些信息与具体的业务无关，具体该收集哪些信息业界也有较多的讨论，因此通过查阅资料等方式即可确定哪些信息的采集是合适的。</li>
+<li>业务相关的埋点：比如我们经常出问题的预览模块的埋点，可以认为是对预览这个具体业务的埋点。确认业务模块的合适的埋点，需要对业务有一定的熟悉程度。仍然以预览模块为例，预览模块出现问题的时候，经常需要花费一些时间去定位预览问题到底是客户端的问题还是服务端的问题，如果我们对预览流程进行的埋点监控，就可以知道预览是在哪个步骤出的问题，出的是什么问题，而不是仅仅告诉开发者预览故障，进而减少上面提到的不必要的时间开销。</li>
+<li>性能埋点：这个分类与上述两个分类并非正交关系，单独列出来主要是因为这是大家比较关心的一个埋点种类。性能埋点可以基于上文提到的比如网络埋点进一步扩展，在记录网络信息的时候，进一步统计网络请求的时间损耗，就可以得知用户的网络使用体验。同理，基于路由信息扩展可以一定程度反应用户打开页面的时间损耗。除此之外，定时监控用户的内存使用情况也可以反应终端的性能状况。这类埋点基本与业务无关，需要一些经验与资料去确定哪些埋点是最合适的埋点。</li>
+</ul>
+<h5 id="日志格式的约定"><a href="#日志格式的约定" class="headerlink" title="日志格式的约定"></a>日志格式的约定</h5><p>前后端约定统一的数据格式，保证数据格式的可扩展性即可，具体的设计较多的受制于后端的设计，所以这一节就不再赘述了。</p>
+<h5 id="埋点的有效性"><a href="#埋点的有效性" class="headerlink" title="埋点的有效性"></a>埋点的有效性</h5><p>埋点的工作并非在埋点代码写好之后就完成了，这只是一个完善的埋点开始。</p>
+<p>对于针对业务逻辑的埋点来说，其有效性反映在能否帮助我们更好的定位业务逻辑相关的bug，因此就可以以此为标准不断调整埋点的内容与位置，提升其有效性。</p>
+<p>对于非业务埋点来说，则有一些业界统一的评判标准。以网络相关的埋点来说，例如我们的目的是提升用户的建连成功率，则我们的埋点就应该能帮助我们定位到用户连接失败的原因，并且针对性的优化以后，可以通过同样的埋点在数据上直观的反映出优化的效果。</p>
+<p>总而言之，埋点并非一锤子买卖，而是一个循序渐进的优化过程。</p>
+<p>具体的关于网络埋点的细节可以参考 <a href="https://mp.weixin.qq.com/s/AhYiVtEvg3PthThH0N6fPg" target="_blank" rel="noopener">弱网优化在支付宝的深度实践</a>，涉及到的具体技术点可以参考okHttp的<a href="https://square.github.io/okhttp/3.x/okhttp/okhttp3/EventListener.html" target="_blank" rel="noopener">EventListener</a>。</p>
+<h5 id="历史代码对埋点的友好性"><a href="#历史代码对埋点的友好性" class="headerlink" title="历史代码对埋点的友好性"></a>历史代码对埋点的友好性</h5><p>实际埋点实践中发现并不是所有的代码模块都对埋点友好，可能需要对现有代码做一点改造，以便更可观测。以上传文件为例，假设我们的上传步骤分为</p>
+<p>检测待上传文件有效性-&gt;请求后端确认是否可断点续传-&gt;开始上传-&gt;确认结束上传</p>
+<p>这几步，当然实际的情况可能不是如此，不过这不重要。</p>
+<p>现在我们的需求是希望日志系统可见监控整个上传流程，并且在上传出错的时候，能告知我们用户是在哪个步骤出了什么错，并且附带之前上传过程中的网络状况。那我们理想的埋点就是在这几个步骤的节点都手动埋点记录当前上传模块的状态。如果我们一开始的上传模块设计的对埋点不够友好，那问题就可能会出现在这一步，我们可能做不到在每个节点都记录上传模块的状态，因为我们可能并没有预留取得上传状态的口子，甚至我们上传模块本身就没有去记录自己的上传状态。</p>
+<p>举这个例子是为了说明前面的可观测是什么意思，简而言之，可观测在具体实践中，就是希望在设计代码模块的时候，保证模块去记录自己的状态，并且在关键节点都可以预留取得模块状态的口子，给埋点记录保留可能性。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>从整体设计上来说，应该保证日志系统的分层，层与层之间以抽象接口连接。</p>
+<p>从数据采集上来说，应该对数据进行分类，不同的数据类型采用不同的技术去采集，分而治之。</p>
+<p>当然最重要的是，数据采集要从自身业务出发，保证数据可验证，形成不断优化的正循环。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://zhuanlan.zhihu.com/p/23879436" target="_blank" rel="noopener">微信mars 的高性能日志模块 xlog</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/软件设计/" rel="tag"># 软件设计</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/23/DataBinding源码浅析/" rel="next" title="DataBinding源码浅析">
+                <i class="fa fa-chevron-left"></i> DataBinding源码浅析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#日志系统的整体架构设计"><span class="nav-number">1.</span> <span class="nav-text">日志系统的整体架构设计</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#日志采集层"><span class="nav-number">1.0.1.</span> <span class="nav-text">日志采集层</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#日志存储层"><span class="nav-number">1.0.2.</span> <span class="nav-text">日志存储层</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#日志上报层"><span class="nav-number">1.0.3.</span> <span class="nav-text">日志上报层</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#项目需求与现状"><span class="nav-number">2.</span> <span class="nav-text">项目需求与现状</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#目前资源与初步方案"><span class="nav-number">2.0.1.</span> <span class="nav-text">目前资源与初步方案</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#基本实现思路"><span class="nav-number">2.0.2.</span> <span class="nav-text">基本实现思路</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#讲一讲埋点"><span class="nav-number">3.</span> <span class="nav-text">讲一讲埋点</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#埋点的方式"><span class="nav-number">3.0.1.</span> <span class="nav-text">埋点的方式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#埋点的分类"><span class="nav-number">3.0.2.</span> <span class="nav-text">埋点的分类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#日志格式的约定"><span class="nav-number">3.0.3.</span> <span class="nav-text">日志格式的约定</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#埋点的有效性"><span class="nav-number">3.0.4.</span> <span class="nav-text">埋点的有效性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#历史代码对埋点的友好性"><span class="nav-number">3.0.5.</span> <span class="nav-text">历史代码对埋点的友好性</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+  
+
+</body>
+</html>
