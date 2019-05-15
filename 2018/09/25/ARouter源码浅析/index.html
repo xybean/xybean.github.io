@@ -87,12 +87,12 @@
 <meta property="og:site_name" content="xybean&#39;s blog">
 <meta property="og:description" content="这篇文章主要分析ARouter中路由与服务相关的源码（不涉及依赖注入）。 路由框架要解决哪些问题？在开始源码分析之前，先考虑一下这个问题。 在这一节，会抛出几个问题，而下面的源码分析，就会围绕这一节的问题而展开。 1、路由信息如何搜集？ 2、如何完成跳转，如何传参？ 3、跳转过程中需要插入一些公用逻辑怎么办？ 4、跳转过程中出现异常或者跳转失败怎么办？ 框架整体设计在开始具体的代码流程分析之前，可">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwgy1fv71ty2p2qj30ib05qdg0.jpg">
-<meta property="og:updated_time" content="2018-09-25T14:24:40.564Z">
+<meta property="og:image" content="http://ws4.sinaimg.cn/large/006tNbRwgy1fv71ty2p2qj30ib05qdg0.jpg">
+<meta property="og:updated_time" content="2019-05-15T14:53:14.223Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ARouter源码浅析">
 <meta name="twitter:description" content="这篇文章主要分析ARouter中路由与服务相关的源码（不涉及依赖注入）。 路由框架要解决哪些问题？在开始源码分析之前，先考虑一下这个问题。 在这一节，会抛出几个问题，而下面的源码分析，就会围绕这一节的问题而展开。 1、路由信息如何搜集？ 2、如何完成跳转，如何传参？ 3、跳转过程中需要插入一些公用逻辑怎么办？ 4、跳转过程中出现异常或者跳转失败怎么办？ 框架整体设计在开始具体的代码流程分析之前，可">
-<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tNbRwgy1fv71ty2p2qj30ib05qdg0.jpg">
+<meta name="twitter:image" content="http://ws4.sinaimg.cn/large/006tNbRwgy1fv71ty2p2qj30ib05qdg0.jpg">
 
 
 
@@ -352,7 +352,7 @@
 <p>3、跳转过程中需要插入一些公用逻辑怎么办？</p>
 <p>4、跳转过程中出现异常或者跳转失败怎么办？</p>
 <h3 id="框架整体设计"><a href="#框架整体设计" class="headerlink" title="框架整体设计"></a>框架整体设计</h3><p>在开始具体的代码流程分析之前，可以先大致了解下框架的整体设计。简单整理下主要的类与模块，可以得到下面的结构图：</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tNbRwgy1fv71ty2p2qj30ib05qdg0.jpg" alt="image-20180912205308489"></p>
+<p><img src="http://ws4.sinaimg.cn/large/006tNbRwgy1fv71ty2p2qj30ib05qdg0.jpg" alt="image-20180912205308489"></p>
 <p>简单介绍下每个类或模块的大概职责。</p>
 <h5 id="ARouter"><a href="#ARouter" class="headerlink" title="ARouter"></a>ARouter</h5><p>外部调用的最主要功能接口，提供路由跳转的入口。</p>
 <h5 id="IProvider"><a href="#IProvider" class="headerlink" title="IProvider"></a>IProvider</h5><p>服务提供者的抽象。</p>
@@ -516,7 +516,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

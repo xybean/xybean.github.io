@@ -87,19 +87,19 @@
 <meta property="og:site_name" content="xybean&#39;s blog">
 <meta property="og:description" content="基本概念对称加密对称加密指的是在加密和解密过程中都使用同一个秘钥，相对于非对称加密(加解密使用不同的秘钥)，加解密速度更快。 分组加密由于DES等算法的秘钥长度是定长的，并且单次加解密的明文(密文)只能等于秘钥长度，因此会对明文(密文)先做分块处理，然后逐块加解密。具体的分组加密实现中，不一定会对每个组采用相同的秘钥，细节详见后文。 安全原则：混乱与扩散混乱：使得密文与其对应的明文和密钥的关系足够">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fqyj4xcq67j314s0qgaaz.jpg">
+<meta property="og:image" content="http://ws4.sinaimg.cn/large/006tKfTcgy1fqyj4xcq67j314s0qgaaz.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1fqyjqqdetuj313w0mcdi4.jpg">
-<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fqylsncy3uj315s0p8dgp.jpg">
-<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fr0ro3r9phj313o0kc0xn.jpg">
+<meta property="og:image" content="http://ws4.sinaimg.cn/large/006tKfTcgy1fqylsncy3uj315s0p8dgp.jpg">
+<meta property="og:image" content="http://ws4.sinaimg.cn/large/006tKfTcgy1fr0ro3r9phj313o0kc0xn.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1fr35ndfyuaj31bq0k049x.jpg">
-<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fr35nkscemj30m60b0juv.jpg">
+<meta property="og:image" content="http://ws4.sinaimg.cn/large/006tKfTcgy1fr35nkscemj30m60b0juv.jpg">
 <meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1fr35t1hys8j30md0algmz.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1fr35t9y8hzj30io0ejwj0.jpg">
-<meta property="og:updated_time" content="2018-05-07T15:30:39.000Z">
+<meta property="og:updated_time" content="2019-05-15T14:50:20.246Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="DES算法详解">
 <meta name="twitter:description" content="基本概念对称加密对称加密指的是在加密和解密过程中都使用同一个秘钥，相对于非对称加密(加解密使用不同的秘钥)，加解密速度更快。 分组加密由于DES等算法的秘钥长度是定长的，并且单次加解密的明文(密文)只能等于秘钥长度，因此会对明文(密文)先做分块处理，然后逐块加解密。具体的分组加密实现中，不一定会对每个组采用相同的秘钥，细节详见后文。 安全原则：混乱与扩散混乱：使得密文与其对应的明文和密钥的关系足够">
-<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fqyj4xcq67j314s0qgaaz.jpg">
+<meta name="twitter:image" content="http://ws4.sinaimg.cn/large/006tKfTcgy1fqyj4xcq67j314s0qgaaz.jpg">
 
 
 
@@ -361,7 +361,7 @@
 <p><strong>数据加密标准</strong>（英语：Data Encryption Standard，缩写为 DES）是一种对称密钥加密块密码算法，1976年被美国联邦政府的国家标准局确定为联邦资料处理标准（FIPS），随后在国际上广泛流传开来。它基于使用56位密钥的对称算法。<strong>DES现在已经不是一种安全的加密方法</strong>。</p>
 </blockquote>
 <h3 id="整体加解密流程"><a href="#整体加解密流程" class="headerlink" title="整体加解密流程"></a>整体加解密流程</h3><p>下图是一个分组明文加密的整体流程：</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fqyj4xcq67j314s0qgaaz.jpg" alt=""></p>
+<p><img src="http://ws4.sinaimg.cn/large/006tKfTcgy1fqyj4xcq67j314s0qgaaz.jpg" alt=""></p>
 <h5 id="图片注解"><a href="#图片注解" class="headerlink" title="图片注解"></a>图片注解</h5><p>m1m2…m64表示一个分组的明文。</p>
 <p>初始置换指的是对明文根据一定规律做乱序操作，打乱明文序列。</p>
 <p>Round指的是执行一轮Feistel操作。其中的L代表输入的左半边(32字节)，R代表右半边(32字节)，f表示轮函数，K代表子秘钥，该秘钥由加密密钥生成。</p>
@@ -395,7 +395,7 @@
 f(R, k) =PS(E(R)\oplus k)</script><ul>
 <li>f函数的主要过程包括，通过E盒扩展将32位的右半部分R扩展为48位，然后与28位的子密钥取异或，再使用S盒替代将48位的异或结果再缩减到32位，最终根据P盒进行置换运算。具体过程如下图</li>
 </ul>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fqylsncy3uj315s0p8dgp.jpg" alt=""></p>
+<p><img src="http://ws4.sinaimg.cn/large/006tKfTcgy1fqylsncy3uj315s0p8dgp.jpg" alt=""></p>
 <ul>
 <li>1代表E盒扩展：将输入的32位比特数据扩展为48位</li>
 <li>2代表S盒替换：将输入的48位比特数据压缩为32位</li>
@@ -408,7 +408,7 @@ f(R, k) =PS(E(R)\oplus k)</script><ul>
 <li><p>在该模式下，将明文分组加密后的结果直接保存为密文分组。当最后一个明文的分组的内容小于分组的长度时，需要用指定的数据进行填充。</p>
 </li>
 <li><p>加密过程：</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fr0ro3r9phj313o0kc0xn.jpg" alt=""></p>
+<p><img src="http://ws4.sinaimg.cn/large/006tKfTcgy1fr0ro3r9phj313o0kc0xn.jpg" alt=""></p>
 </li>
 <li><p>缺点：如果攻击者拦截到了密文通信过程，则可以通过交换密文的顺序来改变原本要传达的意思。比如原来的明文可能是A Attack B,如果这三个关键元素刚好是在不同分组中被独立加密的，则可以通过改变密文顺序将明文改为B Attack A。关键的问题在于明文与密文存在唯一的映射关系，与明文在文本中所处的位置无关。</p>
 </li>
@@ -429,7 +429,7 @@ f(R, k) =PS(E(R)\oplus k)</script><ul>
 </li>
 </ul>
 <h5 id="CFB模式"><a href="#CFB模式" class="headerlink" title="CFB模式"></a>CFB模式</h5><p>相比于CBC模式，它的明文分组不需要经过加密算法加密，因此也就不需要使用padding。具体过程如下：</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fr35nkscemj30m60b0juv.jpg" alt="image-20180507223256845"></p>
+<p><img src="http://ws4.sinaimg.cn/large/006tKfTcgy1fr35nkscemj30m60b0juv.jpg" alt="image-20180507223256845"></p>
 <h5 id="OFB模式"><a href="#OFB模式" class="headerlink" title="OFB模式"></a>OFB模式</h5><p>类似于CFB模式，明文都不通过加密算法加密，但是区别是CFB的密文会通过加密算法加密，而CFB则是将IV加密后的结果反复加密得到中间产物，再与明文异或，具体过程如下：</p>
 <p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1fr35t1hys8j30md0algmz.jpg" alt="image-20180507223911361"></p>
 <p>通过对比CBC与OFB还可以发现，有一个最大的不同，即OFB密钥流的产生与密文分组的生成无关，因此可以提前生成各个密钥，然后对明文进行加密。而CBC由于中间密钥的生成依赖于上一个密文分组，因此不能做到提前生成密钥。</p>
@@ -570,7 +570,7 @@ f(R, k) =PS(E(R)\oplus k)</script><ul>
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

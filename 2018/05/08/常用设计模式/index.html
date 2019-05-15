@@ -90,14 +90,14 @@
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1fqo0wnrmc6j30ay07i0sl.jpg">
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1fqo2n45frnj30cc07rq2t.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1fr45v8gbvnj30is06x3yr.jpg">
-<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fqrhd8thtkj30dl064q2s.jpg">
+<meta property="og:image" content="http://ws4.sinaimg.cn/large/006tKfTcgy1fqrhd8thtkj30dl064q2s.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1fqribqogipj30gz0anjrc.jpg">
-<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fr31mcnbymj309m091dfo.jpg">
+<meta property="og:image" content="http://ws4.sinaimg.cn/large/006tKfTcgy1fr31mcnbymj309m091dfo.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1fr31ud7gtij30c407amx1.jpg">
-<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fr32eznnsmj30dl07i3yc.jpg">
+<meta property="og:image" content="http://ws4.sinaimg.cn/large/006tKfTcgy1fr32eznnsmj30dl07i3yc.jpg">
 <meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1fr32wfnxe6j30bd06v0tc.jpg">
 <meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1fr32wr5dbtj30b409vt92.jpg">
-<meta property="og:updated_time" content="2018-07-08T08:53:13.741Z">
+<meta property="og:updated_time" content="2019-05-15T14:48:50.274Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="常用设计模式">
 <meta name="twitter:description" content="OOP基本设计原则 单一职责原则（Single Responsibility Principle(SRP)），尽量保持类的功能单一。  里氏替换原则(Liskov Substitution Principle)  里氏替换原则通俗的来讲就是：子类可以扩展父类的功能，但不能改变父类原有的功能。它包含以下4层含义：  子类可以实现父类的抽象方法，但不能覆盖父类的非抽象方法。 子类中可以增加自己特有的方">
@@ -418,21 +418,21 @@
 <h3 id="迭代器模式"><a href="#迭代器模式" class="headerlink" title="迭代器模式"></a>迭代器模式</h3><p>提供一种方法顺序访问一个集合对象中的各个元素，而又不暴露其内部结构。典型实现如JDK中的迭代器。</p>
 <h3 id="组合模式"><a href="#组合模式" class="headerlink" title="组合模式"></a>组合模式</h3><p>组合模式将对象组合成树形结构用以表现“整体/部分”层次结构。对象A和对象组B（包含一组A），均实现同一个接口，这样对于客户端来说，无需去差分A与B。</p>
 <h3 id="状态模式"><a href="#状态模式" class="headerlink" title="状态模式"></a>状态模式</h3><p>当一个类(Context)需要根据自身状态对同一个调用做不同响应的时候，可以考虑使用状态模式。状态模式将改变状态的操作封装到具体的状态类中，而Context类只负责提供外层调用接口和自身状态信息的维护。</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fqrhd8thtkj30dl064q2s.jpg" alt=""></p>
+<p><img src="http://ws4.sinaimg.cn/large/006tKfTcgy1fqrhd8thtkj30dl064q2s.jpg" alt=""></p>
 <h3 id="代理模式"><a href="#代理模式" class="headerlink" title="代理模式"></a>代理模式</h3><p>1、通常意义上的代理，转发实际服务的请求与结果，做一些数据上的转换，作为服务器与客户端通信的媒介。</p>
 <p>2、虚拟代理，除去转发功能，也可以承担一部分服务器的功能。比如代理去请求服务器数据，但是服务器运算时间很久，此时代理会先给客户端返回一个默认的数据(行使一部分服务端的功能)，等服务端数据到达后再转发。</p>
 <p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1fqribqogipj30gz0anjrc.jpg" alt=""></p>
 <h3 id="反模式"><a href="#反模式" class="headerlink" title="反模式"></a>反模式</h3><p><a href="http://www.infoq.com/cn/antipatterns" target="_blank" rel="noopener">每个程序员要注意的 9 种反模式</a></p>
 <h3 id="桥接模式"><a href="#桥接模式" class="headerlink" title="桥接模式"></a>桥接模式</h3><p>如果一个类有两个可扩展的维度，则将这两个维度抽象出来，并在抽象层定义他们之间的关系，这样使得这两个维度都易于扩展都变得易于扩展。</p>
 <p>有这样一个需求，Interface有两个抽象方法A、B（对应于上述的两个可变化的维度），要求它的具体实现中，方法A、B各自可能相同也可能不同，普通的实现如下：</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fr31mcnbymj309m091dfo.jpg" alt=""></p>
+<p><img src="http://ws4.sinaimg.cn/large/006tKfTcgy1fr31mcnbymj309m091dfo.jpg" alt=""></p>
 <p>可以发现如果出现B相同A不同或者A、B都不相同的情况，会导致类继承结构非常复杂。此时就可以使用桥接模式，将A、B单独抽象为一个独立的抽象类、接口，使他们通过组合联系起来。实现如下：</p>
 <p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1fr31ud7gtij30c407amx1.jpg" alt=""></p>
 <h3 id="生成器模式"><a href="#生成器模式" class="headerlink" title="生成器模式"></a>生成器模式</h3><p>将某个类的构造赋值过程封装在一个特定的Builder类中。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> RxImagePreview preview;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Builder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        preview = <span class="keyword">new</span> RxImagePreview();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Builder <span class="title">item</span><span class="params">(FileItem item)</span> </span>&#123;</span><br><span class="line">        preview.fileItem = item;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Builder <span class="title">reviewId</span><span class="params">(<span class="keyword">long</span> id)</span> </span>&#123;</span><br><span class="line">        preview.reviewId = id;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RxImagePreview <span class="title">build</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 这里可以添加一些参数校验或者默认值赋予的逻辑</span></span><br><span class="line">        <span class="keyword">return</span> preview;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="责任链模式"><a href="#责任链模式" class="headerlink" title="责任链模式"></a>责任链模式</h3><p>当你想要一个以上的对象有机会处理某个请求的时候，就可以考虑使用责任链模式。</p>
 <p>从下图的具体实现中可以看出，所有的Handler形成了一个链表，事件由此逐步传递处理。</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fr32eznnsmj30dl07i3yc.jpg" alt=""></p>
+<p><img src="http://ws4.sinaimg.cn/large/006tKfTcgy1fr32eznnsmj30dl07i3yc.jpg" alt=""></p>
 <h3 id="蝇量模式"><a href="#蝇量模式" class="headerlink" title="蝇量模式"></a>蝇量模式</h3><p>如果想要让某一个类的实例能提供许多的“虚拟实例”，就可以考虑使用蝇量模式。使用该模式可以减少运行时的对象个数，减少内存，同时也可以集中式的管理“虚拟对象”的状态。</p>
 <p>比如我们需要绘制很多棵树，每棵树唯一的不同点在于坐标不同，那么就可以只实例化一个树对象，然后用集合保存每棵树的坐标值，每次渲染的时候就给树对象赋值然后绘制。</p>
 <h3 id="中介者模式"><a href="#中介者模式" class="headerlink" title="中介者模式"></a>中介者模式</h3><p>可以用来集中相关对象之间复杂的沟通和控制方式。</p>
@@ -577,7 +577,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

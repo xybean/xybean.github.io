@@ -87,16 +87,16 @@
 <meta property="og:site_name" content="xybean&#39;s blog">
 <meta property="og:description" content="本文假设读者对MVVM模式以及DataBinding的使用有基本的了解，在此基础上再深入讨论DataBinding在MVVM模式中承担的功能，以及其实现的原理。 DataBinding与MVVM这一节主要讨论DataBinding在MVVM中起到的作用，先来看下MVVM模式的基本结构图：  注意到View与ViewModel有一个Binding的关系。Binding的这一层关系使得我们的View">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fyb6xqrj9hj30zs0l242l.jpg">
-<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcly1g0g6gepekgj315y0jwach.jpg">
-<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fylkg0dwb5j30hx0fk791.jpg">
-<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fylkhcfon9j30fj09yado.jpg">
-<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fyllvkh6bgj30ss0mggt2.jpg">
-<meta property="og:updated_time" content="2019-02-23T03:42:18.388Z">
+<meta property="og:image" content="http://ws4.sinaimg.cn/large/006tNbRwly1fyb6xqrj9hj30zs0l242l.jpg">
+<meta property="og:image" content="http://ws3.sinaimg.cn/large/006tKfTcly1g0g6gepekgj315y0jwach.jpg">
+<meta property="og:image" content="http://ws3.sinaimg.cn/large/006tNbRwly1fylkg0dwb5j30hx0fk791.jpg">
+<meta property="og:image" content="http://ws2.sinaimg.cn/large/006tNbRwly1fylkhcfon9j30fj09yado.jpg">
+<meta property="og:image" content="http://ws2.sinaimg.cn/large/006tNbRwly1fyllvkh6bgj30ss0mggt2.jpg">
+<meta property="og:updated_time" content="2019-05-15T14:54:11.264Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="DataBinding源码浅析">
 <meta name="twitter:description" content="本文假设读者对MVVM模式以及DataBinding的使用有基本的了解，在此基础上再深入讨论DataBinding在MVVM模式中承担的功能，以及其实现的原理。 DataBinding与MVVM这一节主要讨论DataBinding在MVVM中起到的作用，先来看下MVVM模式的基本结构图：  注意到View与ViewModel有一个Binding的关系。Binding的这一层关系使得我们的View">
-<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fyb6xqrj9hj30zs0l242l.jpg">
+<meta name="twitter:image" content="http://ws4.sinaimg.cn/large/006tNbRwly1fyb6xqrj9hj30zs0l242l.jpg">
 
 
 
@@ -350,7 +350,7 @@
       
         <p> <em>本文假设读者对MVVM模式以及DataBinding的使用有基本的了解，在此基础上再深入讨论DataBinding在MVVM模式中承担的功能，以及其实现的原理。</em></p>
 <h3 id="DataBinding与MVVM"><a href="#DataBinding与MVVM" class="headerlink" title="DataBinding与MVVM"></a>DataBinding与MVVM</h3><p>这一节主要讨论DataBinding在MVVM中起到的作用，先来看下MVVM模式的基本结构图：</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fyb6xqrj9hj30zs0l242l.jpg" alt="image-20181112221854298"></p>
+<p><img src="http://ws4.sinaimg.cn/large/006tNbRwly1fyb6xqrj9hj30zs0l242l.jpg" alt="image-20181112221854298"></p>
 <p>注意到View与ViewModel有一个Binding的关系。Binding的这一层关系使得我们的ViewModel与View可以实现双向通信。如果不借助DataBinding框架，我们自己用framework原生的能力的话，容易想到的办法就是在ViewModel中将View与ViewModel绑定，毕竟View主要是由xml来实现的，能力有限。</p>
 <p>而DataBinding框架就是用来解决这一问题的，它可以将绑定的这部分代码从ViewModel中剥离出来，迁移到xml文件中，使ViewModel可以专注于业务逻辑。</p>
 <p>除此之外，如果你实现过不基于Databinding的MVVM，那可能会遇到过这样的问题，对于数据分解映射多个View（即一个对象的多个属性分别独立对应多个View）的情况难以处理，而Databinding则可以优雅的解决这一问题。</p>
@@ -360,16 +360,16 @@
 <li>library：提供可被观察的model</li>
 <li>adapters：封装view的属性改变方法，隔离VM与实际的View</li>
 </ul>
-<h5 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h5><p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1g0g6gepekgj315y0jwach.jpg" alt="image-20190223110527681"></p>
+<h5 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h5><p><img src="http://ws3.sinaimg.cn/large/006tKfTcly1g0g6gepekgj315y0jwach.jpg" alt="image-20190223110527681"></p>
 <h3 id="XML解析与APT"><a href="#XML解析与APT" class="headerlink" title="XML解析与APT"></a>XML解析与APT</h3><p>这一节主要介绍Databinding通过xml解析与APT的技术提取了哪些信息，并用这些信息生成了哪些文件，以及这些生成文件各自的作用。(*表示通配符)</p>
 <h5 id="layout-xml"><a href="#layout-xml" class="headerlink" title="*-layout.xml"></a>*-layout.xml</h5><p>文件地址：app/build/intermediates/data-binding/debug/layout-info/activity_data_binding-layout.xml</p>
 <p>在看这个文件的内容之前，先看看我们编写的activity_data_binding.xml在编译前后的有什么不一样。</p>
 <p>编译前：</p>
-<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fylkg0dwb5j30hx0fk791.jpg" alt="image-20181227201603191"></p>
+<p><img src="http://ws3.sinaimg.cn/large/006tNbRwly1fylkg0dwb5j30hx0fk791.jpg" alt="image-20181227201603191"></p>
 <p>编译后（反编译apk得到）：</p>
-<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fylkhcfon9j30fj09yado.jpg" alt="image-20181227201724640"></p>
+<p><img src="http://ws2.sinaimg.cn/large/006tNbRwly1fylkhcfon9j30fj09yado.jpg" alt="image-20181227201724640"></p>
 <p>可以发现编译后的xml为原始xml的第二部分，需要注意的是这里所有的View都添加了属性<code>android:tag</code>。那第一部分的信息哪里去了呢？很自然的，可以知道，这部分信息被解析出来后存储到了最前面提到的*-layout.xml中，主要内容如下</p>
-<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fyllvkh6bgj30ss0mggt2.jpg" alt="image-20181227210523668">这里的部分1与上图的1是一一对应的，除此之外，部分2也记录了View的tag信息，也就是说，我们声明的数据与View的绑定关系在这个生成文件中依然保存着。</p>
+<p><img src="http://ws2.sinaimg.cn/large/006tNbRwly1fyllvkh6bgj30ss0mggt2.jpg" alt="image-20181227210523668">这里的部分1与上图的1是一一对应的，除此之外，部分2也记录了View的tag信息，也就是说，我们声明的数据与View的绑定关系在这个生成文件中依然保存着。</p>
 <p>接着看这几个标签，Variables与Imports和布局文件中的variable与import标签对应，Targets标签则告诉VM变化时对应的V（通过tag信息）、绑定关系是单向还是双向的以及DataBinding的表达式Expressions。</p>
 <p>至于这个生成文件的具体解析生成过程可以参考compiler模块的这几个类 <a href="https://android.googlesource.com/platform/frameworks/data-binding/+/c1560e6/compilerCommon/src/main/java/android/databinding/tool/store/LayoutFileParser.java" target="_blank" rel="noopener">LayoutFileParser.java</a>、<a href="https://android.googlesource.com/platform/frameworks/base/+/c8f786b1ed5d3d4a4447289c4505ea7842809f42/tools/data-binding/compiler/src/main/java/android/databinding/tool/LayoutXmlProcessor.java" target="_blank" rel="noopener">LayoutXmlProcessor.java</a>、<a href="https://android.googlesource.com/platform/frameworks/base/+/c8f786b1ed5d3d4a4447289c4505ea7842809f42/tools/data-binding/compiler/src/main/java/android/databinding/tool/store/ResourceBundle.java" target="_blank" rel="noopener">ResourceBundle.java</a></p>
 <p>在完成这个xml的生成之后，之后会利用APT根据*-layout.xml中保存的映射信息进一步生成下面要介绍的几个类，具体的实现过程参考源码<a href="https://android.googlesource.com/platform/frameworks/data-binding/+/master/compiler/src/main/java/android/databinding" target="_blank" rel="noopener">compiler</a>包中的代码。</p>
@@ -552,7 +552,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

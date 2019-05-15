@@ -87,12 +87,12 @@
 <meta property="og:site_name" content="xybean&#39;s blog">
 <meta property="og:description" content="本文主要从源码角度介绍架构组件ViewModel的实现原理，默认读者已经熟悉MVVM设计模式。 功能与使用场景在分析原理之前，简单的过一遍功能以及结合具体场景介绍实现原理会更容易理解。 主要功能在MVVM的模式中，ViewModel的作用在于维护数据与发送消息。但是当前要讨论的架构组件ViewModel并没有提供这两个功能的支持，需要我们自己去继承然后实现这些功能。 架构组件ViewModel实际">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fw6sc8592fj31ac0sc41i.jpg">
-<meta property="og:updated_time" content="2018-10-13T10:47:16.676Z">
+<meta property="og:image" content="http://ws1.sinaimg.cn/large/006tNbRwly1fw6sc8592fj31ac0sc41i.jpg">
+<meta property="og:updated_time" content="2019-05-15T14:53:41.915Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android架构组件ViewModel源码分析">
 <meta name="twitter:description" content="本文主要从源码角度介绍架构组件ViewModel的实现原理，默认读者已经熟悉MVVM设计模式。 功能与使用场景在分析原理之前，简单的过一遍功能以及结合具体场景介绍实现原理会更容易理解。 主要功能在MVVM的模式中，ViewModel的作用在于维护数据与发送消息。但是当前要讨论的架构组件ViewModel并没有提供这两个功能的支持，需要我们自己去继承然后实现这些功能。 架构组件ViewModel实际">
-<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fw6sc8592fj31ac0sc41i.jpg">
+<meta name="twitter:image" content="http://ws1.sinaimg.cn/large/006tNbRwly1fw6sc8592fj31ac0sc41i.jpg">
 
 
 
@@ -355,7 +355,7 @@
 </ul>
 <h5 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h5><p>一个Activity中有两个View，这两个View需要共享同一个ViewModel，此时 用这个架构组件来实现MVVM中的ViewModel就会比较容易完成模型共享的需求。</p>
 <h3 id="整体结构图"><a href="#整体结构图" class="headerlink" title="整体结构图"></a>整体结构图</h3><p>相关的类不多，类结构图如下：</p>
-<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fw6sc8592fj31ac0sc41i.jpg" alt="image-20181013184503462"></p>
+<p><img src="http://ws1.sinaimg.cn/large/006tNbRwly1fw6sc8592fj31ac0sc41i.jpg" alt="image-20181013184503462"></p>
 <p>简单介绍一下关键类的作用，ViewModelStore用于存取储ViewModel，ViewModelProvider则负责ViewModel的实例化。ViewModelProviders与ViewModelStores则是获取ViewModelProvider与ViewModelStore的便利类。</p>
 <h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><p>源码分析会主要围绕几个问题展开，具体如下：</p>
 <h5 id="ViewModel如何实例化？"><a href="#ViewModel如何实例化？" class="headerlink" title="ViewModel如何实例化？"></a>ViewModel如何实例化？</h5><p>ViewModel实例化的入口在ViewModelProvider的get()方法中，裁剪后的代码如下</p>
@@ -510,7 +510,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

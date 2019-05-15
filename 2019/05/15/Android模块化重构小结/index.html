@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="软件设计," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文主要是对之前做的项目模块化重构过程的一个阶段性总结，内容包括实践过程中的技术选型和问题解决方案。 写在前面项目背景1、业务侧预计未来会有单独的业务模块打包给第三方作为sdk接入，需要模块化提供技术支撑 2、目前项目结构混乱，层级不清晰，不利于维护 3、主工程代码较多，有30多万行（纯Java代码），每次全量build耗时太久 名词约定组件化模块化，看了很多文章，傻傻分不清，因此这里对这两个名词">
+<meta name="keywords" content="软件设计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android模块化重构小结">
+<meta property="og:url" content="https://xybean.github.io/2019/05/15/Android模块化重构小结/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="本文主要是对之前做的项目模块化重构过程的一个阶段性总结，内容包括实践过程中的技术选型和问题解决方案。 写在前面项目背景1、业务侧预计未来会有单独的业务模块打包给第三方作为sdk接入，需要模块化提供技术支撑 2、目前项目结构混乱，层级不清晰，不利于维护 3、主工程代码较多，有30多万行（纯Java代码），每次全量build耗时太久 名词约定组件化模块化，看了很多文章，傻傻分不清，因此这里对这两个名词">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ws2.sinaimg.cn/large/006tNc79ly1g301ck7x19j31ae0mq0vl.jpg">
+<meta property="og:image" content="http://ws3.sinaimg.cn/large/006tNc79ly1g316avzwzaj316q0eawg9.jpg">
+<meta property="og:image" content="http://ws3.sinaimg.cn/large/006tNc79ly1g317330kfyj30bg07eaa9.jpg">
+<meta property="og:image" content="http://ws2.sinaimg.cn/large/006tNc79ly1g32b8ozg04j30ni0jeta0.jpg">
+<meta property="og:image" content="http://ws1.sinaimg.cn/large/006tNc79ly1g32d09yaadj30vc0jijtl.jpg">
+<meta property="og:updated_time" content="2019-05-15T14:46:38.834Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android模块化重构小结">
+<meta name="twitter:description" content="本文主要是对之前做的项目模块化重构过程的一个阶段性总结，内容包括实践过程中的技术选型和问题解决方案。 写在前面项目背景1、业务侧预计未来会有单独的业务模块打包给第三方作为sdk接入，需要模块化提供技术支撑 2、目前项目结构混乱，层级不清晰，不利于维护 3、主工程代码较多，有30多万行（纯Java代码），每次全量build耗时太久 名词约定组件化模块化，看了很多文章，傻傻分不清，因此这里对这两个名词">
+<meta name="twitter:image" content="http://ws2.sinaimg.cn/large/006tNc79ly1g301ck7x19j31ae0mq0vl.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2019/05/15/Android模块化重构小结/"/>
+
+
+
+
+
+  <title>Android模块化重构小结 | xybean's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2019/05/15/Android模块化重构小结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android模块化重构小结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-15T22:44:56+08:00">
+                2019-05-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><em>本文主要是对之前做的项目模块化重构过程的一个阶段性总结，内容包括实践过程中的技术选型和问题解决方案。</em></p>
+<h3 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h3><h5 id="项目背景"><a href="#项目背景" class="headerlink" title="项目背景"></a>项目背景</h5><p>1、业务侧预计未来会有单独的业务模块打包给第三方作为sdk接入，需要模块化提供技术支撑</p>
+<p>2、目前项目结构混乱，层级不清晰，不利于维护</p>
+<p>3、主工程代码较多，有30多万行（纯Java代码），每次全量build耗时太久</p>
+<h5 id="名词约定"><a href="#名词约定" class="headerlink" title="名词约定"></a>名词约定</h5><p>组件化模块化，看了很多文章，傻傻分不清，因此这里对这两个名词做一个约定</p>
+<ul>
+<li>组件：功能范围较模块小，专注于实现某一功能的代码库，如实现地图功能的为地图组件。</li>
+<li>模块：实现公司上层业务模块功能的代码库，一般包括一组业务强相关的功能，如网盘应用中的文件模块，会包括文件的增删改查，以及文件的其他衍生功能。</li>
+</ul>
+<h5 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h5><p>由于公司业务调整，模块化并未完全完成，因此本文中有些内容并未经过充分实践，如果对笔者的方案有异议，欢迎交流。</p>
+<h3 id="整体架构设计"><a href="#整体架构设计" class="headerlink" title="整体架构设计"></a>整体架构设计</h3><p>简单的整体架构设计采用典型的分层设计（省去了一些细节），如下图：</p>
+<p><img src="http://ws2.sinaimg.cn/large/006tNc79ly1g301ck7x19j31ae0mq0vl.jpg" alt="image-20190513220014374"></p>
+<p>各个部分简单说明如下</p>
+<h5 id="Application"><a href="#Application" class="headerlink" title="Application"></a>Application</h5><p>对应项目中的app主模块，负责组织其他子模块。</p>
+<h5 id="业务模块"><a href="#业务模块" class="headerlink" title="业务模块"></a>业务模块</h5><p>负责单一业务的实现，对开放调用接口。</p>
+<h5 id="业务组件与非业务组件"><a href="#业务组件与非业务组件" class="headerlink" title="业务组件与非业务组件"></a>业务组件与非业务组件</h5><p>业务组件指的是与公司业务相关的功能组件，相比业务模块来说，关注点更小。相比于非业务组件而言，它无法脱离公司的业务场景而存在。</p>
+<h5 id="基础服务组件"><a href="#基础服务组件" class="headerlink" title="基础服务组件"></a>基础服务组件</h5><p>封装了一些第三方库，使上层业务对这些第三方库是无感知的，方便随时替换底层实现。</p>
+<h3 id="基础组件"><a href="#基础组件" class="headerlink" title="基础组件"></a>基础组件</h3><h5 id="业务组件与非业务组件-1"><a href="#业务组件与非业务组件-1" class="headerlink" title="业务组件与非业务组件"></a>业务组件与非业务组件</h5><ul>
+<li>在开始重构之前，项目已经有几个非业务组件是以单独的module存在的，但是这还不够彻底，应该将其单独新建一个项目，发布到公司私有的maven上，最终以依赖的形式引入，以便提升编译速度。</li>
+<li>重构之前是没有特别清晰的业务组件界限的，很多都是以文件夹的形式隔离的。在梳理代码过程中可以明显感觉到以文件夹的形式隔离是远远不够的，这会导致两个问题，一个是该业务组件被其他业务组件耦合，另一个是业务组件的功能在不同的地方被重复实现。</li>
+</ul>
+<p>因此，建议将非业务组件独立出单独项目维护，将业务组件独立为单个module维护，甚至如果这个业务组件足够成熟独立，也可以独立为一个项目单独维护。</p>
+<p>这里在提一下，怎么样的组件叫足够成熟独立，一是需要这个组件与其他组件无耦合，除此之外，还需要这个组件足够稳定，例如我们可能已经有小半年没动过这里的代码了，bug少，经过线上检验质量有保障。</p>
+<p>并不建议着急将一个业务独立，但是锤炼不够的组件着急提取出来，这样会给后续的维护和联调带来很多麻烦。</p>
+<h5 id="如何剥离"><a href="#如何剥离" class="headerlink" title="如何剥离"></a>如何剥离</h5><p>在实际独立业务组件的时候，发现业务组件虽然与一些业务代码有重耦合，但实际上这些耦合都是非常集中的，也就是说造成耦合的地方往往只有那么几个，因此解决起来也并没那么复杂。</p>
+<p>而快速定位这些耦合点的方法也很简单，可以先将代码独立出来，然后一股脑添加它所需的所有其他module的依赖，再一个一个去掉，这样就可以梳理出一个依赖图，以及各个依赖的关键节点代码，最后针对这些关键节点代码做解耦优化即可。</p>
+<p>耦合的情况大致有那么几种：</p>
+<ul>
+<li>方法参数耦合：组件的方法方法名耦合了不属于他的类，这种情况一般是因为开发者为了图省事，本来只需要用户名就够了的方法，参数设计成了整个用户对象。改造起来也比较简单，批量重构即可。</li>
+<li>工具类滥用：整个app有多个职责不清晰的工具类，被不同的组件使用。可以为组件单独抽取一个最小粒度的工具类，仅组件本身可用，去除与主项目代码的耦合。</li>
+<li>组件对外接口不统一：外部想要使用组件的功能A，能找到两个以上不同的方式实现，并且有的实现方式是通过访问一些本不应该被外界访问的类做到的。这样的耦合会导致后续的迭代中难以改动组件功能，牵一发而动全身。解决这个问题需要梳理组件的功能，对组件做一定重构，做到对外接口统一，尽量少暴露外界用不到的类。这里推荐一下Kotlin的internal关键字，它可以更有效的控制访问权限。除此之外，在组件本身的目录结构设计上，应该尽量只把对外开放的类放在根目录，并且对外开放的类应该尽量少。</li>
+<li>组件耦合第三方库：某种意义上讲，这样的耦合也不是完全不可以接受。如果觉得有必要剥离这个耦合，可以专门设计接口，抽象出第三方库的功能，然后让外部注入第三方库的封装实现。</li>
+</ul>
+<h5 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h5><p>将组件单独作为一个项目维护后，会遇到一个问题，组件与主项目联调变得麻烦，总不能每次更新代码都向发布一次新代码吧。</p>
+<p>为了解决这个问题，我对主项目的settings.gradle文件做了一些改造，大致如下：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">include <span class="string">':app'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// preview代表预览组件</span></span><br><span class="line"><span class="keyword">if</span> (!gradle.hasProperty(<span class="string">'preview'</span>)) &#123;</span><br><span class="line">    gradle.ext.preview = [:]</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">new</span> File(<span class="string">'component.gradle'</span>).exists()) &#123;</span><br><span class="line">  <span class="keyword">if</span> (gradle.ext.preview.isDebug) &#123;</span><br><span class="line">    <span class="comment">// preview组件的代码通过git clone到componentPath</span></span><br><span class="line">    <span class="keyword">def</span> componentPath = <span class="keyword">new</span> File(gradle.ext.preview.path)</span><br><span class="line">    include <span class="string">':preview'</span></span><br><span class="line">    <span class="comment">// 该方案的核心在于合一通过projectDir指定module的目录</span></span><br><span class="line">    project(<span class="string">':preview'</span>).projectDir = componentPath</span><br><span class="line">  &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  gradle.ext.preview = [:]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>component.gradle的代码大致如下：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// preview组件</span></span><br><span class="line">gradle.ext.preview = [:]</span><br><span class="line">gradle.ext.preview.isDebug = <span class="literal">false</span></span><br><span class="line">gradle.ext.preview.path = <span class="string">"your project dir"</span></span><br></pre></td></tr></table></figure>
+<p>component.gradle文件添加到gitignore中，这样每个项目组成员只需要在其中填入自己的项目绝对地址即可。</p>
+<p>通过这种方式，甚至可以直接在主项目中改动组件的代码，而不用两个工程不断切换调试。</p>
+<h5 id="版本管理"><a href="#版本管理" class="headerlink" title="版本管理"></a>版本管理</h5><p>组件单独发布以后，就会有组件版本控制的需求。由于目前我司还没真正落地模块化，因此即使拆解了不同的组件，实际上还是由同一个团队维护的。因此我们的方案是：</p>
+<p>如果组件有代码更新，则将更新代码发布为snapshot版本，直到主项目发布前，再将这个时间点之前所有的组件代码修改发布为一个release版本，然后主项目再依赖这个release版本。</p>
+<p>主项目开发期间，如果组件代码也在同步更新，那么主项目都是依赖的组件snapshot版本。为了防止忘记发布与依赖release版本组件，可以再gradle插件中添加检查逻辑，打包release版本主项目的时候，如果有snapshot版本的组件依赖，则抛错。</p>
+<h5 id="依赖管理"><a href="#依赖管理" class="headerlink" title="依赖管理"></a>依赖管理</h5><p>组件的原则是尽量少的依赖，并且决不能依赖其他业务组件。</p>
+<p>为了加快编译速度，可以考虑尽量使用implementation去依赖，具体可以参考 <a href="https://docs.gradle.org/current/userguide/java_library_plugin.html#sec:java_library_configurations_graph" target="_blank" rel="noopener">The Java Library plugin configurations</a>。</p>
+<p>顺便提一下，项目中肯定会有多个模块引用同一个组件，为了保证被引用组件的版本统一，建议将所有的版本号放在主项目的配置文件中做统一管理。</p>
+<h3 id="业务模块-1"><a href="#业务模块-1" class="headerlink" title="业务模块"></a>业务模块</h3><h5 id="如何确定需要剥离的模块"><a href="#如何确定需要剥离的模块" class="headerlink" title="如何确定需要剥离的模块"></a>如何确定需要剥离的模块</h5><p>业务模块相比组件来说关注点更分散一些，边界也没组件那么清晰，因此耦合也更重。</p>
+<p>确定剥离的模块需要开发者对自身的业务较为熟悉，甚至需要了解各个业务在多次迭代中的发展。</p>
+<p>满足以上条件后，可以通过分析实体类之间的关系来辅助确定需要剥离的模块，下面展开解释一下这句话的意思：</p>
+<ul>
+<li>实体类一般是作为接收网络数据与渲染UI使用。</li>
+<li>接收网络数据的某些实体类，其实是与后端的模型设计是有映射关系的，而后端的模型设计，某种程度上讲就代表了产品逻辑本身的抽象，因此如果两个实体类如果没有依赖关系，那么它们很有可能是属于两个模块的。</li>
+<li>渲染UI用的实体类也是同理，只不过它们代表的是App端的产品抽象逻辑。</li>
+<li>因此可以通过实体类间的依赖关系去分析模块间的关系。</li>
+</ul>
+<p>举一个具体的例子来说，假设我们现在想拆出三个模块，文件模块、评论模块、组织架构模块，以实体类出发分析他们的依赖关系可能如图：</p>
+<p><img src="http://ws3.sinaimg.cn/large/006tNc79ly1g316avzwzaj316q0eawg9.jpg" alt="image-20190514213708877"></p>
+<p>可以发现组织架构和文件是完全独立的两个模块，从实体类关系上就可直观的反映出来，当然这个方法只是笔者在自己的项目实践中总结出来的，并不一定适用于所有情况，仅供参考。</p>
+<p>从图上还可以发现另一个问题，文件模块和文件评论要不要做成两个单独的模块呢？</p>
+<p>首先，要独立开来是可以做到的，依然从文件实体出发，Commet实体类依赖File实体类，其实并不是直接依赖，而是有一个file_id字段，标记其与文件的关联，而在文件评论业务逻辑中也是如此，实际引用的其实是文件的id而非文件本身，当然由于业务复杂度的原因，也会引用文件模块中的一些UI组件。</p>
+<p>想要剥离的话，需要File模块能做到向外提供UI组件以及一些业务逻辑接口，改动工作量较大，因此具体如何决策就需要根据具体的项目需求了。</p>
+<p>如果不剥离的话，将文件与文件评论模块放在一个module中，也应该从文件夹层面将两者隔离开，并尽量减少代码的互相引用，以便以后的拆分。</p>
+<h5 id="资源管理"><a href="#资源管理" class="headerlink" title="资源管理"></a>资源管理</h5><p>原先的项目所有的资源文件都是放在app目录下的，想要将其中的资源拆出来并不容易，而且重构也不是停下来让你有充分的时间专门做重构，而是在重构的过程中也要兼顾日常业务迭代。</p>
+<p>因此为了防止再往app模块中一股脑得塞资源文件，将所有的资源文件都移动到了一个专门的module中，并将module中的resource目录做了一定改造，使之可以根据业务逻辑进一步做资源分类。</p>
+<p>项目的目录结构如下</p>
+<p><img src="http://ws3.sinaimg.cn/large/006tNc79ly1g317330kfyj30bg07eaa9.jpg" alt="image-20190514220417267"></p>
+<p>除了a_example，还有其他业务模块，这样各个业务模块自己的资源文件都会放在自己专属的目录下，防止项目的资源管理进一步恶化。为了实现这个功能，需要下面的脚本辅助</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 代码比较多，只截取核心逻辑</span></span><br><span class="line">task configCustomResFolders &#123;</span><br><span class="line">  File[] drawableFolders = project.file(drawableFolder).listFiles(<span class="keyword">new</span> FileFilter() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">boolean</span> accept(File pathname) &#123;</span><br><span class="line">      <span class="keyword">return</span> pathname.isDirectory()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">if</span> (drawableFolders) &#123;</span><br><span class="line">    drawableFolders.each &#123; subFolder -&gt;</span><br><span class="line">      resList.add(drawableFolder + separator + subFolder.name)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// layout目录也同理加到resList中</span></span><br><span class="line">  <span class="comment">// 通过srcDirs指定目录</span></span><br><span class="line">  project.extensions.android.sourceSets.main.res.srcDirs = resList</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将资源分类后，下一步就是逐步将其中的资源移动到对应的模块中，做到资源的解耦。而移动到模块中的资源，应该统一加上前缀限定词，防止冲突。</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">  resourcePrefix <span class="string">"prefix_"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当资源移除app模块后，还会遇到另外一个问题，细节看这篇文章，笔者就不赘述了。<a href="https://juejin.im/post/5a98f240f265da23830a5193" target="_blank" rel="noopener">Android主项目和Module中R类的区别</a></p>
+<h5 id="工具类整理"><a href="#工具类整理" class="headerlink" title="工具类整理"></a>工具类整理</h5><p>原先项目中工具类的主要问题有以下几个：</p>
+<ul>
+<li>职责不明确：不同的工具类可能有不少相同的方法，业务层对他们的引用基本是随性的，没有规律。</li>
+<li>接口参数耦合业务模型：这一点上面提到过，传入的参数过于冗余。</li>
+<li>命名无规范：看到类名无法知道该工具类的职责，这也是导致工具类具体实现上职责不明确的原因之一，甚至有个工具类直接命名为Utils。</li>
+</ul>
+<p>针对上面的情况，我建议先梳理工具类的种类，然后分为两类，一类是业务模块专属的工具类，一类是通用的工具类，前者置于业务模块中，并保证仅可被业务模块访问，而后者则做更具体的功能梳理与分类，如TimeUtils专门处理时间相关的逻辑，同时接口也要去除对业务逻辑的耦合，保证传参的粒度最小。</p>
+<p>如果组件中的工具类有部分功能与通用工具类重复，那么就让这部分代码重复着好了，用一定的代码冗余换取代码的整洁是可以接受的。</p>
+<h5 id="模块间调用、跳转"><a href="#模块间调用、跳转" class="headerlink" title="模块间调用、跳转"></a>模块间调用、跳转</h5><p>有的业务模块是完全独立的，与其他的模块没有任何的交互，但是有的模块却需要跳转到其他模块，或者使用其他模块的一些功能。</p>
+<p>按照我们的设计原则，模块间是不能有直接依赖的，那么我们又该如何跳转其他模块呢，答案就是路由。</p>
+<p>路由的方案有很多，但是基本思路都是一模一样的。我们的项目采用了基于ARouter的方案，并且由于在当初使用ARouter的时候，它还不支持Fragment的onActivityResult功能，我们还扩展了这一功能，不过现在它已经支持这个功能了。</p>
+<p>接下来主要阐述下模块设计的原则，以及我们是如何使用ARouter将设计思想落地的。</p>
+<p>一个好的模块对外的接口少而清晰，并且其他模块对它是不能有直接依赖的。ARouter的路由功能可以解决直接依赖的问题，并且更进一步的，我们将路由功能也用ARouter中的Service封装了起来，这样外部调用起来也更清晰了，大致的设计如下：</p>
+<p><img src="http://ws2.sinaimg.cn/large/006tNc79ly1g32b8ozg04j30ni0jeta0.jpg" alt="image-20190515211335568"></p>
+<p>模块所有对外的功能都通过Service开放，保证对外接口的简单，做到面向接口编程。</p>
+<p>不过这又引入了另一个问题，这些Service的抽象接口要放在哪里，才可以同时实现方和调用方模块引用呢，目前我们的实现是将所有的Service放在了一个统一的模块中，被所有模块同时引用。当然如果想做的更细的话，考虑将单个模块的Service封装为单个moudle，作为一个api模块对外开放。。不过这么细致的工作不建议放在前期做，依然是建议在业务迭代几轮后，当这个业务模块逐渐稳定，再将其做更细致的封装。</p>
+<p>当然如果在抽象Service的时候，发现需要提取的接口太多，那么就需要反思一下，这个模块是否需要单独独立出来，它内部的功能是否并没有达到高内聚的要求，那个频繁调用它服务的模块，是不是应该和它合并。</p>
+<p>没有人敢百分百保证第一次拆分出来的模块就是合理的，只有在一次次业务迭代后，经受住考验的方案，才是最合理的。</p>
+<h5 id="模块间通信"><a href="#模块间通信" class="headerlink" title="模块间通信"></a>模块间通信</h5><p>通信不同于跳转以及方法调用，用ARouter是无法做到通信的。想要做到模块间的通信，只能是基于EventBus之类的方法，或者直接用系统的广播。当然，如果你一定要用ARouter的话，也可以为ARouter提供一个可以注册监听器的服务，那也可以实现通信的效果，不过不是很建议这么做。</p>
+<p>如果是通过EventBus来实现，那自然而然的，会多出很多EventType类，同样的，推荐将这些放在上一节提到的Service公共模块中，或者模块的API模块中。</p>
+<h5 id="mvc、mvp、mvvm"><a href="#mvc、mvp、mvvm" class="headerlink" title="mvc、mvp、mvvm"></a>mvc、mvp、mvvm</h5><p>关于这一节其实之前也写过文章讨论过MVP在各种场景下的实际应用，细节就不展开了。</p>
+<p>在UI架构模式这一块，我们的主要痛点是</p>
+<ul>
+<li>如何将数据与UI生命周期关联起来：谷歌的<a href="https://developer.android.com/jetpack/androidx/releases/lifecycle" target="_blank" rel="noopener">Lifecycle</a>能很好地解决这个问题，关于它与各种架构模式的组合，网上实现很多，这里就不再赘述了。</li>
+<li>如何将关注点从UI与逻辑上分离开来：MVP模式基本上能帮我们解决这个问题，但是最完美的解决方案笔者认为还是响应式的MVVM方案，可惜MVVM在Anroid的实现，实在是有些难用。相比之下，前端的实现方案则优雅很多。</li>
+<li>统一的架构模式还是因地制宜：同一个APP，不同的UI场景，我们是统一使用MVP，还是说选择性的使用，有些比较简单的界面，直接MVC上手。目前笔者的选择是后者，不过到底哪个更好，还需要更多的经验实践。</li>
+</ul>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><p>理论上，一个剥离好的模块应该符合高耦合、低内聚、依赖导致的原则，结构应该大致如下：</p>
+<p><img src="http://ws1.sinaimg.cn/large/006tNc79ly1g32d09yaadj30vc0jijtl.jpg" alt="image-20190515221445105"></p>
+<p>当然一个模块也并非一开始就是这样的，是需要逐步迭代的。一开始没必要将所有东西做分离，只要尽量保证模块与外部的耦合最少即可，处理好与外部的关系，再对模块内部做更细致的剥离与分层。</p>
+<h3 id="其他-1"><a href="#其他-1" class="headerlink" title="其他"></a>其他</h3><h5 id="组件的顺序初始化"><a href="#组件的顺序初始化" class="headerlink" title="组件的顺序初始化"></a>组件的顺序初始化</h5><p>一些组件或者模块的初始化是有顺序依赖的，建议自己实现一个小框架去控制组件的初始化顺序，也不复杂，但是带来的代码清晰度和稳定性上的收益都是客观的。</p>
+<h5 id="外部注入第三方库实现"><a href="#外部注入第三方库实现" class="headerlink" title="外部注入第三方库实现"></a>外部注入第三方库实现</h5><p>举个例子，比如我们有个下载组件，下载的网络请求可能是组件内置了okhttp框架。但是有没有可能，组件的饮用者其实并不使用okhttp，这样就造成了一部分代码的冗余，如果比较介意这种情况的话，可以将网络请求抽象出接口，让外部去注入具体实现，组件内部仅面向接口去实现功能。</p>
+<h5 id="模块、组件单独调试"><a href="#模块、组件单独调试" class="headerlink" title="模块、组件单独调试"></a>模块、组件单独调试</h5><p>这个网上资料很多，不再赘述了。</p>
+<h5 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h5><p>在模块化过程中，一定要多和同事沟通，比如和产品经理沟通了解产品的整体框架，和其他端的同事沟通，了解他们在同一问题上的解决方案，博采众长才能无往不利。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://zhuanlan.zhihu.com/p/25420181" target="_blank" rel="noopener">安居客 Android 项目架构演进</a></p>
+<p><a href="https://blog.csdn.net/qq_22744433/article/details/77948442" target="_blank" rel="noopener">美团猫眼android模块化实战</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/软件设计/" rel="tag"># 软件设计</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/04/关于Android日志监控设计的一些想法/" rel="next" title="关于Android日志监控设计的一些想法">
+                <i class="fa fa-chevron-left"></i> 关于Android日志监控设计的一些想法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#写在前面"><span class="nav-number">1.</span> <span class="nav-text">写在前面</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#项目背景"><span class="nav-number">1.0.1.</span> <span class="nav-text">项目背景</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#名词约定"><span class="nav-number">1.0.2.</span> <span class="nav-text">名词约定</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#其他"><span class="nav-number">1.0.3.</span> <span class="nav-text">其他</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#整体架构设计"><span class="nav-number">2.</span> <span class="nav-text">整体架构设计</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Application"><span class="nav-number">2.0.1.</span> <span class="nav-text">Application</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#业务模块"><span class="nav-number">2.0.2.</span> <span class="nav-text">业务模块</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#业务组件与非业务组件"><span class="nav-number">2.0.3.</span> <span class="nav-text">业务组件与非业务组件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#基础服务组件"><span class="nav-number">2.0.4.</span> <span class="nav-text">基础服务组件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基础组件"><span class="nav-number">3.</span> <span class="nav-text">基础组件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#业务组件与非业务组件-1"><span class="nav-number">3.0.1.</span> <span class="nav-text">业务组件与非业务组件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#如何剥离"><span class="nav-number">3.0.2.</span> <span class="nav-text">如何剥离</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#调试"><span class="nav-number">3.0.3.</span> <span class="nav-text">调试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#版本管理"><span class="nav-number">3.0.4.</span> <span class="nav-text">版本管理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#依赖管理"><span class="nav-number">3.0.5.</span> <span class="nav-text">依赖管理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#业务模块-1"><span class="nav-number">4.</span> <span class="nav-text">业务模块</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#如何确定需要剥离的模块"><span class="nav-number">4.0.1.</span> <span class="nav-text">如何确定需要剥离的模块</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#资源管理"><span class="nav-number">4.0.2.</span> <span class="nav-text">资源管理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#工具类整理"><span class="nav-number">4.0.3.</span> <span class="nav-text">工具类整理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#模块间调用、跳转"><span class="nav-number">4.0.4.</span> <span class="nav-text">模块间调用、跳转</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#模块间通信"><span class="nav-number">4.0.5.</span> <span class="nav-text">模块间通信</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#mvc、mvp、mvvm"><span class="nav-number">4.0.6.</span> <span class="nav-text">mvc、mvp、mvvm</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#总结"><span class="nav-number">4.0.7.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他-1"><span class="nav-number">5.</span> <span class="nav-text">其他</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#组件的顺序初始化"><span class="nav-number">5.0.1.</span> <span class="nav-text">组件的顺序初始化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#外部注入第三方库实现"><span class="nav-number">5.0.2.</span> <span class="nav-text">外部注入第三方库实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#模块、组件单独调试"><span class="nav-number">5.0.3.</span> <span class="nav-text">模块、组件单独调试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#写在最后"><span class="nav-number">5.0.4.</span> <span class="nav-text">写在最后</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+  
+
+</body>
+</html>

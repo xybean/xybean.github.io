@@ -87,12 +87,12 @@
 <meta property="og:site_name" content="xybean&#39;s blog">
 <meta property="og:description" content="本文主要从源码角度介绍架构组件LiveData的实现原理，默认读者已经熟悉LiveData的基本使用。 观察者模式与发布-订阅模式之前一直没有特别关注过观察者模式与发布-订阅模式的区别，刚好借此机会去了解了一下。简单来说，两者的核心区别是： 在观察者模式的实现中，观察者（订阅者）是由发布者来维护的，也就是说，发布者是可以感知到观察者的。 但是在发布-订阅模式中，会有一个专门的中介来维护订阅者，发布">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwpc16cw1cj319s0gkmz2.jpg">
-<meta property="og:updated_time" content="2018-10-29T13:56:10.963Z">
+<meta property="og:image" content="http://ws3.sinaimg.cn/large/006tNbRwly1fwpc16cw1cj319s0gkmz2.jpg">
+<meta property="og:updated_time" content="2019-05-15T14:53:53.325Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android架构组件LiveData源码分析">
 <meta name="twitter:description" content="本文主要从源码角度介绍架构组件LiveData的实现原理，默认读者已经熟悉LiveData的基本使用。 观察者模式与发布-订阅模式之前一直没有特别关注过观察者模式与发布-订阅模式的区别，刚好借此机会去了解了一下。简单来说，两者的核心区别是： 在观察者模式的实现中，观察者（订阅者）是由发布者来维护的，也就是说，发布者是可以感知到观察者的。 但是在发布-订阅模式中，会有一个专门的中介来维护订阅者，发布">
-<meta name="twitter:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fwpc16cw1cj319s0gkmz2.jpg">
+<meta name="twitter:image" content="http://ws3.sinaimg.cn/large/006tNbRwly1fwpc16cw1cj319s0gkmz2.jpg">
 
 
 
@@ -357,7 +357,7 @@
 </ul>
 <h5 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h5><p>多数情况是搭配ViewModel与Lifecycle组件一起使用，使ViewModel具有响应式的效果。</p>
 <h3 id="整体架构图"><a href="#整体架构图" class="headerlink" title="整体架构图"></a>整体架构图</h3><p>整体采用了观察者模式，核心的类结构图如下：</p>
-<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fwpc16cw1cj319s0gkmz2.jpg" alt="image-20181029194637438"></p>
+<p><img src="http://ws3.sinaimg.cn/large/006tNbRwly1fwpc16cw1cj319s0gkmz2.jpg" alt="image-20181029194637438"></p>
 <p>简单介绍下其中的关键类：</p>
 <ul>
 <li>抽象类LiveData：架构组件的核心类，代表着可被观察的数据本身，是观察者模式中的发布者，负责被观察数据的维护、观察者的维护以及数据变化后的消息分发。</li>
@@ -509,7 +509,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

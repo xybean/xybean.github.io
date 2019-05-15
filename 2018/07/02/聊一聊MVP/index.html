@@ -87,14 +87,14 @@
 <meta property="og:site_name" content="xybean&#39;s blog">
 <meta property="og:description" content="MVP的简介基本架构在Android开发过程中，随着页面逻辑的越来越复杂，如果遵从MVC的模式进行开发的话，会导致Activity中的代码变得非常臃肿，增加维护的难度。为了将业务逻辑从Activity中剥离出来，引入了MVP模式。 相较于MVC模式，MVP剥离了View对Model的依赖，剥离了Activity中的业务逻辑代码，使整体的依赖复杂度得以降低。简单的模式图如下：  模块分工在MVP模式">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fsgp9tplbbj30a10acaa6.jpg">
-<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNc79gy1fsowenx7ayj30eo0c8t97.jpg">
-<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1fsq0lhci0ij30lm0amwf2.jpg">
-<meta property="og:updated_time" content="2018-07-08T08:52:45.198Z">
+<meta property="og:image" content="http://ws4.sinaimg.cn/large/006tKfTcgy1fsgp9tplbbj30a10acaa6.jpg">
+<meta property="og:image" content="http://ws2.sinaimg.cn/large/006tNc79gy1fsowenx7ayj30eo0c8t97.jpg">
+<meta property="og:image" content="http://ws1.sinaimg.cn/large/006tKfTcgy1fsq0lhci0ij30lm0amwf2.jpg">
+<meta property="og:updated_time" content="2019-05-15T14:51:23.850Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="聊一聊MVP">
 <meta name="twitter:description" content="MVP的简介基本架构在Android开发过程中，随着页面逻辑的越来越复杂，如果遵从MVC的模式进行开发的话，会导致Activity中的代码变得非常臃肿，增加维护的难度。为了将业务逻辑从Activity中剥离出来，引入了MVP模式。 相较于MVC模式，MVP剥离了View对Model的依赖，剥离了Activity中的业务逻辑代码，使整体的依赖复杂度得以降低。简单的模式图如下：  模块分工在MVP模式">
-<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1fsgp9tplbbj30a10acaa6.jpg">
+<meta name="twitter:image" content="http://ws4.sinaimg.cn/large/006tKfTcgy1fsgp9tplbbj30a10acaa6.jpg">
 
 
 
@@ -348,7 +348,7 @@
       
         <h3 id="MVP的简介"><a href="#MVP的简介" class="headerlink" title="MVP的简介"></a>MVP的简介</h3><h5 id="基本架构"><a href="#基本架构" class="headerlink" title="基本架构"></a>基本架构</h5><p>在Android开发过程中，随着页面逻辑的越来越复杂，如果遵从MVC的模式进行开发的话，会导致Activity中的代码变得非常臃肿，增加维护的难度。为了将业务逻辑从Activity中剥离出来，引入了MVP模式。</p>
 <p>相较于MVC模式，MVP剥离了View对Model的依赖，剥离了Activity中的业务逻辑代码，使整体的依赖复杂度得以降低。简单的模式图如下：</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fsgp9tplbbj30a10acaa6.jpg" alt="img"></p>
+<p><img src="http://ws4.sinaimg.cn/large/006tKfTcgy1fsgp9tplbbj30a10acaa6.jpg" alt="img"></p>
 <h5 id="模块分工"><a href="#模块分工" class="headerlink" title="模块分工"></a>模块分工</h5><p>在MVP模式中，各个模块的分工如下</p>
 <ul>
 <li>View：一般为Activity或Fragment，或其他View以及View的容器。它的工作模式就像一个黑盒，给定特定的数据输入，然后执行相应的View更新操作。</li>
@@ -396,10 +396,10 @@
 <p>上面的Model层实现将Model分为了两层，好处是Presenter不需要知道数据的具体来源，数据管理的任务全权由Repository来负责。当然有的时候我们的业务很简单，只需要从网络获取数据然后显示即可，那么这时候Presenter就可以直接去持有LocalSource（要实现这样的功能，还需要一个通用的接口，即Model接口，约定数据获取接口，被Repository与XXXSource实现），而不需要Repository作为中介。如果业务更复杂，那么Model层也可以加入更多的类去辅助实现。</p>
 <p>但是无论如何，不变的是，对于Presenter来说，Model层必须提供数据获取功能，其他功能都是围绕这个核心点按需扩展的。</p>
 <p>将上面的结构画成简单的结构图，如下：</p>
-<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1fsowenx7ayj30eo0c8t97.jpg" alt="image-20180626212442230"></p>
+<p><img src="http://ws2.sinaimg.cn/large/006tNc79gy1fsowenx7ayj30eo0c8t97.jpg" alt="image-20180626212442230"></p>
 <h5 id="简单总结"><a href="#简单总结" class="headerlink" title="简单总结"></a>简单总结</h5><p>上面给出的实现方案只是我个人在实践中觉得比较合适的一种方案，可能受限于我们自己项目的特殊性质。所以在实际应用MVP模式的时候，不一定就要按照某种模板来，应该根据自己的业务场景做一定的扩展与改动。</p>
 <p>将我们上面讨论的设计画成简单的图，如下：</p>
-<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1fsq0lhci0ij30lm0amwf2.jpg" alt="image-20180627203504539"></p>
+<p><img src="http://ws1.sinaimg.cn/large/006tKfTcgy1fsq0lhci0ij30lm0amwf2.jpg" alt="image-20180627203504539"></p>
 <p>对于抽象层来说，我们可以抽取一些公共业务用于建立IPresenter与IView以及IModel间的依赖关系。需要注意的是，由于不同业务的Model可能复杂度差异较大，且并不是所有的Model实现都需要可复用，所以要根据实际情况决定是否定义IXXModel，避免定义过多无用的接口。通用的View接口与Presenter接口也是同理，按需去实现。</p>
 <p>业务层的实现要点在于根据业务确定Presenter的功能，然后根据这些功能设计抽象的View与Model接口。</p>
 <p>功能实现层不用多说，就是具体的View操作与数据获取的实现，根据具体业务可以调整Model层的具体设计。其他的一些设计细节在上面都讨论过了，这里就不再赘述了。</p>
@@ -552,7 +552,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

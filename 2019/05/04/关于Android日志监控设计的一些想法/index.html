@@ -87,12 +87,12 @@
 <meta property="og:site_name" content="xybean&#39;s blog">
 <meta property="og:description" content="本文是笔者具实践的一些总结，并不会涉及太具体的技术细节，更倾向于为有同样需求的小伙伴提供一个实现上的方向参考。 日志系统的整体架构设计在参考了一些日志系统的设计介绍之后，发现端上的日志系统设计其实大同小异，各个模块的解决方案也都较为成熟，简单总结了一个架构设计如下图：  从左往右看，依次是客户端、服务端、前端的设计图。由于本文只讨论客户端上的日志系统设计，因此服务端与前端的设计只是一笔带过。 端上">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcly1g0qjbgrsjij30ui0eeq4i.jpg">
-<meta property="og:updated_time" content="2019-05-04T06:39:15.741Z">
+<meta property="og:image" content="http://ws4.sinaimg.cn/large/006tKfTcly1g0qjbgrsjij30ui0eeq4i.jpg">
+<meta property="og:updated_time" content="2019-05-15T14:50:02.067Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="关于Android日志监控设计的一些想法">
 <meta name="twitter:description" content="本文是笔者具实践的一些总结，并不会涉及太具体的技术细节，更倾向于为有同样需求的小伙伴提供一个实现上的方向参考。 日志系统的整体架构设计在参考了一些日志系统的设计介绍之后，发现端上的日志系统设计其实大同小异，各个模块的解决方案也都较为成熟，简单总结了一个架构设计如下图：  从左往右看，依次是客户端、服务端、前端的设计图。由于本文只讨论客户端上的日志系统设计，因此服务端与前端的设计只是一笔带过。 端上">
-<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tKfTcly1g0qjbgrsjij30ui0eeq4i.jpg">
+<meta name="twitter:image" content="http://ws4.sinaimg.cn/large/006tKfTcly1g0qjbgrsjij30ui0eeq4i.jpg">
 
 
 
@@ -346,7 +346,7 @@
       
         <p><em>本文是笔者具实践的一些总结，并不会涉及太具体的技术细节，更倾向于为有同样需求的小伙伴提供一个实现上的方向参考。</em></p>
 <h3 id="日志系统的整体架构设计"><a href="#日志系统的整体架构设计" class="headerlink" title="日志系统的整体架构设计"></a>日志系统的整体架构设计</h3><p>在参考了一些日志系统的设计介绍之后，发现端上的日志系统设计其实大同小异，各个模块的解决方案也都较为成熟，简单总结了一个架构设计如下图：</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1g0qjbgrsjij30ui0eeq4i.jpg" alt="image-20190304100537312"></p>
+<p><img src="http://ws4.sinaimg.cn/large/006tKfTcly1g0qjbgrsjij30ui0eeq4i.jpg" alt="image-20190304100537312"></p>
 <p>从左往右看，依次是客户端、服务端、前端的设计图。由于本文只讨论客户端上的日志系统设计，因此服务端与前端的设计只是一笔带过。</p>
 <p>端上的日志系统看上图大致可以分为三层，下面逐一介绍各层。</p>
 <h5 id="日志采集层"><a href="#日志采集层" class="headerlink" title="日志采集层"></a>日志采集层</h5><p>日志采集层主要的工作是埋点与采集，是日志数据的输入源。这里的主要工作是确定埋点的位置与约定日志的输出格式。涉及到的技术点是一些无埋点的技术，在Android端表现为基于AOP的无埋点。</p>
@@ -442,6 +442,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2019/05/15/Android模块化重构小结/" rel="prev" title="Android模块化重构小结">
+                Android模块化重构小结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -521,7 +525,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

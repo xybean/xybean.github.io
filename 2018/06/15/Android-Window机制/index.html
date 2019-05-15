@@ -87,17 +87,17 @@
 <meta property="og:site_name" content="xybean&#39;s blog">
 <meta property="og:description" content="Window层级结构相关类简介这里只介绍与UI层级相关的功能。 Window：抽象类，定义了window视图布局的一些规则，如是否显示ActionBar之类。 PhoneWindow：Window的唯一实现类，与Activity一一对应，持有了具体的View对象，对外提供操作这些View的具体实现。 DecorView：顶级View的具体实现，继承于FrameLayout，被PhoneWindow">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1frj7rgy6fdj30830btq2s.jpg">
+<meta property="og:image" content="http://ws3.sinaimg.cn/large/006tKfTcgy1frj7rgy6fdj30830btq2s.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1frkfvk9i8vj30on0cgq42.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1frkfpy259pj30k80e3q31.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1frrcu1pdn0j30hz0dagn3.jpg">
-<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1frzfaylpqsj30hi0bcgml.jpg">
-<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNc79gy1fs2x0y8n02j30hi02haa5.jpg">
-<meta property="og:updated_time" content="2018-07-08T08:53:10.149Z">
+<meta property="og:image" content="http://ws3.sinaimg.cn/large/006tKfTcgy1frzfaylpqsj30hi0bcgml.jpg">
+<meta property="og:image" content="http://ws3.sinaimg.cn/large/006tNc79gy1fs2x0y8n02j30hi02haa5.jpg">
+<meta property="og:updated_time" content="2019-05-15T14:49:43.649Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android Window机制">
 <meta name="twitter:description" content="Window层级结构相关类简介这里只介绍与UI层级相关的功能。 Window：抽象类，定义了window视图布局的一些规则，如是否显示ActionBar之类。 PhoneWindow：Window的唯一实现类，与Activity一一对应，持有了具体的View对象，对外提供操作这些View的具体实现。 DecorView：顶级View的具体实现，继承于FrameLayout，被PhoneWindow">
-<meta name="twitter:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1frj7rgy6fdj30830btq2s.jpg">
+<meta name="twitter:image" content="http://ws3.sinaimg.cn/large/006tKfTcgy1frj7rgy6fdj30830btq2s.jpg">
 
 
 
@@ -354,7 +354,7 @@
 <p>PhoneWindow：Window的唯一实现类，与Activity一一对应，持有了具体的View对象，对外提供操作这些View的具体实现。</p>
 <p>DecorView：顶级View的具体实现，继承于FrameLayout，被PhoneWindow所持有。包含顶部状态栏与ContentView。</p>
 <p>ContentView：这个不是一个具体存在的类，而是Framework中包含了很多已经实现的Content布局，根据用户的配置来选择加载合适的放置于DecorView中，例如有无ActionBar对应了两种不同的布局资源。（这里需要注意Activity.setContentView()设置的View是ContentView的子View而不是ContentView自己）</p>
-<h5 id="WindowUI层级"><a href="#WindowUI层级" class="headerlink" title="WindowUI层级"></a>WindowUI层级</h5><p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1frj7rgy6fdj30830btq2s.jpg" alt=""></p>
+<h5 id="WindowUI层级"><a href="#WindowUI层级" class="headerlink" title="WindowUI层级"></a>WindowUI层级</h5><p><img src="http://ws3.sinaimg.cn/large/006tKfTcgy1frj7rgy6fdj30830btq2s.jpg" alt=""></p>
 <h5 id="Window层级相关源码"><a href="#Window层级相关源码" class="headerlink" title="Window层级相关源码"></a>Window层级相关源码</h5><p>Window：主要提供与DesorView相关的配置参数，如状态栏、ActionBar之类，具体源码不再赘述。</p>
 <p>PhoneWindow：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// This is the top-level view of the window, containing the window decor.</span></span><br><span class="line"><span class="keyword">private</span> DecorView mDecor;</span><br><span class="line"></span><br><span class="line"><span class="comment">// This is the view in which the window contents are placed. It is either</span></span><br><span class="line"><span class="comment">// mDecor itself, or a child of mDecor where the contents go.</span></span><br><span class="line"><span class="comment">// 对应上图的ContentView</span></span><br><span class="line">ViewGroup mContentParent;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对应上图的TitleView</span></span><br><span class="line"><span class="keyword">private</span> TextView mTitleView;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这个方法实际上是Window中的，mContentParent、TitleView都是通过这个方法赋值的</span></span><br><span class="line"><span class="keyword">public</span> &lt;T extends View&gt; <span class="function">T <span class="title">findViewById</span><span class="params">(@IdRes <span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> getDecorView().findViewById(id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -433,7 +433,7 @@
 <li><p>ViewRootImpl.setView()<br>上面的绘制流程是用户主动触发的一个流程，而在Activity的创建过程中，系统会触发一次整个流程，入口就是ViewRootImpl.setView()。这个方法会调用requestLayout()进入绘制流程。</p>
 </li>
 </ol>
-<h5 id="ViewRootImpl与MotionEvent"><a href="#ViewRootImpl与MotionEvent" class="headerlink" title="ViewRootImpl与MotionEvent"></a>ViewRootImpl与MotionEvent</h5><p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1frzfaylpqsj30hi0bcgml.jpg" alt="image-20180604203347021"></p>
+<h5 id="ViewRootImpl与MotionEvent"><a href="#ViewRootImpl与MotionEvent" class="headerlink" title="ViewRootImpl与MotionEvent"></a>ViewRootImpl与MotionEvent</h5><p><img src="http://ws3.sinaimg.cn/large/006tKfTcgy1frzfaylpqsj30hi0bcgml.jpg" alt="image-20180604203347021"></p>
 <p>上述流程需要注意的几个点：</p>
 <ul>
 <li><blockquote>
@@ -471,7 +471,7 @@
 </ul>
 <h5 id="Window与WMS的绑定"><a href="#Window与WMS的绑定" class="headerlink" title="Window与WMS的绑定"></a>Window与WMS的绑定</h5><p>通过ViewRootImpl完成双向的通信</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ViewRootImpl.java</span></span><br><span class="line"><span class="comment">// mWindowSession的类型是IWindowSession它的实现类是Session，用来发送消息给WMS</span></span><br><span class="line"><span class="keyword">final</span> IWindowSession mWindowSession;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ViewRootImpl</span><span class="params">(Context context, Display display)</span> </span>&#123;</span><br><span class="line">    mWindowSession = WindowManagerGlobal.getWindowSession();</span><br><span class="line">    mWindow = <span class="keyword">new</span> W(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// WMS回调的接口</span></span><br><span class="line"><span class="keyword">final</span> W mWindow;</span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">W</span> <span class="keyword">extends</span> <span class="title">IWindow</span>.<span class="title">Stub</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
-<h5 id="Window的添加"><a href="#Window的添加" class="headerlink" title="Window的添加"></a>Window的添加</h5><p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1fs2x0y8n02j30hi02haa5.jpg" alt="image-20180607210338829"></p>
+<h5 id="Window的添加"><a href="#Window的添加" class="headerlink" title="Window的添加"></a>Window的添加</h5><p><img src="http://ws3.sinaimg.cn/large/006tNc79gy1fs2x0y8n02j30hi02haa5.jpg" alt="image-20180607210338829"></p>
 <p> 删除的过程比较类似，就不列出来了。</p>
 <h5 id="添加自己的Window"><a href="#添加自己的Window" class="headerlink" title="添加自己的Window"></a>添加自己的Window</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">WindowManager wm = (WindowManager) context.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);</span><br><span class="line">WindowManager.LayoutParams params = <span class="keyword">new</span> WindowManager.LayoutParams();</span><br><span class="line"><span class="comment">// 查文档并设置其他参数</span></span><br><span class="line">params.type = WindowManager.LayoutParams.TYPE_PHONE;</span><br><span class="line">wm.addView(view, params);</span><br></pre></td></tr></table></figure>
 <h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://book.douban.com/subject/26599538/" target="_blank" rel="noopener">Android开发艺术探索</a></p>
@@ -605,7 +605,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

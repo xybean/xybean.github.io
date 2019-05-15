@@ -87,12 +87,12 @@
 <meta property="og:site_name" content="xybean&#39;s blog">
 <meta property="og:description" content="本文主要从源码角度介绍架构组件Lifecycle的实现原理，默认读者已经熟悉Lifecycle的基本使用。 功能与使用场景功能外部使用者可以通过Lifecycle来订阅Activity与Fragment的生命周期变化，同时也可以主动去获取当前Activity与Fragment处于哪个生命周期。 使用场景在实现MVP与MVVM模式的时候，Presenter与ViewModel有时候会有初始化或者回收">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fw7qy1g9r5j31180ks0uv.jpg">
-<meta property="og:updated_time" content="2018-10-14T10:48:08.663Z">
+<meta property="og:image" content="http://ws4.sinaimg.cn/large/006tNbRwly1fw7qy1g9r5j31180ks0uv.jpg">
+<meta property="og:updated_time" content="2019-05-15T14:53:29.054Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Androd架构组件Lifecycle源码分析">
 <meta name="twitter:description" content="本文主要从源码角度介绍架构组件Lifecycle的实现原理，默认读者已经熟悉Lifecycle的基本使用。 功能与使用场景功能外部使用者可以通过Lifecycle来订阅Activity与Fragment的生命周期变化，同时也可以主动去获取当前Activity与Fragment处于哪个生命周期。 使用场景在实现MVP与MVVM模式的时候，Presenter与ViewModel有时候会有初始化或者回收">
-<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fw7qy1g9r5j31180ks0uv.jpg">
+<meta name="twitter:image" content="http://ws4.sinaimg.cn/large/006tNbRwly1fw7qy1g9r5j31180ks0uv.jpg">
 
 
 
@@ -349,7 +349,7 @@
 <h5 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h5><p>在实现MVP与MVVM模式的时候，Presenter与ViewModel有时候会有初始化或者回收的逻辑，而这两部分的逻辑一般是与其宿主，也就是Activity或Fragment的生命周期强相关的。这个时候就可以借助Lifecycle赋予Presenter等实例感知宿主生命周期的能力，以更优雅的方式完成需求。</p>
 <p>除此之外，有一些自定义View可能也有感知生命周期的需求，同样的也可以借助Lifecycle去实现。</p>
 <h3 id="整体架构图"><a href="#整体架构图" class="headerlink" title="整体架构图"></a>整体架构图</h3><p>整体的设计采用了订阅者模式以及状态机模式，类结构图如下：</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fw7qy1g9r5j31180ks0uv.jpg" alt="image-20181014144223737"></p>
+<p><img src="http://ws4.sinaimg.cn/large/006tNbRwly1fw7qy1g9r5j31180ks0uv.jpg" alt="image-20181014144223737"></p>
 <p>简单介绍下比较重要的几个类：</p>
 <ul>
 <li>LifecycleObserver接口：顾名思义，实现了该接口的对象就可以感知到LifecycleOwner的生命周期。</li>
@@ -510,7 +510,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

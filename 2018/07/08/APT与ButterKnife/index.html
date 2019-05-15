@@ -87,13 +87,13 @@
 <meta property="og:site_name" content="xybean&#39;s blog">
 <meta property="og:description" content="本文主要介绍APT技术与ButterKnife的源码简析。 注解处理器（Annotation Processor）注解关于注解这里不做介绍，参考这篇文章：简单介绍 Java 中的注解 (Annotation) 注解处理器 如果你对注解有一定了解的话，应该知道我们在运行时（Runtime）获取注解信息的方式是反射。如果我们想要在编译期（Compile time）就获取到注解的信息，那么我们可以使用注">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1fszd1f1ockj30qs05awf0.jpg">
-<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1ft2jq6f75hj31f00840u3.jpg">
-<meta property="og:updated_time" content="2018-07-08T08:52:50.479Z">
+<meta property="og:image" content="http://ws3.sinaimg.cn/large/006tKfTcgy1fszd1f1ockj30qs05awf0.jpg">
+<meta property="og:image" content="http://ws1.sinaimg.cn/large/006tKfTcgy1ft2jq6f75hj31f00840u3.jpg">
+<meta property="og:updated_time" content="2019-05-15T14:51:44.484Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="APT与ButterKnife">
 <meta name="twitter:description" content="本文主要介绍APT技术与ButterKnife的源码简析。 注解处理器（Annotation Processor）注解关于注解这里不做介绍，参考这篇文章：简单介绍 Java 中的注解 (Annotation) 注解处理器 如果你对注解有一定了解的话，应该知道我们在运行时（Runtime）获取注解信息的方式是反射。如果我们想要在编译期（Compile time）就获取到注解的信息，那么我们可以使用注">
-<meta name="twitter:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1fszd1f1ockj30qs05awf0.jpg">
+<meta name="twitter:image" content="http://ws3.sinaimg.cn/large/006tKfTcgy1fszd1f1ockj30qs05awf0.jpg">
 
 
 
@@ -352,7 +352,7 @@
 <p>一个注解的注解处理器，以Java代码（或者编译过的字节码）作为输入，生成文件（通常是<code>.java</code>文件）作为输出。这些生成的Java文件，会同其他普通的手动编写的Java源代码一样被<strong>javac</strong>编译。</p>
 </blockquote>
 <h5 id="注解处理器工作流"><a href="#注解处理器工作流" class="headerlink" title="注解处理器工作流"></a>注解处理器工作流</h5><p>Java代码编译的过程主要包括三步，解析、注解处理、字节码生成，具体的流程见下图。</p>
-<p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1fszd1f1ockj30qs05awf0.jpg" alt="image-20180705201121053"></p>
+<p><img src="http://ws3.sinaimg.cn/large/006tKfTcgy1fszd1f1ockj30qs05awf0.jpg" alt="image-20180705201121053"></p>
 <p>这里需要循环的处理注解，原因是注解处理器可能会生成新的Java文件，这些新的Java文件也要进行一遍语法分析，并且有可能这些新的Java文件也包含注解，还要继续被注解处理器分析处理。</p>
 <h5 id="JavaPoet"><a href="#JavaPoet" class="headerlink" title="JavaPoet"></a>JavaPoet</h5><p>前面提到注解处理这一步可以生成Java文件，但是实际上注解处理器只提供了注解以及与其相关的Token信息，还有一个Java文件的输出流。你可以直接通过这些必要的信息，将代码以字符流的形式写入Java文件，但是这样的过程无疑是吃力不讨好的（代码编写烦琐且难以维护）。</p>
 <p>JavaPoet是square开源的一个库，作用就如其名，让你在这个过程，像写诗一样，优雅的将Java代码字符流写入Java文件。</p>
@@ -386,7 +386,7 @@
 <p>关键的解析过程实现在findAndParseTargets()中，它对不同类型的注解分别作了处理，然后汇总所有的解析结果到<code>Map&lt;TypeElement, BindingSet&gt;</code>中。这里我们只关注<code>BindView</code>相关的实现，也就是方法<code>parseBindView</code></p>
 <p>的实现。</p>
 <p>这个方法的大致可以概括为：</p>
-<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ft2jq6f75hj31f00840u3.jpg" alt="image-20180708153746864"></p>
+<p><img src="http://ws1.sinaimg.cn/large/006tKfTcgy1ft2jq6f75hj31f00840u3.jpg" alt="image-20180708153746864"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 做过简化处理的源代码，实际实现处理细节会更多</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">parseBindView</span><span class="params">(Element element, Map&lt;TypeElement, BindingSet.Builder&gt;      builderMap, Set&lt;TypeElement&gt; erasedTargetNames)</span> </span>&#123;</span><br><span class="line">    TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();</span><br><span class="line">    <span class="comment">// 校验访问权限与注解是否用在了android或者java包中</span></span><br><span class="line">    <span class="keyword">boolean</span> hasError = isInaccessibleViaGeneratedCode(BindView.class, <span class="string">"fields"</span>, element)</span><br><span class="line">        || isBindingInWrongPackage(BindView.class, element);</span><br><span class="line">    <span class="comment">// Verify that the target type extends from View.</span></span><br><span class="line">    TypeMirror elementType = element.asType();</span><br><span class="line">    <span class="keyword">if</span> (!isSubtypeOfType(elementType, VIEW_TYPE) &amp;&amp; !isInterface(elementType)) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 从注解中取出资源id值</span></span><br><span class="line">    <span class="keyword">int</span> id = element.getAnnotation(BindView.class).value();</span><br><span class="line">    Id resourceId = elementToId(element, BindView.class, id);</span><br><span class="line">    <span class="comment">// 这里省略了去重检查，将从注解中取出的信息封装成BindingSet.Builder存入builderMap</span></span><br><span class="line">    builder = getOrCreateBindingBuilder(builderMap, enclosingElement);</span><br><span class="line">    String name = simpleName.toString();</span><br><span class="line">    TypeName type = TypeName.get(elementType);</span><br><span class="line">    <span class="keyword">boolean</span> required = isFieldRequired(element);</span><br><span class="line">    builder.addField(resourceId, <span class="keyword">new</span> FieldViewBinding(name, type, required));</span><br><span class="line">    <span class="comment">// Add the type-erased version to the valid binding targets set.</span></span><br><span class="line">    erasedTargetNames.add(enclosingElement);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h5 id="生成类-1"><a href="#生成类-1" class="headerlink" title="生成类"></a>生成类</h5><p>生成类的主要逻辑在BindingSet.createType()中：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> TypeSpec <span class="title">createType</span><span class="params">(<span class="keyword">int</span> sdk, <span class="keyword">boolean</span> debuggable, <span class="keyword">boolean</span> useAndroidX)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">if</span> (isView) &#123;</span><br><span class="line">      result.addMethod(createBindingConstructorForView(useAndroidX));</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isActivity) &#123;</span><br><span class="line">      result.addMethod(createBindingConstructorForActivity(useAndroidX));</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isDialog) &#123;</span><br><span class="line">      result.addMethod(createBindingConstructorForDialog(useAndroidX));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">return</span> result.build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -524,7 +524,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
