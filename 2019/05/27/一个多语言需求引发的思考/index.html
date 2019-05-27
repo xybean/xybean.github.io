@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="软件设计," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="挺早之前项目中的一个多语言相关的需求，觉得还蛮有意思的，现在想起来决定写一篇文章记录一下。第一部分主要是Android字符串资源加载的源码分析，第二部分是需求的解决方案，只对解决方案感兴趣的直接看第二部分即可。 项目背景需求描述由于我们的App用户包括普通公司与各大高校，在文案显示上，同样位置的文案，可能显示的中文/英文都是不同的。例如有个文案，”我的公司”，对于公司来说是没问题的，但是对于学校来">
+<meta name="keywords" content="软件设计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一个多语言需求引发的思考">
+<meta property="og:url" content="https://xybean.github.io/2019/05/27/一个多语言需求引发的思考/index.html">
+<meta property="og:site_name" content="xybean&#39;s blog">
+<meta property="og:description" content="挺早之前项目中的一个多语言相关的需求，觉得还蛮有意思的，现在想起来决定写一篇文章记录一下。第一部分主要是Android字符串资源加载的源码分析，第二部分是需求的解决方案，只对解决方案感兴趣的直接看第二部分即可。 项目背景需求描述由于我们的App用户包括普通公司与各大高校，在文案显示上，同样位置的文案，可能显示的中文/英文都是不同的。例如有个文案，”我的公司”，对于公司来说是没问题的，但是对于学校来">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ww3.sinaimg.cn/large/006tNc79ly1g3bm8kg6g2j31960ritb4.jpg">
+<meta property="og:image" content="http://ww3.sinaimg.cn/large/006tNc79ly1g3g706a60mj30ra0mwq4m.jpg">
+<meta property="og:updated_time" content="2019-05-27T14:06:49.146Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一个多语言需求引发的思考">
+<meta name="twitter:description" content="挺早之前项目中的一个多语言相关的需求，觉得还蛮有意思的，现在想起来决定写一篇文章记录一下。第一部分主要是Android字符串资源加载的源码分析，第二部分是需求的解决方案，只对解决方案感兴趣的直接看第二部分即可。 项目背景需求描述由于我们的App用户包括普通公司与各大高校，在文案显示上，同样位置的文案，可能显示的中文/英文都是不同的。例如有个文案，”我的公司”，对于公司来说是没问题的，但是对于学校来">
+<meta name="twitter:image" content="http://ww3.sinaimg.cn/large/006tNc79ly1g3bm8kg6g2j31960ritb4.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://xybean.github.io/2019/05/27/一个多语言需求引发的思考/"/>
+
+
+
+
+
+  <title>一个多语言需求引发的思考 | xybean's blog</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xybean's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://xybean.github.io/2019/05/27/一个多语言需求引发的思考/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xybean">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/pixel.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xybean's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">一个多语言需求引发的思考</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-27T22:05:22+08:00">
+                2019-05-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><em>挺早之前项目中的一个多语言相关的需求，觉得还蛮有意思的，现在想起来决定写一篇文章记录一下。第一部分主要是Android字符串资源加载的源码分析，第二部分是需求的解决方案，只对解决方案感兴趣的直接看第二部分即可。</em></p>
+<h3 id="项目背景"><a href="#项目背景" class="headerlink" title="项目背景"></a>项目背景</h3><h5 id="需求描述"><a href="#需求描述" class="headerlink" title="需求描述"></a>需求描述</h5><p>由于我们的App用户包括普通公司与各大高校，在文案显示上，同样位置的文案，可能显示的中文/英文都是不同的。例如有个文案，”我的公司”，对于公司来说是没问题的，但是对于学校来说，就会很奇怪。因此同一个文案，需要在学校那边显示”我的学校”，在公司这边显示”我的公司”。</p>
+<h5 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h5><p>Android自带的多语言国际化功能是不能满足我们的需求的，因此需要我们自己去拦截App的字符串资源加载过程，以加载我们自己的字符串资源。</p>
+<p>具体的实现细节可以直接看第三节的内容。</p>
+<h3 id="Android字符资源加载源码分析"><a href="#Android字符资源加载源码分析" class="headerlink" title="Android字符资源加载源码分析"></a>Android字符资源加载源码分析</h3><h5 id="关键类"><a href="#关键类" class="headerlink" title="关键类"></a>关键类</h5><p>先看一下关键类的关系图：</p>
+<p><img src="http://ww3.sinaimg.cn/large/006tNc79ly1g3bm8kg6g2j31960ritb4.jpg" alt="image-20190523222408816"></p>
+<p>再介绍一下几个关键类的作用：</p>
+<ul>
+<li>ContextWrapper：实现了Context接口，但其中所有方法的实现都最终代理给了内部对象 <code>Context mBase</code>。</li>
+<li>ContextImpl：真正实现了Context接口的类，即ContextWrapper中的mBase。</li>
+<li>Resources：提供了资源相关的对外接口，但具体的实现依赖于内部对象  <code>ResourcesImpl mResourcesImpl</code>。</li>
+<li>ResourcesImpl：Resources接口的具体实现，实现资源的读取（依赖于AssetManager）与管理。</li>
+<li>AssetManager：各类资源获取的最终实现类，核心代码为native实现。</li>
+</ul>
+<h5 id="类初始化、关键类之间的关系建立"><a href="#类初始化、关键类之间的关系建立" class="headerlink" title="类初始化、关键类之间的关系建立"></a>类初始化、关键类之间的关系建立</h5><p>以下的过程都是以Activity的启动过程主线的，Application以及其他组件的初始化也会有类似过程，就不赘述了。</p>
+<p>初始化：</p>
+<ul>
+<li>ContextImpl的初始化：入口在performLaunchActivity()中，最终会调用到ContextImpl.createActivityContext()</li>
+<li>ResourcesImpl的初始化：随着ContextImpl的初始化，会调用到ResourcesManager的createBaseActivityResources()，最终会调用到ResourcesManager的createResourcesImpl()，完成ResourcesImpl的实例化。</li>
+<li>AssetManager：在ResourcesImpl实例化之前，会先创建AssetManager，然后作为创建ResourcesImpl的参数</li>
+</ul>
+<p>类关系：</p>
+<p>从创建过程中，也可以看出来这几个关键类的依赖关系。ContextImpl依赖ResourcesImpl提供资源相关功能，ResourcesImpl依赖AssetManager提供资源获取的具体实现。</p>
+<p>而当上述三个关键类都创建完成后，会走到Activity的attach()，最终调用一个关键方法attachBaseContext()将我们创建的ContextImpl赋值给Activity，也即ContextWrapper的mBase。</p>
+<p>接着所有与资源相关的调用都会顺着这条依赖链调用到AssetManager中的方法。</p>
+<h5 id="加载一个字符串资源"><a href="#加载一个字符串资源" class="headerlink" title="加载一个字符串资源"></a>加载一个字符串资源</h5><p>下面以Activity.getString()方法为入口看下加载一个字符串资源的具体过程。</p>
+<p>调用链比较清晰，Activity.getString()-&gt;Resources.getString()-&gt;AssetManager.getResourceText()</p>
+<h3 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h3><h5 id="核心思路"><a href="#核心思路" class="headerlink" title="核心思路"></a>核心思路</h5><p>通过上面的代码分析可以发现获取资源的过程在上层是依赖于mBase指向的ContexImpl，并且mBase的赋值方法非常容易hook，因此，我们只要将mBase指向我们自己的ContexImpl，就可以顺势替换掉其中所有的资源获取相关的实现。</p>
+<p>当然我们不是完全重写一个ContexImpl，而是实现一个我们自己的ContexWrapper，代理ContexImpl的getResources()方法，返回我们自定义的Resources，剩余的不需要hook的方法依然让它走默认的实现即可。</p>
+<p>而在我们自定义的Resources中，我们可以根据业务逻辑，加载我们放在assets目录下的高校版的字符串。</p>
+<h5 id="关键类与方法"><a href="#关键类与方法" class="headerlink" title="关键类与方法"></a>关键类与方法</h5><p>关键的类主要是CustomContextWrapper与CustomResourcesWrapper，加入这两个类后我们的结构图大致如下</p>
+<p><img src="http://ww3.sinaimg.cn/large/006tNc79ly1g3g706a60mj30ra0mwq4m.jpg" alt="image-20190527212455231"></p>
+<p>具体的细节可以直接看下面的代码。</p>
+<p>CustomContextWrapper.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CustomContextWrapper.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomContextWrapper</span> <span class="keyword">extends</span> <span class="title">ContextWrapper</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> CustomResourcesWrapper mResourcesWrapper;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">CustomContextWrapper</span><span class="params">(Context base)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 这个base即为系统生成的ContextImpl</span></span><br><span class="line">    <span class="keyword">super</span>(base);</span><br><span class="line">    Resources resources = <span class="keyword">super</span>.getResources();</span><br><span class="line">    mResourcesWrapper = <span class="keyword">new</span> CustomResourcesWrapper(<span class="keyword">this</span>, resources);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ContextWrapper <span class="title">wrap</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> CustomContextWrapper(context);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 只代理这一个方法，其他的方法依然走默认的实现</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Resources <span class="title">getResources</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> mResourcesWrapper;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>CustomResourcesWrapper.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CustomResourcesWrapper.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomResourcesWrapper</span> <span class="keyword">extends</span> <span class="title">Resources</span> </span>&#123;</span><br><span class="line">  <span class="meta">@NonNull</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Resources mOriginRes;</span><br><span class="line">  <span class="keyword">private</span> Context context;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">CustomResourcesWrapper</span><span class="params">(Context context, @NonNull Resources originRes)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(originRes.getAssets(), originRes.getDisplayMetrics(), originRes.getConfiguration());</span><br><span class="line">    <span class="keyword">this</span>.context = context;</span><br><span class="line">    <span class="keyword">this</span>.mOriginRes = originRes;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@NonNull</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">getString</span><span class="params">(@StringRes <span class="keyword">int</span> id)</span> <span class="keyword">throws</span> NotFoundException </span>&#123;</span><br><span class="line">    <span class="comment">// 是否需要加载自定义资源</span></span><br><span class="line">    <span class="keyword">if</span> (condition) &#123;</span><br><span class="line">      <span class="keyword">return</span> CustomStringManager.get(mOriginRes, id);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> mOriginRes.getString(id);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 除了要处理getString，还要处理getText()，代码这里就不重复写了</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 这些无需被当前类代理的方法需要转发给原来的Resources处理</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Drawable <span class="title">getDrawable</span><span class="params">(@DrawableRes <span class="keyword">int</span> id)</span> <span class="keyword">throws</span> NotFoundException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> mOriginRes.getDrawable(id);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 省略很多方法的实现...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这两个核心类完成后，还需要将其挂载到Activity与Application上：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// BaseActivity.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> ContextWrapper mContextWrapper;</span><br><span class="line">  <span class="keyword">private</span> Context baseContext;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Context <span class="title">getBaseContext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mContextWrapper != <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> mContextWrapper.getBaseContext();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">super</span>.getBaseContext();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Context <span class="title">getOriginContext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> baseContext;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">attachBaseContext</span><span class="params">(Context newBase)</span> </span>&#123;</span><br><span class="line">    baseContext = newBase;</span><br><span class="line">    mContextWrapper = CustomContextWrapper.wrap(newBase);</span><br><span class="line">    <span class="keyword">super</span>.attachBaseContext(mContextWrapper);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MyApplication.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyApplication</span> <span class="keyword">extends</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> ContextWrapper mContextWrapper;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Context <span class="title">getBaseContext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mContextWrapper != <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> mContextWrapper.getBaseContext();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">super</span>.getBaseContext();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">attachBaseContext</span><span class="params">(Context base)</span> </span>&#123;</span><br><span class="line">    mContextWrapper = CustomContextWrapper.wrap(base);</span><br><span class="line">    <span class="keyword">super</span>.attachBaseContext(mContextWrapper);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onCreate();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      CustomStringManager.init(<span class="keyword">this</span>, <span class="string">"custom"</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后再简单讲一下前面都没怎么提到的CustomStringManager，从结构上看，其实也不难猜出，这个类的定位就相当于我们自定义的一个AssetManager，它的作用就是帮我们读取与管理我们自定义的字符串资源。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomStringManager</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">get</span><span class="params">(Resources resources, <span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> stringSparseArray.get(id);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(Context context, String assetsName)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="comment">// 将Xml文件解析进入stringInfo</span></span><br><span class="line">    String[] list = context.getAssets().list(assetsName);</span><br><span class="line">    <span class="keyword">for</span> (String name : list) &#123;</span><br><span class="line">      initStrings(context, assetsName, name);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 将xml解析出来的StringInfo与drawableId绑定在一起</span></span><br><span class="line">    <span class="keyword">for</span> (String key : strings.keySet()) &#123;</span><br><span class="line">      <span class="keyword">int</span> identifier = context.getResources().getIdentifier(key, <span class="string">"string"</span>, context.getPackageName());</span><br><span class="line">      <span class="keyword">if</span> (identifier &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        stringSparseArray.put(identifier, strings.get(key));</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">initStrings</span><span class="params">(Context context, String assetsName, String localName)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      String[] strings = context.getAssets().list(assetsName + File.separator + localName);</span><br><span class="line">      <span class="keyword">for</span> (String name : strings) &#123;</span><br><span class="line">        Document document = DocumentBuilderFactory</span><br><span class="line">          .newInstance()</span><br><span class="line">          .newDocumentBuilder()</span><br><span class="line">          .parse(context.getAssets().open(assetsName + File.separator + localName + File.separator + name));</span><br><span class="line">        NodeList nodeList = document.getElementsByTagName(<span class="string">"string"</span>);</span><br><span class="line">        <span class="keyword">if</span> (nodeList != <span class="keyword">null</span>) &#123;</span><br><span class="line">          <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nodeList.getLength(); i++) &#123;</span><br><span class="line">            Element item = (Element) nodeList.item(i);</span><br><span class="line">            String key = item.getAttribute(<span class="string">"name"</span>);</span><br><span class="line">            String value = item.getFirstChild().getNodeValue();</span><br><span class="line">            CustomStringManager.strings.put(key, value);</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="问题与优化"><a href="#问题与优化" class="headerlink" title="问题与优化"></a>问题与优化</h3><h5 id="仍然存在的问题"><a href="#仍然存在的问题" class="headerlink" title="仍然存在的问题"></a>仍然存在的问题</h5><p>这个人解决方案在线上稳定运行了挺久了，目前发现的有以下已知问题</p>
+<ul>
+<li>不支持在xml中直接设置资源：不支持xml中的字符资源引用是因为xml中的字符资源引用是走的View构造函数中的方法调用。以TextView为例，其text的值是在构造函数中通过AssetManager直接获取的，不走Context.getResources()这一链路的逻辑，因此绕过了我们的hook。我们的方案想要生效只有在代码中主动调用getString()。</li>
+<li>在红米2A|红米3|MI NOTE PRO|小米4C这4部手机出现问题，版本在5.0.2或者5.1.1，使用该方法获取自定义资源会抛错。</li>
+</ul>
+<h5 id="进一步优化"><a href="#进一步优化" class="headerlink" title="进一步优化"></a>进一步优化</h5><ul>
+<li><p>如果想要在xml中配置也生效，可能需要考虑换一个方案。仔细想一下，我们的需求其实很类似动态替换资源，换言之，即热更新方案中的资源热更新。因此热更新中的解决方案都可以迁移过来，解决我们这一需求。但是考虑到这一些系列的方法维护成本略高，最终我们没有采用这样的实现。如果想要往这个方向实现的话，可以参考一下 <a href="https://juejin.im/entry/5b021e77f265da0b8e7fb11d" target="_blank" rel="noopener">零私有api调用，实现Android热修复</a></p>
+</li>
+<li><p>针对小米相关手机上的问题，我们做了一定适配，目前是直接放弃这一特性：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomContextWrapper</span> <span class="keyword">extends</span> <span class="title">ContextWrapper</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">CustomContextWrapper</span><span class="params">(Context base)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(base);</span><br><span class="line">		<span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 下面代码是为了确定资源包装类是否在此机器上适用</span></span><br><span class="line">    <span class="comment">// 目前发现在红米2A|红米3|MI NOTE PRO|小米4C这4部手机出现问题，版本在5.0.2或者5.1.1</span></span><br><span class="line">    <span class="comment">// 在这些手机上舍弃了高校版的显示</span></span><br><span class="line">    <span class="keyword">if</span> (android.os.Build.VERSION.SDK_INT &gt;= android.os.Build.VERSION_CODES.LOLLIPOP) &#123;</span><br><span class="line">      Drawable drawable = <span class="keyword">null</span>;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 尝试使用我们的包装类读取Drawable资源，如果能成功失败，说明存在适配问题</span></span><br><span class="line">        drawable = mResourcesWrapper.getDrawable(R.drawable.vector_action_back, mResourcesWrapper.newTheme());</span><br><span class="line">      &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">      &#125;</span><br><span class="line">      mustUseSystemRes = drawable == <span class="keyword">null</span> || !(drawable <span class="keyword">instanceof</span> VectorDrawable);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      mustUseSystemRes = <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Resources <span class="title">getResources</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> mustUseSystemRes ? <span class="keyword">super</span>.getResources() : mResourcesWrapper;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h5 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h5><p>我这里的实现省略了多语言相关的代码，具体实现的时候，CustomStringManager中的缓存需要添加所需所有语言资源的缓存，而不是像上文一样只实现了一种。</p>
+<p>其次，还需要做一些配置，以满足动态切换语言，参考文章 <a href="https://www.jianshu.com/p/cfb8ca877d94" target="_blank" rel="noopener">Android 国际化（多语言）兼容8.0</a></p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://juejin.im/entry/5b021e77f265da0b8e7fb11d" target="_blank" rel="noopener">零私有api调用，实现Android热修复</a></p>
+<p><a href="https://www.jianshu.com/p/cfb8ca877d94" target="_blank" rel="noopener">Android 国际化（多语言）兼容8.0</a></p>
+<p><a href="https://blog.csdn.net/yuanzeyao/article/details/12955459" target="_blank" rel="noopener">更深层次的理解Context</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/软件设计/" rel="tag"># 软件设计</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/20/Android数据库更新设计/" rel="next" title="Android数据库更新设计">
+                <i class="fa fa-chevron-left"></i> Android数据库更新设计
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/pixel.png"
+                alt="xybean" />
+            
+              <p class="site-author-name" itemprop="name">xybean</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/xybean" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xybcoder@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#项目背景"><span class="nav-number">1.</span> <span class="nav-text">项目背景</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#需求描述"><span class="nav-number">1.0.1.</span> <span class="nav-text">需求描述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#问题分析"><span class="nav-number">1.0.2.</span> <span class="nav-text">问题分析</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Android字符资源加载源码分析"><span class="nav-number">2.</span> <span class="nav-text">Android字符资源加载源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#关键类"><span class="nav-number">2.0.1.</span> <span class="nav-text">关键类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#类初始化、关键类之间的关系建立"><span class="nav-number">2.0.2.</span> <span class="nav-text">类初始化、关键类之间的关系建立</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#加载一个字符串资源"><span class="nav-number">2.0.3.</span> <span class="nav-text">加载一个字符串资源</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决问题"><span class="nav-number">3.</span> <span class="nav-text">解决问题</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#核心思路"><span class="nav-number">3.0.1.</span> <span class="nav-text">核心思路</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#关键类与方法"><span class="nav-number">3.0.2.</span> <span class="nav-text">关键类与方法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题与优化"><span class="nav-number">4.</span> <span class="nav-text">问题与优化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#仍然存在的问题"><span class="nav-number">4.0.1.</span> <span class="nav-text">仍然存在的问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#进一步优化"><span class="nav-number">4.0.2.</span> <span class="nav-text">进一步优化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#其他"><span class="nav-number">4.0.3.</span> <span class="nav-text">其他</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xybean</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+  
+
+</body>
+</html>
